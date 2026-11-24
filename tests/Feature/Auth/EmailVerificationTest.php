@@ -30,13 +30,18 @@ class EmailVerificationTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_unverified_users_are_redirected_to_the_email_verification_prompt(): void
+    public function test_unverified_users_can_use_the_app_and_verify_from_profile(): void
     {
         $user = User::factory()->unverified()->create();
 
-        $response = $this->actingAs($user)->get(route('appearance.edit'));
+        $this->actingAs($user)->get(route('dashboard'))->assertOk();
 
-        $response->assertRedirect(route('verification.notice'));
+        $this->actingAs($user)
+            ->get(route('profile.edit'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('settings/profile')
+                ->where('mustVerifyEmail', true));
     }
 
     public function test_email_can_be_verified()

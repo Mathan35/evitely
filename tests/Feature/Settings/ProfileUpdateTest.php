@@ -18,7 +18,13 @@ class ProfileUpdateTest extends TestCase
             ->actingAs($user)
             ->get(route('profile.edit'));
 
-        $response->assertOk();
+        $response
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('settings/profile')
+                ->where('auth.user.id', $user->id)
+                ->where('auth.user.email', $user->email)
+                ->has('mustVerifyEmail'));
     }
 
     public function test_profile_information_can_be_updated()

@@ -1,32 +1,25 @@
 import { Head } from '@inertiajs/react';
 import AppearanceTabs from '@/components/appearance-tabs';
-import Heading from '@/components/heading';
-import { edit as editAppearance } from '@/routes/appearance';
+import { StudioCard } from '@/components/studio/studio-surface';
 
 export default function Appearance() {
     return (
         <>
-            <Head title="Appearance settings" />
+            <Head title="Appearance" />
 
-            <h1 className="sr-only">Appearance settings</h1>
+            <h1 className="sr-only">Appearance</h1>
 
-            <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title="Appearance settings"
-                    description="Update the appearance settings for your account"
-                />
-                <AppearanceTabs />
-            </div>
+            <StudioCard className="min-w-0 p-4 sm:p-6">
+                <h2 className="font-serif text-xl tracking-tight text-zinc-950 sm:text-2xl dark:text-white">
+                    Theme
+                </h2>
+                <p className="mt-1 text-sm text-pretty text-zinc-500">
+                    Choose how the studio looks across light and dark sessions.
+                </p>
+                <div className="mt-6">
+                    <AppearanceTabs />
+                </div>
+            </StudioCard>
         </>
     );
 }
-
-Appearance.layout = {
-    breadcrumbs: [
-        {
-            title: 'Appearance settings',
-            href: editAppearance(),
-        },
-    ],
-};

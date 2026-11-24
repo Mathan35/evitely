@@ -11,9 +11,11 @@ import { store } from '@/routes/register';
 
 type Props = {
     passwordRules: string;
+    referral_code?: string;
+    partner_code?: string;
 };
 
-export default function Register({ passwordRules }: Props) {
+export default function Register({ passwordRules, referral_code = '', partner_code = '' }: Props) {
     return (
         <>
             <Head title="Register" />
@@ -25,6 +27,15 @@ export default function Register({ passwordRules }: Props) {
             >
                 {({ processing, errors }) => (
                     <>
+                        {referral_code ? <input type="hidden" name="referral_code" value={referral_code} /> : null}
+                        {partner_code ? <input type="hidden" name="partner_code" value={partner_code} /> : null}
+                        {(referral_code || partner_code) && (
+                            <p className="rounded-2xl bg-emerald-50 px-3 py-2 text-[12px] text-emerald-900 ring-1 ring-emerald-200/80">
+                                {partner_code
+                                    ? `Partner code ${partner_code} applied — extra free site days when you publish.`
+                                    : `Referral ${referral_code} applied — your friend earns a reward when you publish.`}
+                            </p>
+                        )}
                         <div className="grid gap-6">
                             <div className="grid gap-2">
                                 <Label htmlFor="name">Name</Label>
@@ -36,7 +47,8 @@ export default function Register({ passwordRules }: Props) {
                                     tabIndex={1}
                                     autoComplete="name"
                                     name="name"
-                                    placeholder="Full name"
+                                    placeholder="Your name"
+                                    className="h-11 rounded-2xl border-[#241c16]/10 bg-[#fbf8f3] px-4"
                                 />
                                 <InputError
                                     message={errors.name}
@@ -53,7 +65,8 @@ export default function Register({ passwordRules }: Props) {
                                     tabIndex={2}
                                     autoComplete="email"
                                     name="email"
-                                    placeholder="email@example.com"
+                                    placeholder="you@studio.com"
+                                    className="h-11 rounded-2xl border-[#241c16]/10 bg-[#fbf8f3] px-4"
                                 />
                                 <InputError message={errors.email} />
                             </div>
@@ -68,6 +81,7 @@ export default function Register({ passwordRules }: Props) {
                                     name="password"
                                     placeholder="Password"
                                     passwordrules={passwordRules}
+                                    className="h-11 rounded-2xl border-[#241c16]/10 bg-[#fbf8f3] px-4"
                                 />
                                 <InputError message={errors.password} />
                             </div>
@@ -84,6 +98,7 @@ export default function Register({ passwordRules }: Props) {
                                     name="password_confirmation"
                                     placeholder="Confirm password"
                                     passwordrules={passwordRules}
+                                    className="h-11 rounded-2xl border-[#241c16]/10 bg-[#fbf8f3] px-4"
                                 />
                                 <InputError
                                     message={errors.password_confirmation}
@@ -92,19 +107,19 @@ export default function Register({ passwordRules }: Props) {
 
                             <Button
                                 type="submit"
-                                className="mt-2 w-full"
+                                className="mt-2 h-11 w-full rounded-full bg-[#c6a36a] text-white shadow-sm hover:bg-[#b8945b]"
                                 tabIndex={5}
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}
-                                Create account
+                                Design your first invite
                             </Button>
                         </div>
 
-                        <div className="text-center text-sm text-muted-foreground">
+                        <div className="text-center text-sm text-[#5e554c]">
                             Already have an account?{' '}
                             <TextLink href={login()} tabIndex={6}>
-                                Log in
+                                Welcome back
                             </TextLink>
                         </div>
                     </>
@@ -115,6 +130,6 @@ export default function Register({ passwordRules }: Props) {
 }
 
 Register.layout = {
-    title: 'Create an account',
-    description: 'Enter your details below to create your account',
+    title: 'Begin your celebration',
+    description: 'Use the studio now. Confirm your email later from Profile settings.',
 };

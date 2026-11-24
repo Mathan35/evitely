@@ -2,11 +2,23 @@
 
 namespace App\Providers;
 
+use App\Http\Responses\ModalAwareLoginResponse;
+use App\Http\Responses\ModalAwareRegisterResponse;
+use App\Models\User;
+use App\Models\WeddingGuest;
+use App\Policies\GuestPolicy;
+use App\Services\Admin\IntegrationSecretsService;
+use App\Services\Growth\GrowthService;
+use App\Services\PlatformReadinessService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Cashier\Cashier;
+use Laravel\Fortify\Contracts\LoginResponse;
+use Laravel\Fortify\Contracts\RegisterResponse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +27,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(LoginResponse::class, ModalAwareLoginResponse::class);
+        $this->app->singleton(RegisterResponse::class, ModalAwareRegisterResponse::class);
     }
 
     /**
@@ -23,7 +36,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Cashier::ignoreRoutes();
         $this->configureDefaults();
+
+        try {
+            app(IntegrationSecretsService::class)->applyToConfig();
+        } catch (\Throwable) {
+            // Table may not exist yet during migrate / first boot.
+        }
+
+        try {
+            app(GrowthService::class)->seedPartnerCodes();
+        } catch (\Throwable) {
+            // Partner table may not exist yet during migrate.
+        }
     }
 
     /**
@@ -31,6 +57,12 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function configureDefaults(): void
     {
+        Gate::policy(WeddingGuest::class, GuestPolicy::class);
+
+        Gate::define('platform-admin', function (?User $user): bool {
+            return $user !== null && app(PlatformReadinessService::class)->isAdmin($user);
+        });
+
         Date::use(CarbonImmutable::class);
 
         DB::prohibitDestructiveCommands(

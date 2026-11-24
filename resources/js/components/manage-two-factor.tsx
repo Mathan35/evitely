@@ -59,13 +59,14 @@ export default function ManageTwoFactor(props: Props) {
                         application on your phone.
                     </p>
 
-                    <div className="relative inline">
+                    <div className="relative w-full sm:inline sm:w-auto">
                         <Form {...disable.form()}>
                             {({ processing }) => (
                                 <Button
                                     variant="destructive"
                                     type="submit"
                                     disabled={processing}
+                                    className="h-11 w-full rounded-full sm:h-10 sm:w-auto"
                                 >
                                     Disable 2FA
                                 </Button>
@@ -88,9 +89,12 @@ export default function ManageTwoFactor(props: Props) {
                         phone.
                     </p>
 
-                    <div>
+                    <div className="w-full sm:w-auto">
                         {hasSetupData ? (
-                            <Button onClick={() => setShowSetupModal(true)}>
+                            <Button
+                                onClick={() => setShowSetupModal(true)}
+                                className="h-11 w-full rounded-full sm:h-10 sm:w-auto"
+                            >
                                 <ShieldCheck />
                                 Continue setup
                             </Button>
@@ -100,7 +104,11 @@ export default function ManageTwoFactor(props: Props) {
                                 onSuccess={() => setShowSetupModal(true)}
                             >
                                 {({ processing }) => (
-                                    <Button type="submit" disabled={processing}>
+                                    <Button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="h-11 w-full rounded-full sm:h-10 sm:w-auto"
+                                    >
                                         Enable 2FA
                                     </Button>
                                 )}

@@ -42,7 +42,8 @@ export default function Login({ status, canResetPassword }: Props) {
                                     autoFocus
                                     tabIndex={1}
                                     autoComplete="email"
-                                    placeholder="email@example.com"
+                                    placeholder="you@studio.com"
+                                    className="h-11 rounded-2xl border-[#241c16]/10 bg-[#fbf8f3] px-4"
                                 />
                                 <InputError message={errors.email} />
                             </div>
@@ -67,6 +68,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                     tabIndex={2}
                                     autoComplete="current-password"
                                     placeholder="Password"
+                                    className="h-11 rounded-2xl border-[#241c16]/10 bg-[#fbf8f3] px-4"
                                 />
                                 <InputError message={errors.password} />
                             </div>
@@ -82,20 +84,20 @@ export default function Login({ status, canResetPassword }: Props) {
 
                             <Button
                                 type="submit"
-                                className="mt-4 w-full"
+                                className="mt-2 h-11 w-full rounded-full bg-[#c6a36a] text-white shadow-sm hover:bg-[#b8945b]"
                                 tabIndex={4}
                                 disabled={processing}
                                 data-test="login-button"
                             >
                                 {processing && <Spinner />}
-                                Log in
+                                Open the studio
                             </Button>
                         </div>
 
-                        <div className="text-center text-sm text-muted-foreground">
+                        <div className="text-center text-sm text-[#5e554c]">
                             Don't have an account?{' '}
                             <TextLink href={register()} tabIndex={5}>
-                                Sign up
+                                Create one
                             </TextLink>
                         </div>
                     </>
@@ -112,6 +114,6 @@ export default function Login({ status, canResetPassword }: Props) {
 }
 
 Login.layout = {
-    title: 'Log in to your account',
-    description: 'Enter your email and password below to log in',
+    title: 'Welcome back',
+    description: 'Open the studio. Your cards, websites, and guest replies are waiting.',
 };

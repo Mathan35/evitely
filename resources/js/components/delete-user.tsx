@@ -1,7 +1,6 @@
 import { Form } from '@inertiajs/react';
 import { useRef } from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
-import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
@@ -20,17 +19,20 @@ export default function DeleteUser() {
     const passwordInput = useRef<HTMLInputElement>(null);
 
     return (
-        <div className="space-y-6">
-            <Heading
-                variant="small"
-                title="Delete account"
-                description="Delete your account and all of its resources"
-            />
-            <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
-                <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
-                    <p className="font-medium">Warning</p>
-                    <p className="text-sm">
-                        Please proceed with caution, this cannot be undone.
+        <div className="space-y-4">
+            <div>
+                <h2 className="font-serif text-xl tracking-tight text-zinc-950 sm:text-2xl dark:text-white">
+                    Delete account
+                </h2>
+                <p className="mt-1 text-sm text-pretty text-zinc-500">
+                    Permanently remove your account and every invitation attached to it.
+                </p>
+            </div>
+            <div className="space-y-4 rounded-2xl border border-rose-200/80 bg-rose-50/80 p-4 sm:p-5 dark:border-rose-400/20 dark:bg-rose-500/10">
+                <div className="relative space-y-0.5 text-rose-700 dark:text-rose-100">
+                    <p className="font-medium">This cannot be undone</p>
+                    <p className="text-sm opacity-90">
+                        Events, guests, analytics, and published links will be deleted with your account.
                     </p>
                 </div>
 
@@ -39,11 +41,12 @@ export default function DeleteUser() {
                         <Button
                             variant="destructive"
                             data-test="delete-user-button"
+                            className="h-11 w-full rounded-full sm:w-auto"
                         >
                             Delete account
                         </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="max-w-[calc(100vw-2rem)] rounded-2xl sm:max-w-lg">
                         <DialogTitle>
                             Are you sure you want to delete your account?
                         </DialogTitle>

@@ -1,21 +1,27 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/react-starter-kit",
+    "name": "evitely/app",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Evitely — digital invitations and guest websites.",
     "keywords": [
-        "laravel",
-        "framework"
+        "evitely",
+        "invitations",
+        "laravel"
     ],
     "license": "MIT",
     "require": {
         "php": "^8.3",
         "inertiajs/inertia-laravel": "^3.0",
+        "laravel/cashier": "^16.11",
         "laravel/chisel": "^0.1.0",
         "laravel/fortify": "^1.37.2",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
-        "laravel/wayfinder": "^0.1.14"
+        "laravel/wayfinder": "^0.1.14",
+        "razorpay/razorpay": "^2.9",
+        "resend/resend-php": "^1.19",
+        "stichoza/google-translate-php": "^5.3",
+        "twilio/sdk": "^8.14"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",
@@ -53,7 +59,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "@php artisan dev"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=0\" \"npm run dev\" --names='server,queue,vite'"
         ],
         "lint": [
             "pint --parallel"
@@ -99,8 +105,7 @@
         "laravel": {
             "dont-discover": [],
             "installer": {
-                "post-create-project": [
-                ]
+                "post-create-project": []
             }
         }
     },

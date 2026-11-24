@@ -1,0 +1,107 @@
+export type GalleryPalette = {
+    paper: string;
+    ink: string;
+    gold: string;
+    accent: string;
+    muted: string;
+};
+
+export type GallerySample = {
+    hosts: string;
+    kicker: string;
+    when: string;
+    where: string;
+    modules: string[];
+    kind?: 'wedding' | 'housewarming' | string;
+    blessing?: string | null;
+    request_line?: string | null;
+    headline?: string | null;
+    headline_sub?: string | null;
+    bride?: string | null;
+    groom?: string | null;
+    message?: string | null;
+    event_name?: string | null;
+    date_label?: string | null;
+    ceremony_time?: string | null;
+    reception_time?: string | null;
+    puja_time?: string | null;
+    meal_time?: string | null;
+    venue_name?: string | null;
+    venue_address?: string | null;
+    map_url?: string | null;
+    rsvp_line?: string | null;
+    dress_code?: string | null;
+    hashtag?: string | null;
+    gift_note?: string | null;
+    compliments?: string | null;
+    hosted_by?: string | null;
+    contact?: string | null;
+};
+
+export type GalleryDesign = {
+    id: string;
+    name: string;
+    kind: 'link' | 'card';
+    style_key: string;
+    style: string;
+    moods?: string[];
+    kicker?: string | null;
+    layout: string;
+    format: string;
+    theme: string;
+    event_type: string;
+    image?: string | null;
+    image_mobile?: string | null;
+    image_desktop?: string | null;
+    image_width?: number;
+    image_height?: number;
+    image_2x?: string | null;
+    image_4x?: string | null;
+    image_8k?: string | null;
+    image_complete?: boolean;
+    palette: GalleryPalette;
+    sample: GallerySample;
+};
+
+export type GalleryOccasion = {
+    slug: string;
+    name: string;
+    href: string;
+    event_type?: string;
+    heading?: string;
+    description?: string;
+    links?: GalleryDesign[];
+    cards?: GalleryDesign[];
+    link_count?: number;
+    card_count?: number;
+};
+
+export type EventGallery = {
+    slug: string;
+    event_type: string;
+    name: string;
+    heading: string;
+    heading_links?: string;
+    heading_cards?: string;
+    description: string;
+    description_links?: string;
+    description_cards?: string;
+    grid_title_links?: string;
+    grid_title_cards?: string;
+    moods?: string[];
+    default_tab?: 'links' | 'cards';
+    default_mood?: string;
+    search_placeholder?: string;
+    search_placeholder_links?: string;
+    search_placeholder_cards?: string;
+    show_planning_cta?: boolean;
+    tab_helper_links?: string;
+    tab_helper_cards?: string;
+    brand_pill?: string | null;
+    breadcrumb?: string | null;
+    hide_toolbar_meta?: boolean;
+    hide_search?: boolean;
+    layout?: 'tabs' | 'split';
+    links: GalleryDesign[];
+    cards: GalleryDesign[];
+};

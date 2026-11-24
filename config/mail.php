@@ -14,7 +14,12 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'log'),
+    'default' => env(
+        'MAIL_MAILER',
+        filled(env('TWILIO_SENDGRID_API_KEY')) || filled(env('SENDGRID_API_KEY'))
+            ? 'twilio_email'
+            : (filled(env('RESEND_API_KEY')) ? 'resend' : 'log'),
+    ),
 
     /*
     |--------------------------------------------------------------------------
@@ -65,6 +70,22 @@ return [
             'transport' => 'resend',
         ],
 
+        /*
+         * Twilio Email = SendGrid SMTP. Set TWILIO_SENDGRID_API_KEY (or SENDGRID_API_KEY).
+         * Prefer MAIL_MAILER=twilio_email or failover in production.
+         */
+        'twilio_email' => [
+            'transport' => 'smtp',
+            'scheme' => env('TWILIO_EMAIL_SCHEME', 'smtp'),
+            'url' => env('TWILIO_EMAIL_URL'),
+            'host' => env('TWILIO_EMAIL_HOST', 'smtp.sendgrid.net'),
+            'port' => env('TWILIO_EMAIL_PORT', 587),
+            'username' => env('TWILIO_EMAIL_USERNAME', 'apikey'),
+            'password' => env('TWILIO_SENDGRID_API_KEY', env('SENDGRID_API_KEY')),
+            'timeout' => null,
+            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+        ],
+
         'sendmail' => [
             'transport' => 'sendmail',
             'path' => env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail -bs -i'),
@@ -79,10 +100,14 @@ return [
             'transport' => 'array',
         ],
 
+        /*
+         * Prefer Twilio SendGrid, then Resend, then log.
+         */
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
-                'smtp',
+                'twilio_email',
+                'resend',
                 'log',
             ],
             'retry_after' => 60,
@@ -91,8 +116,8 @@ return [
         'roundrobin' => [
             'transport' => 'roundrobin',
             'mailers' => [
-                'ses',
-                'postmark',
+                'twilio_email',
+                'resend',
             ],
             'retry_after' => 60,
         ],
@@ -112,7 +137,7 @@ return [
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
+        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Evitely')),
     ],
 
 ];

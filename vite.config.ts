@@ -12,9 +12,14 @@ export default defineConfig({
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
             refresh: true,
+            // UI fonts only — card/decorative faces load via editor-fonts.css on demand.
             fonts: [
                 bunny('Instrument Sans', {
                     weights: [400, 500, 600],
+                }),
+                bunny('Cormorant Garamond', {
+                    weights: [500, 600],
+                    styles: ['normal', 'italic'],
                 }),
             ],
         }),
@@ -28,6 +33,26 @@ export default defineConfig({
             formVariants: true,
         }),
     ]),
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (!id.includes('node_modules')) {
+                        return;
+                    }
+                    if (id.includes('@inertiajs') || id.includes('laravel-vite-plugin')) {
+                        return 'inertia';
+                    }
+                    if (id.includes('react-dom') || id.includes('/react/') || id.endsWith('/react')) {
+                        return 'react';
+                    }
+                    if (id.includes('lucide-react')) {
+                        return 'icons';
+                    }
+                },
+            },
+        },
+    },
     server: {
         watch: {
             ignored: [
