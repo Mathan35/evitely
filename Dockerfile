@@ -35,11 +35,15 @@ RUN npm ci --include=dev
 
 COPY . .
 
-RUN composer dump-autoload --optimize \
+# Build-time only — runtime APP_KEY comes from Render (generateValue).
+# Without a key, package:discover / wayfinder / vite PHP hooks fail the image build.
+RUN php -r "file_put_contents('.env', 'APP_KEY=base64:'.base64_encode(random_bytes(32)).PHP_EOL.'APP_ENV=staging'.PHP_EOL);" \
+    && composer dump-autoload --optimize \
     && php artisan package:discover --ansi \
     && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
     && php artisan wayfinder:generate --with-form || true \
     && npm run build \
+    && rm -f .env \
     && rm -rf node_modules \
     && sed -i 's/\r$//' scripts/container-start.sh scripts/railway-start.sh \
     && chmod +x scripts/container-start.sh scripts/railway-start.sh

@@ -1,6 +1,9 @@
 # Evitely — Render FREE staging (testing only; spins down after ~15 min idle)
 # Deploy: Render Dashboard → New → Blueprint → connect this repo → render.yaml
 # Free Postgres expires ~30 days after creation — fine for testing.
+#
+# After fixing a failed Blueprint, either:
+#   Dashboard → Blueprint → Sync / Manual Deploy, or push to main (auto-deploy).
 
 services:
   - type: web
@@ -9,7 +12,7 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    healthCheckPath: /
+    healthCheckPath: /up
     envVars:
       - key: APP_NAME
         value: Evitely
@@ -17,6 +20,8 @@ services:
         value: staging
       - key: APP_DEBUG
         value: "true"
+      - key: APP_KEY
+        generateValue: true
       - key: LOG_CHANNEL
         value: stderr
       - key: LOG_LEVEL
@@ -33,11 +38,12 @@ services:
         value: "false"
       - key: DB_CONNECTION
         value: pgsql
+      - key: DB_SSLMODE
+        value: require
       - key: MAIL_MAILER
         value: log
-      # APP_KEY + APP_URL are set at boot from scripts/container-start.sh
-      # (APP_URL uses RENDER_EXTERNAL_URL that Render injects automatically)
-      - key: DATABASE_URL
+      # Laravel 11+ reads DB_URL (not DATABASE_URL)
+      - key: DB_URL
         fromDatabase:
           name: evitely-staging-db
           property: connectionString
