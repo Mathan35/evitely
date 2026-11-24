@@ -1,0 +1,40 @@
+Evitely — Oracle Always Free STAGING deploy
+===========================================
+
+A) Create free Oracle account
+   https://www.oracle.com/cloud/free/
+
+B) Create Always Free ARM VM (Compute → Instances → Create)
+   - Image: Canonical Ubuntu 22.04 (AArch64)
+   - Shape: VM.Standard.A1.Flex  (Always Free eligible)
+     Start with 2 OCPU + 12 GB RAM (or whatever free capacity allows)
+   - Networking: assign PUBLIC IP
+   - SSH key: paste your public key
+   - Advanced → Initialization script: paste cloud-init.yaml from this folder
+   - Create instance, wait until RUNNING, copy Public IP
+
+C) Open ports (VCN → Security List → Ingress)
+   - TCP 22  from your IP (SSH)
+   - TCP 80  from 0.0.0.0/0  (HTTP)
+   - TCP 443 from 0.0.0.0/0  (HTTPS later)
+
+D) SSH in
+   ssh -i YOUR_KEY ubuntu@PUBLIC_IP
+
+E) First deploy (on the VM)
+   sudo mkdir -p /var/www/evitely-staging
+   sudo chown -R ubuntu:ubuntu /var/www/evitely-staging
+   cd /var/www/evitely-staging
+   REPO_URL=https://github.com/Mathan35/wedding-invitation.git \
+     bash -c 'git clone --branch main "$REPO_URL" .'
+   # If cloud-init finished, MySQL user/db already exist — update password in .env
+   cp deploy/oracle/.env.staging.example .env
+   # Edit .env: APP_URL=http://PUBLIC_IP  and DB_PASSWORD
+   php /usr/local/bin/composer  # or composer after PATH ready
+   # Easier: run the helper:
+   bash deploy/oracle/deploy-staging.sh
+
+F) Open staging
+   http://PUBLIC_IP
+
+Live env later: second Nginx site + evitely_live DB on the same VM.
