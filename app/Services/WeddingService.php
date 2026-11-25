@@ -24,9 +24,13 @@ class WeddingService
     {
         $user = User::query()->findOrFail($userId);
         $billing = app(BillingService::class);
-        $billing->assertCanCreateEvent($user);
-        // Free-trial first invite: switching templates replaces the unsaved draft.
-        if ($billing->eventLimit($user) !== null) {
+        $mode = is_string($attributes['invitation_mode'] ?? null)
+            ? (string) $attributes['invitation_mode']
+            : null;
+        $billing->assertCanCreateEvent($user, $mode);
+        // Free-trial first site: switching templates replaces the unsaved draft.
+        // Cards never consume the site slot, so do not discard drafts when creating a card.
+        if ($billing->eventLimit($user) !== null && $mode !== 'card') {
             $billing->discardUnlistedDrafts($user);
         }
 
@@ -188,7 +192,7 @@ class WeddingService
     public function duplicate(Wedding $wedding): Wedding
     {
         $owner = User::query()->findOrFail($wedding->user_id);
-        app(BillingService::class)->assertCanCreateEvent($owner);
+        app(BillingService::class)->assertCanCreateEvent($owner, $wedding->invitation_mode);
 
         return DB::transaction(function () use ($wedding): Wedding {
             $copy = $wedding->replicate([

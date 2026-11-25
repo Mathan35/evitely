@@ -13,10 +13,15 @@ php -v
 composer2 --version || composer --version
 
 echo "==> Install PHP deps"
+# Hostinger often disables proc_open; skip scripts then discover packages separately.
+COMPOSER_BIN="composer"
 if command -v composer2 >/dev/null 2>&1; then
-  composer2 install --no-dev --optimize-autoloader --no-interaction
-else
-  composer install --no-dev --optimize-autoloader --no-interaction
+  COMPOSER_BIN="composer2"
+fi
+if ! $COMPOSER_BIN install --no-dev --optimize-autoloader --no-interaction; then
+  echo "Composer scripts failed (often missing proc_open). Retrying with --no-scripts..."
+  $COMPOSER_BIN install --no-dev --optimize-autoloader --no-interaction --no-scripts
+  php artisan package:discover --ansi || true
 fi
 
 if [[ ! -f .env ]]; then

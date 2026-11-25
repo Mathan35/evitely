@@ -70,64 +70,65 @@ export default function AppSidebarLayout({
     return (
         <div className="min-h-svh min-w-0 overflow-x-clip bg-background text-foreground">
             <header className="sticky top-0 z-40 border-b border-zinc-950/8 bg-background/90 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] backdrop-blur-xl dark:border-white/10 dark:shadow-none">
-                <div className="mx-auto flex h-14 w-full min-w-0 max-w-7xl items-center gap-3 px-4 sm:h-16 sm:gap-4 sm:px-6">
-                    <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-                        <SheetTrigger asChild>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                className="size-10 shrink-0 rounded-full border-zinc-950/10 bg-white/80 lg:hidden dark:border-white/10 dark:bg-zinc-900/70"
-                                aria-label="Open menu"
+                <div className="mx-auto grid h-14 w-full min-w-0 max-w-7xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-4 sm:h-16 sm:gap-3 sm:px-6">
+                    <div className="flex min-w-0 items-center gap-2 justify-self-start sm:gap-3">
+                        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                            <SheetTrigger asChild>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    className="size-10 shrink-0 rounded-full border-zinc-950/10 bg-white/80 lg:hidden dark:border-white/10 dark:bg-zinc-900/70"
+                                    aria-label="Open menu"
+                                >
+                                    <Menu className="size-5" />
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent
+                                side="left"
+                                className="flex w-[min(100%,20rem)] flex-col gap-0 border-zinc-950/10 bg-[linear-gradient(180deg,#fafafa_0%,#f4f4f5_48%,#eef2f0_100%)] p-0 dark:border-white/10 dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#111113_100%)]"
                             >
-                                <Menu className="size-5" />
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent
-                            side="left"
-                            className="flex w-[min(100%,20rem)] flex-col gap-0 border-zinc-950/10 bg-[linear-gradient(180deg,#fafafa_0%,#f4f4f5_48%,#eef2f0_100%)] p-0 dark:border-white/10 dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#111113_100%)]"
-                        >
-                            <SheetHeader className="border-b border-zinc-950/8 px-5 py-5 text-left dark:border-white/10">
-                                <BrandMark href="/" />
-                                <SheetTitle className="sr-only">Studio menu</SheetTitle>
-                                <SheetDescription className="mt-2 text-sm text-zinc-500">
-                                    Jump between your events, guests, and analytics.
-                                </SheetDescription>
-                            </SheetHeader>
+                                <SheetHeader className="border-b border-zinc-950/8 px-5 py-5 text-left dark:border-white/10">
+                                    <BrandMark href="/" />
+                                    <SheetTitle className="sr-only">Studio menu</SheetTitle>
+                                    <SheetDescription className="mt-2 text-sm text-zinc-500">
+                                        Jump between your events, guests, and analytics.
+                                    </SheetDescription>
+                                </SheetHeader>
 
-                            <StudioNavSheetLinks onNavigate={() => setMobileOpen(false)} />
+                                <StudioNavSheetLinks onNavigate={() => setMobileOpen(false)} />
 
-                            <div className="border-t border-zinc-950/8 p-4 dark:border-white/10">
-                                <Link
-                                    href="/events?create=1"
-                                    onClick={() => setMobileOpen(false)}
-                                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-zinc-950 text-sm font-medium text-white shadow-lg shadow-zinc-950/20 dark:bg-white dark:text-zinc-950"
-                                >
-                                    <Plus className="size-4" />
-                                    Create Invitation
-                                </Link>
-                                <Link
-                                    href="/"
-                                    onClick={() => setMobileOpen(false)}
-                                    className="mt-3 block text-center text-sm text-zinc-500 hover:text-zinc-950 dark:hover:text-white"
-                                >
-                                    Back to home
-                                </Link>
-                            </div>
-                        </SheetContent>
-                    </Sheet>
+                                <div className="border-t border-zinc-950/8 p-4 dark:border-white/10">
+                                    <Link
+                                        href="/events?create=1"
+                                        onClick={() => setMobileOpen(false)}
+                                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-zinc-950 text-sm font-medium text-white shadow-lg shadow-zinc-950/20 dark:bg-white dark:text-zinc-950"
+                                    >
+                                        <Plus className="size-4" />
+                                        Create Invitation
+                                    </Link>
+                                    <Link
+                                        href="/"
+                                        onClick={() => setMobileOpen(false)}
+                                        className="mt-3 block text-center text-sm text-zinc-500 hover:text-zinc-950 dark:hover:text-white"
+                                    >
+                                        Back to home
+                                    </Link>
+                                </div>
+                            </SheetContent>
+                        </Sheet>
 
-                    <div className="shrink-0">
-                        <BrandMark href="/" showName={false} className="lg:hidden" />
-                        <BrandMark href="/" className="hidden lg:inline-flex" />
+                        <div className="shrink-0">
+                            <BrandMark href="/" showName={false} className="lg:hidden" />
+                            <BrandMark href="/" className="hidden lg:inline-flex" />
+                        </div>
                     </div>
 
-                    <StudioNavLinks
-                        showIcons
-                        className="ml-1 hidden min-w-0 lg:flex xl:ml-2"
-                    />
+                    <div className="hidden min-w-0 justify-self-center lg:block">
+                        <StudioNavLinks showIcons className="min-w-0" />
+                    </div>
 
-                    <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-2.5">
+                    <div className="flex min-w-0 shrink-0 items-center justify-end gap-2 justify-self-end sm:gap-2.5">
                         <ThemeToggle />
                         <StudioSettingsIconLink />
                         <Link

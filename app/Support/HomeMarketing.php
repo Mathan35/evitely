@@ -21,7 +21,7 @@ class HomeMarketing
      */
     public static function payload(): array
     {
-        return Cache::remember('home.marketing.payload.v5', 120, static function (): array {
+        return Cache::remember('home.marketing.payload.v6', 120, static function (): array {
             return [
                 'designs' => self::designStrip(),
                 'samples' => self::samples(),
@@ -75,20 +75,23 @@ class HomeMarketing
     }
 
     /**
-     * Prefer live published invites; third slot is Black Tie Grandeur (filled sample art).
+     * Prefer live published guest sites; fall back to catalog site designs so home
+     * always shows site samples alongside the Black Tie card.
      *
-     * @return list<array{eyebrow: string, title: string, text: string, href: string, cta: string, image: string, image_alt: string}>
+     * @return list<array<string, mixed>>
      */
     public static function samples(): array
     {
         $published = Wedding::query()
             ->where('status', WeddingStatus::Published)
+            ->whereIn('invitation_mode', ['link', 'both'])
             ->with('eventType:id,slug,name')
             ->latest('published_at')
             ->limit(8)
             ->get();
 
         $samples = [];
+        $usedIds = [];
 
         $wedding = $published->first(function (Wedding $wedding): bool {
             $slug = Str::lower((string) ($wedding->eventType?->slug ?? ''));
@@ -97,6 +100,7 @@ class HomeMarketing
         }) ?? $published->first(fn (Wedding $w) => str_contains(Str::lower($w->slug), 'wedding') || str_contains(Str::lower($w->slug), 'aria'));
 
         if ($wedding) {
+            $usedIds[] = $wedding->id;
             $samples[] = [
                 'eyebrow' => 'Live wedding site',
                 'title' => $wedding->title,
@@ -106,24 +110,57 @@ class HomeMarketing
                 'image' => self::coverOr('/images/wedding/hero-phones.jpg', $wedding->cover_image),
                 'image_alt' => $wedding->title.' invitation preview',
             ];
+        } else {
+            $fallback = self::catalogSiteSample(
+                'wedding-link-black-tie',
+                'Sample wedding site',
+                'Open a full guest website — countdown, story, venue, and RSVP.',
+            );
+            if ($fallback !== null) {
+                $samples[] = $fallback;
+            }
         }
 
-        $corporate = $published->first(function (Wedding $wedding): bool {
+        $second = $published->first(function (Wedding $wedding) use ($usedIds): bool {
+            if (in_array($wedding->id, $usedIds, true)) {
+                return false;
+            }
+
             $slug = Str::lower((string) ($wedding->eventType?->slug ?? ''));
 
-            return str_contains($slug, 'corporate') || str_contains($slug, 'conference') || str_contains(Str::lower($wedding->title), 'summit');
-        });
+            return str_contains($slug, 'corporate')
+                || str_contains($slug, 'conference')
+                || str_contains(Str::lower($wedding->title), 'summit');
+        }) ?? $published->first(fn (Wedding $wedding): bool => ! in_array($wedding->id, $usedIds, true));
 
-        if ($corporate) {
+        if ($second) {
+            $typeSlug = Str::lower((string) ($second->eventType?->slug ?? 'event'));
+            $label = str_contains($typeSlug, 'corporate') || str_contains($typeSlug, 'conference')
+                ? 'Live corporate site'
+                : 'Live '.Str::headline($typeSlug !== '' ? $typeSlug : 'event').' site';
+
             $samples[] = [
-                'eyebrow' => 'Live corporate site',
-                'title' => $corporate->title,
-                'text' => 'See how agendas, speakers, and attendance feel on a phone.',
-                'href' => '/invite/'.$corporate->slug,
+                'eyebrow' => $label,
+                'title' => $second->title,
+                'text' => 'See how agendas, schedule, and guest details feel on a phone.',
+                'href' => '/invite/'.$second->slug,
                 'cta' => 'Open sample',
-                'image' => self::coverOr('/images/home/occasions/corporate-phones.jpg', $corporate->cover_image),
-                'image_alt' => $corporate->title.' invitation preview',
+                'image' => self::coverOr('/images/home/occasions/corporate-phones.jpg', $second->cover_image),
+                'image_alt' => $second->title.' invitation preview',
             ];
+        } else {
+            $fallback = self::catalogSiteSample(
+                'corporate-link-tech-frontier',
+                'Sample corporate site',
+                'See how agendas, speakers, and attendance feel on a phone.',
+            ) ?? self::catalogSiteSample(
+                'birthday-link-midnight-velvet',
+                'Sample birthday site',
+                'Open a guest birthday website — countdown, details, and wishes.',
+            );
+            if ($fallback !== null) {
+                $samples[] = $fallback;
+            }
         }
 
         $blackTie = DesignGallery::find('wedding-card-black-tie');
@@ -143,6 +180,34 @@ class HomeMarketing
         }
 
         return array_values(array_slice($samples, 0, 3));
+    }
+
+    /**
+     * Catalog link design used when no published live site is available.
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function catalogSiteSample(string $designId, string $eyebrow, string $text): ?array
+    {
+        $resolved = DesignGallery::find($designId);
+
+        if ($resolved === null || ($resolved['design']['kind'] ?? '') !== 'link') {
+            return null;
+        }
+
+        $design = $resolved['design'];
+        $slug = (string) $resolved['slug'];
+
+        return [
+            'eyebrow' => $eyebrow,
+            'title' => (string) ($design['name'] ?? 'Guest website'),
+            'text' => $text,
+            'href' => '/designs/'.$slug.'?tab=links',
+            'cta' => 'Open sample site',
+            'image' => (string) ($design['image_mobile'] ?? $design['image'] ?? ''),
+            'image_alt' => (string) ($design['name'] ?? 'Guest website').' invitation preview',
+            'site' => $design,
+        ];
     }
 
     /**

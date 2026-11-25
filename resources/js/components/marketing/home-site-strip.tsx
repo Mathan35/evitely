@@ -282,11 +282,11 @@ export function HomeSiteStrip({ designs }: { designs: HomeSiteDesign[] }) {
     };
 
     const arrowClass =
-        'grid size-9 shrink-0 place-items-center self-center rounded-full border border-[#e7dcc8] bg-white text-[#241c16] shadow-sm transition enabled:hover:border-[#c6a36a] enabled:hover:text-[#c6a36a] disabled:cursor-not-allowed disabled:opacity-30 sm:size-10';
+        'pointer-events-auto absolute top-[5.75rem] z-10 grid size-9 place-items-center rounded-full border border-[#e7dcc8] bg-white/95 text-[#241c16] shadow-[0_8px_20px_-10px_rgba(43,36,28,0.55)] backdrop-blur-sm transition enabled:hover:border-[#c6a36a] enabled:hover:text-[#c6a36a] disabled:cursor-not-allowed disabled:opacity-30 sm:top-[6.5rem] sm:size-10';
 
     return (
         <section className="border-y border-[#e7dcc8]/80 bg-[#faf6ef]/70 py-16 sm:py-20" aria-labelledby="design-strip-heading">
-            <div className="mx-auto max-w-6xl px-5">
+            <div className="mx-auto max-w-6xl px-3 sm:px-4">
                 <p className="text-center text-xs tracking-[0.22em] text-[#8a7d6e] uppercase">Design gallery</p>
                 <h2 id="design-strip-heading" className="mt-3 text-center font-serif text-4xl sm:text-5xl">
                     Guest websites for every occasion
@@ -295,20 +295,20 @@ export function HomeSiteStrip({ designs }: { designs: HomeSiteDesign[] }) {
                     Same site cards as Designs — hover to watch the invite open inside the card.
                 </p>
 
-                <div className="mt-10 grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-2 sm:gap-3">
+                <div className="relative mt-10">
                     <button
                         type="button"
                         aria-label="Previous designs"
                         disabled={!canPrev}
                         onClick={() => scrollByDir(-1)}
-                        className={`${arrowClass} mt-24 sm:mt-28`}
+                        className={cn(arrowClass, 'left-0 -translate-x-1/2')}
                     >
                         <ChevronLeft className="size-4 sm:size-5" />
                     </button>
 
                     <div
                         ref={scrollerRef}
-                        className="flex min-w-0 snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
+                        className="flex min-w-0 snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
                     >
                         {designs.map((design) => (
                             <HomeSiteTile
@@ -337,7 +337,7 @@ export function HomeSiteStrip({ designs }: { designs: HomeSiteDesign[] }) {
                         aria-label="Next designs"
                         disabled={!canNext}
                         onClick={() => scrollByDir(1)}
-                        className={`${arrowClass} mt-24 sm:mt-28`}
+                        className={cn(arrowClass, 'right-0 translate-x-1/2')}
                     >
                         <ChevronRight className="size-4 sm:size-5" />
                     </button>

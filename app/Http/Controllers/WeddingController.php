@@ -95,27 +95,28 @@ class WeddingController extends Controller
         abort_if($user === null, 403);
 
         $billing = app(BillingService::class);
-        if (! $billing->canCreateEvent($user)) {
-            Inertia::flash('toast', [
-                'type' => 'info',
-                'message' => 'Your free trial includes one invitation — open it from My Events, or upgrade to create another.',
-            ]);
-            session()->flash('trial_event_limit', true);
-
-            return redirect()->to('/events?create=1');
-        }
-
-        // Free-trial first invite: switching templates replaces the unsaved draft, not block.
-        if ($billing->eventLimit($user) !== null) {
-            $billing->discardUnlistedDrafts($user);
-        }
-
         $eventType = $request->string('event_type')->toString() ?: 'wedding';
         $galleryTemplate = $request->string('gallery_template')->toString();
         $cardTemplate = $request->string('card_template')->toString();
         $mode = $request->string('invitation_mode')->toString();
         if ($mode === '') {
             $mode = $cardTemplate !== '' && $galleryTemplate === '' ? 'card' : 'link';
+        }
+
+        // Cards are free forever — only guest websites consume the free-trial event slot.
+        if (! $billing->canCreateEvent($user, $mode)) {
+            Inertia::flash('toast', [
+                'type' => 'info',
+                'message' => 'Your free trial includes one guest website — open it from My Events, or upgrade to create another. Invitation cards stay free.',
+            ]);
+            session()->flash('trial_event_limit', true);
+
+            return redirect()->to('/events?create=1');
+        }
+
+        // Free-trial first site: switching templates replaces the unsaved draft, not block.
+        if ($billing->eventLimit($user) !== null && $mode !== 'card') {
+            $billing->discardUnlistedDrafts($user);
         }
         $theme = $request->string('theme')->toString() ?: 'classic';
         $lookupId = $galleryTemplate !== '' ? $galleryTemplate : $cardTemplate;

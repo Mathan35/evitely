@@ -107,114 +107,92 @@ export function MarketingHeader({
 
     return (
         <header className="sticky top-0 z-40 border-b border-zinc-950/8 bg-background/90 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] backdrop-blur-xl dark:border-white/10 dark:shadow-none">
-            <div className="mx-auto flex h-14 w-full max-w-7xl items-center gap-3 px-4 sm:h-16 sm:gap-4 sm:px-6">
-                <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-                    <SheetTrigger asChild>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            className="size-10 shrink-0 rounded-full border-zinc-950/10 bg-white/80 lg:hidden dark:border-white/10 dark:bg-zinc-900/70"
-                            aria-label="Open menu"
+            <div className="mx-auto grid h-14 w-full max-w-7xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-4 sm:h-16 sm:gap-3 sm:px-6">
+                <div className="flex min-w-0 items-center gap-2 justify-self-start sm:gap-3">
+                    <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                        <SheetTrigger asChild>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="size-10 shrink-0 rounded-full border-zinc-950/10 bg-white/80 lg:hidden dark:border-white/10 dark:bg-zinc-900/70"
+                                aria-label="Open menu"
+                            >
+                                <Menu className="size-5" />
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent
+                            side="left"
+                            className="flex w-[min(100%,20rem)] flex-col gap-0 border-zinc-950/10 bg-[linear-gradient(180deg,#fafafa_0%,#f4f4f5_48%,#eef2f0_100%)] p-0 dark:border-white/10 dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#111113_100%)]"
                         >
-                            <Menu className="size-5" />
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent
-                        side="left"
-                        className="flex w-[min(100%,20rem)] flex-col gap-0 border-zinc-950/10 bg-[linear-gradient(180deg,#fafafa_0%,#f4f4f5_48%,#eef2f0_100%)] p-0 dark:border-white/10 dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#111113_100%)]"
-                    >
-                        <SheetHeader className="border-b border-zinc-950/8 px-5 py-5 text-left dark:border-white/10">
-                            <BrandMark href="/" />
-                            <SheetTitle className="sr-only">Site menu</SheetTitle>
-                            <SheetDescription className="mt-2 text-sm text-zinc-500">
-                                {user
-                                    ? 'Jump into your studio or browse designs.'
-                                    : 'Browse templates, features, and start your invitation.'}
-                            </SheetDescription>
-                        </SheetHeader>
+                            <SheetHeader className="border-b border-zinc-950/8 px-5 py-5 text-left dark:border-white/10">
+                                <BrandMark href="/" />
+                                <SheetTitle className="sr-only">Site menu</SheetTitle>
+                                <SheetDescription className="mt-2 text-sm text-zinc-500">
+                                    {user
+                                        ? 'Jump into your studio or browse designs.'
+                                        : 'Browse templates, features, and start your invitation.'}
+                                </SheetDescription>
+                            </SheetHeader>
 
-                        <nav className="flex flex-1 flex-col gap-5 overflow-y-auto p-4" aria-label="Primary">
-                            {user ? (
-                                <div className="-mx-4 -mt-4">
-                                    <StudioNavSheetLinks onNavigate={() => setMobileOpen(false)} />
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="space-y-1.5">
-                                        <p className="px-1 text-[10px] font-semibold tracking-[0.18em] text-zinc-500 uppercase">
-                                            Templates
-                                        </p>
-                                        {templateLinks.map(([href, label]) => (
-                                            <Link
-                                                key={label}
-                                                href={href}
-                                                onClick={() => setMobileOpen(false)}
-                                                className="block rounded-2xl px-3.5 py-2.5 text-sm text-zinc-700 transition hover:bg-white/80 dark:text-zinc-200 dark:hover:bg-white/5"
-                                            >
-                                                {label}
-                                            </Link>
-                                        ))}
+                            <nav className="flex flex-1 flex-col gap-5 overflow-y-auto p-4" aria-label="Primary">
+                                {user ? (
+                                    <div className="-mx-4 -mt-4">
+                                        <StudioNavSheetLinks onNavigate={() => setMobileOpen(false)} />
                                     </div>
+                                ) : (
+                                    <>
+                                        <div className="space-y-1.5">
+                                            <p className="px-1 text-[10px] font-semibold tracking-[0.18em] text-zinc-500 uppercase">
+                                                Templates
+                                            </p>
+                                            {templateLinks.map(([href, label]) => (
+                                                <Link
+                                                    key={label}
+                                                    href={href}
+                                                    onClick={() => setMobileOpen(false)}
+                                                    className="block rounded-2xl px-3.5 py-2.5 text-sm text-zinc-700 transition hover:bg-white/80 dark:text-zinc-200 dark:hover:bg-white/5"
+                                                >
+                                                    {label}
+                                                </Link>
+                                            ))}
+                                        </div>
 
-                                    <div className="space-y-1.5">
-                                        <p className="px-1 text-[10px] font-semibold tracking-[0.18em] text-zinc-500 uppercase">
-                                            Explore
-                                        </p>
-                                        {featureLinks.map(([href, label]) => (
+                                        <div className="space-y-1.5">
+                                            <p className="px-1 text-[10px] font-semibold tracking-[0.18em] text-zinc-500 uppercase">
+                                                Explore
+                                            </p>
+                                            {featureLinks.map(([href, label]) => (
+                                                <a
+                                                    key={label}
+                                                    href={href}
+                                                    onClick={() => setMobileOpen(false)}
+                                                    className="block rounded-2xl px-3.5 py-2.5 text-sm text-zinc-700 transition hover:bg-white/80 dark:text-zinc-200 dark:hover:bg-white/5"
+                                                >
+                                                    {label}
+                                                </a>
+                                            ))}
                                             <a
-                                                key={label}
-                                                href={href}
+                                                href="/#planning"
                                                 onClick={() => setMobileOpen(false)}
                                                 className="block rounded-2xl px-3.5 py-2.5 text-sm text-zinc-700 transition hover:bg-white/80 dark:text-zinc-200 dark:hover:bg-white/5"
                                             >
-                                                {label}
+                                                Planning
                                             </a>
-                                        ))}
-                                        <a
-                                            href="/#planning"
-                                            onClick={() => setMobileOpen(false)}
-                                            className="block rounded-2xl px-3.5 py-2.5 text-sm text-zinc-700 transition hover:bg-white/80 dark:text-zinc-200 dark:hover:bg-white/5"
-                                        >
-                                            Planning
-                                        </a>
-                                        <a
-                                            href="/#pricing"
-                                            onClick={() => setMobileOpen(false)}
-                                            className="block rounded-2xl px-3.5 py-2.5 text-sm text-zinc-700 transition hover:bg-white/80 dark:text-zinc-200 dark:hover:bg-white/5"
-                                        >
-                                            Pricing
-                                        </a>
-                                    </div>
-                                </>
-                            )}
-                        </nav>
+                                            <a
+                                                href="/#pricing"
+                                                onClick={() => setMobileOpen(false)}
+                                                className="block rounded-2xl px-3.5 py-2.5 text-sm text-zinc-700 transition hover:bg-white/80 dark:text-zinc-200 dark:hover:bg-white/5"
+                                            >
+                                                Pricing
+                                            </a>
+                                        </div>
+                                    </>
+                                )}
+                            </nav>
 
-                        <div className="border-t border-zinc-950/8 p-4 dark:border-white/10">
-                            {user ? (
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setMobileOpen(false);
-                                        start();
-                                    }}
-                                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-zinc-950 text-sm font-medium text-white shadow-lg shadow-zinc-950/20 dark:bg-white dark:text-zinc-950"
-                                >
-                                    <Plus className="size-4" />
-                                    Create Invitation
-                                </button>
-                            ) : (
-                                <div className="grid gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            open({ type: 'start' }, 'login');
-                                        }}
-                                        className="inline-flex h-11 w-full items-center justify-center rounded-full border border-zinc-950/10 bg-white/80 text-sm font-medium dark:border-white/10 dark:bg-zinc-900/60"
-                                    >
-                                        Log in
-                                    </button>
+                            <div className="border-t border-zinc-950/8 p-4 dark:border-white/10">
+                                {user ? (
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -223,60 +201,86 @@ export function MarketingHeader({
                                         }}
                                         className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-zinc-950 text-sm font-medium text-white shadow-lg shadow-zinc-950/20 dark:bg-white dark:text-zinc-950"
                                     >
-                                        <Sparkles className="size-4" />
-                                        Get Started
+                                        <Plus className="size-4" />
+                                        Create Invitation
                                     </button>
-                                </div>
-                            )}
-                        </div>
-                    </SheetContent>
-                </Sheet>
+                                ) : (
+                                    <div className="grid gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setMobileOpen(false);
+                                                open({ type: 'start' }, 'login');
+                                            }}
+                                            className="inline-flex h-11 w-full items-center justify-center rounded-full border border-zinc-950/10 bg-white/80 text-sm font-medium dark:border-white/10 dark:bg-zinc-900/60"
+                                        >
+                                            Log in
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setMobileOpen(false);
+                                                start();
+                                            }}
+                                            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-zinc-950 text-sm font-medium text-white shadow-lg shadow-zinc-950/20 dark:bg-white dark:text-zinc-950"
+                                        >
+                                            <Sparkles className="size-4" />
+                                            Get Started
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </SheetContent>
+                    </Sheet>
 
-                <div className="shrink-0">
-                    <BrandMark href="/" showName={false} className="lg:hidden" />
-                    <BrandMark href="/" className="hidden lg:inline-flex" />
+                    <div className="shrink-0">
+                        <BrandMark href="/" showName={false} className="lg:hidden" />
+                        <BrandMark href="/" className="hidden lg:inline-flex" />
+                    </div>
                 </div>
 
-                {user ? (
-                    <StudioNavLinks showIcons className="ml-1 hidden min-w-0 lg:flex xl:ml-2" />
-                ) : (
-                    <nav
-                        ref={desktopNavRef}
-                        className="ml-1 hidden min-w-0 items-center gap-1 text-sm lg:flex xl:ml-2 xl:gap-1.5"
-                        aria-label="Primary"
-                    >
-                        <NavMenu
-                            label="Templates"
-                            open={menu === 'templates'}
-                            onOpen={() => setMenu('templates')}
-                            onClose={() => setMenu(null)}
-                            links={templateLinks}
-                        />
-                        <NavMenu
-                            label="Features"
-                            open={menu === 'features'}
-                            onOpen={() => setMenu('features')}
-                            onClose={() => setMenu(null)}
-                            links={featureLinks}
-                        />
-                        <a
-                            href="/#planning"
-                            className="rounded-full px-3 py-1.5 font-medium text-zinc-600 transition hover:bg-zinc-950/5 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white"
-                            onClick={() => setMenu(null)}
+                <div className="hidden min-w-0 justify-self-center lg:block">
+                    {user ? (
+                        <StudioNavLinks showIcons className="min-w-0" />
+                    ) : (
+                        <nav
+                            ref={desktopNavRef}
+                            className="flex min-w-0 items-center gap-1 text-sm xl:gap-1.5"
+                            aria-label="Primary"
                         >
-                            Planning
-                        </a>
-                        <a
-                            href="/#pricing"
-                            className="rounded-full px-3 py-1.5 font-medium text-zinc-600 transition hover:bg-zinc-950/5 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white"
-                            onClick={() => setMenu(null)}
-                        >
-                            Pricing
-                        </a>
-                    </nav>
-                )}
+                            <NavMenu
+                                label="Templates"
+                                open={menu === 'templates'}
+                                onOpen={() => setMenu('templates')}
+                                onClose={() => setMenu(null)}
+                                links={templateLinks}
+                            />
+                            <NavMenu
+                                label="Features"
+                                open={menu === 'features'}
+                                onOpen={() => setMenu('features')}
+                                onClose={() => setMenu(null)}
+                                links={featureLinks}
+                            />
+                            <a
+                                href="/#planning"
+                                className="rounded-full px-3 py-1.5 font-medium text-zinc-600 transition hover:bg-zinc-950/5 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white"
+                                onClick={() => setMenu(null)}
+                            >
+                                Planning
+                            </a>
+                            <a
+                                href="/#pricing"
+                                className="rounded-full px-3 py-1.5 font-medium text-zinc-600 transition hover:bg-zinc-950/5 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white"
+                                onClick={() => setMenu(null)}
+                            >
+                                Pricing
+                            </a>
+                        </nav>
+                    )}
+                </div>
 
-                <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-2.5">
+                <div className="flex min-w-0 shrink-0 items-center justify-end gap-2 justify-self-end sm:gap-2.5">
                     <ThemeToggle />
                     {user ? (
                         <>
@@ -327,7 +331,7 @@ export function MarketingHeader({
 
             {back ? (
                 <div className="border-t border-zinc-950/8 bg-background/70 dark:border-white/10">
-                    <div className="mx-auto flex max-w-6xl items-center px-3 py-2.5 sm:px-4">
+                    <div className="mx-auto flex max-w-7xl items-center px-4 py-2.5 sm:px-6">
                         <Link
                             href={back.href}
                             className="inline-flex items-center gap-1.5 text-[13px] text-zinc-500 transition hover:text-zinc-950 dark:hover:text-white"

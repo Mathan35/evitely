@@ -32,12 +32,12 @@ export function TrialEventLimitDialog({
                     </p>
                     <DialogHeader className="mt-3 space-y-2 text-left">
                         <DialogTitle className="font-serif text-2xl tracking-tight text-white">
-                            {one ? 'Your free event is already underway' : `You’ve reached your free-trial limit`}
+                            {one ? 'Your free guest website is already underway' : `You’ve reached your free-trial limit`}
                         </DialogTitle>
                         <DialogDescription className="text-[13px] leading-relaxed text-zinc-300">
                             {one
-                                ? 'The free trial includes one invitation per account so you can finish crafting it with care. Keep editing the one you have, or upgrade when you’re ready for another celebration.'
-                                : `The free trial includes ${eventLimit} invitations per account. Keep editing what you’ve started, or upgrade to create more.`}
+                                ? 'The free trial includes one guest website per account. Invitation cards stay free forever — keep editing your site, or upgrade when you’re ready for another.'
+                                : `The free trial includes ${eventLimit} guest websites per account. Invitation cards stay free forever — keep editing what you’ve started, or upgrade to create more sites.`}
                         </DialogDescription>
                     </DialogHeader>
                 </div>

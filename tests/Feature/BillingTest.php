@@ -126,6 +126,63 @@ class BillingTest extends TestCase
             ->assertSessionHasErrors('event');
     }
 
+    public function test_free_cards_never_consume_site_event_limit(): void
+    {
+        $user = User::factory()->create(['plan' => 'free']);
+        Wedding::factory()->create([
+            'user_id' => $user->id,
+            'invitation_mode' => 'link',
+        ]);
+
+        $billing = app(BillingService::class);
+        $this->assertFalse($billing->canCreateEvent($user));
+        $this->assertFalse($billing->canCreateEvent($user, 'link'));
+        $this->assertTrue($billing->canCreateEvent($user, 'card'));
+
+        $this->actingAs($user)
+            ->post(route('weddings.store'), [
+                'event_type' => 'wedding',
+                'invitation_mode' => 'card',
+                'theme' => 'classic',
+                'title' => 'Free Card Invite',
+                'bride_name' => 'Ada',
+                'groom_name' => 'Alan',
+            ])
+            ->assertRedirect();
+
+        $this->assertSame(1, $billing->listedEventCount($user));
+        $this->assertSame(2, $user->weddings()->count());
+        $this->assertTrue($billing->canCreateEvent($user, 'card'));
+        $this->assertFalse($billing->canCreateEvent($user, 'link'));
+    }
+
+    public function test_card_only_events_do_not_block_first_free_site(): void
+    {
+        $user = User::factory()->create(['plan' => 'free']);
+        Wedding::factory()->create([
+            'user_id' => $user->id,
+            'invitation_mode' => 'card',
+        ]);
+
+        $billing = app(BillingService::class);
+        $this->assertSame(0, $billing->listedEventCount($user));
+        $this->assertTrue($billing->canCreateEvent($user));
+        $this->assertTrue($billing->canCreateEvent($user, 'link'));
+
+        $this->actingAs($user)
+            ->post(route('weddings.store'), [
+                'event_type' => 'wedding',
+                'invitation_mode' => 'link',
+                'theme' => 'classic',
+                'title' => 'First Site',
+                'bride_name' => 'Ada',
+                'groom_name' => 'Alan',
+            ])
+            ->assertRedirect();
+
+        $this->assertSame(1, $billing->listedEventCount($user));
+    }
+
     public function test_unsaved_gallery_draft_does_not_block_first_free_trial_event(): void
     {
         $user = User::factory()->create(['plan' => 'free']);

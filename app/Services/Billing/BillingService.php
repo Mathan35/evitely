@@ -110,20 +110,32 @@ class BillingService
     }
 
     /**
-     * Events that count toward the free-trial slot (My Events listed / saved).
-     * Unsaved gallery drafts do not block creating or switching the first invitation.
+     * Guest websites that count toward the free-trial slot (My Events listed / saved).
+     * Invitation cards are free forever and never consume this limit.
+     * Unsaved gallery drafts do not block creating or switching the first site.
      */
     public function listedEventCount(User $user): int
     {
         return $user->weddings()
             ->with('setting')
             ->get()
-            ->filter(fn (Wedding $wedding): bool => $wedding->isListedInMyEvents())
+            ->filter(function (Wedding $wedding): bool {
+                if (($wedding->invitation_mode ?? 'link') === 'card') {
+                    return false;
+                }
+
+                return $wedding->isListedInMyEvents();
+            })
             ->count();
     }
 
-    public function canCreateEvent(User $user): bool
+    public function canCreateEvent(User $user, ?string $invitationMode = null): bool
     {
+        // Cards stay free forever — never gated by the site event limit.
+        if ($invitationMode === 'card') {
+            return true;
+        }
+
         $limit = $this->eventLimit($user);
         if ($limit === null) {
             return true;
@@ -132,9 +144,9 @@ class BillingService
         return $this->listedEventCount($user) < $limit;
     }
 
-    public function assertCanCreateEvent(User $user): void
+    public function assertCanCreateEvent(User $user, ?string $invitationMode = null): void
     {
-        if ($this->canCreateEvent($user)) {
+        if ($this->canCreateEvent($user, $invitationMode)) {
             return;
         }
 
@@ -142,9 +154,9 @@ class BillingService
 
         throw ValidationException::withMessages([
             'event' => $limit === 1
-                ? 'Your free trial includes one invitation. Keep editing the one in My Events, or upgrade to create another.'
+                ? 'Your free trial includes one guest website. Keep editing the one in My Events, or upgrade to create another. Invitation cards stay free.'
                 : sprintf(
-                    'Your free trial includes %d invitations. Keep editing what you have, or upgrade to create more.',
+                    'Your free trial includes %d guest websites. Keep editing what you have, or upgrade to create more. Invitation cards stay free.',
                     $limit,
                 ),
         ]);
