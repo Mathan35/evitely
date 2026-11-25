@@ -20,6 +20,11 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(PlatformOwnerSeeder::class);
 
+        // Demo invitations need factories/Faker (require-dev). Skip on production Hostinger.
+        if (app()->environment('production')) {
+            return;
+        }
+
         $user = User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
