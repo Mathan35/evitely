@@ -2,7 +2,7 @@ import { Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
-const STORAGE_KEY = 'evitely_cookie_consent_v1';
+const STORAGE_KEY = 'invidora_cookie_consent_v1';
 
 export function CookieConsentBanner() {
     const [visible, setVisible] = useState(false);

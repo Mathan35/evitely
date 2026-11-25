@@ -115,7 +115,7 @@ function castForKind(kind: PageSkeletonKind, path?: string | null): Cast {
             return {
                 left: `${CUT}/groom-cut.png`,
                 right: `${CUT}/bride-cut.png`,
-                title: 'Welcome to Evitely',
+                title: 'Welcome to Invidora',
                 subtitle: 'Beautiful invitations are gathering for you.',
                 motif: 'hearts',
                 tone: 'warm',

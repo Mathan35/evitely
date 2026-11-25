@@ -1,6 +1,6 @@
 export type PreviewDevice = 'mobile' | 'desktop';
 
-export const PREVIEW_DEVICE_STORAGE_KEY = 'evitely.preview-device';
+export const PREVIEW_DEVICE_STORAGE_KEY = 'invidora.preview-device';
 
 export const PREVIEW_VIEWPORTS = {
     mobile: {

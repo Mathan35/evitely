@@ -18,8 +18,8 @@ class InviteSubdomainTest extends TestCase
         parent::setUp();
 
         config([
-            'app.url' => 'http://evitely.test',
-            'wedding.invite_root_domain' => 'evitely.test',
+            'app.url' => 'http://invidora.test',
+            'wedding.invite_root_domain' => 'invidora.test',
             'wedding.invite_subdomains_enabled' => true,
         ]);
     }
@@ -28,7 +28,7 @@ class InviteSubdomainTest extends TestCase
     {
         $wedding = $this->publishedWedding('emma-and-alex');
 
-        $this->get('http://emma-and-alex.evitely.test/')
+        $this->get('http://emma-and-alex.invidora.test/')
             ->assertOk();
     }
 
@@ -36,7 +36,7 @@ class InviteSubdomainTest extends TestCase
     {
         $wedding = $this->publishedWedding('emma-and-alex');
 
-        $this->get('http://evitely.test/invite/emma-and-alex')
+        $this->get('http://invidora.test/invite/emma-and-alex')
             ->assertOk();
     }
 
@@ -44,7 +44,7 @@ class InviteSubdomainTest extends TestCase
     {
         $this->publishedWedding('www');
 
-        $this->get('http://www.evitely.test/')
+        $this->get('http://www.invidora.test/')
             ->assertNotFound();
     }
 
@@ -73,7 +73,7 @@ class InviteSubdomainTest extends TestCase
         $wedding = $this->publishedWedding('priya-arun');
 
         $this->assertSame(
-            'http://priya-arun.evitely.test',
+            'http://priya-arun.invidora.test',
             rtrim(InviteHost::publicUrl('priya-arun'), '/'),
         );
 
@@ -83,7 +83,7 @@ class InviteSubdomainTest extends TestCase
             ->assertInertia(fn ($page) => $page
                 ->where('wedding.subdomains_enabled', true)
                 ->where('wedding.slug', 'priya-arun')
-                ->where('wedding.subdomain_host', 'priya-arun.evitely.test'));
+                ->where('wedding.subdomain_host', 'priya-arun.invidora.test'));
     }
 
     private function publishedWedding(string $slug): Wedding

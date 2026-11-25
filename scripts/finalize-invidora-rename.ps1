@@ -4,7 +4,7 @@
 $ErrorActionPreference = 'Stop'
 $sites = 'C:\Users\Abcom\Sites'
 $old = Join-Path $sites 'wedding-invitation'
-$junction = Join-Path $sites 'evitely'
+$junction = Join-Path $sites 'Invidora'
 
 if (-not (Test-Path $old)) {
     Write-Host "Already renamed (wedding-invitation missing)."
@@ -18,11 +18,11 @@ if (Test-Path $junction) {
         cmd /c "rmdir `"$junction`""
         Write-Host "Removed temporary junction: $junction"
     } else {
-        Write-Error "C:\Users\Abcom\Sites\evitely exists and is not a junction. Aborting."
+        Write-Error "C:\Users\Abcom\Sites\Invidora exists and is not a junction. Aborting."
         exit 1
     }
 }
 
-Rename-Item -Path $old -NewName 'evitely'
-Write-Host "Renamed project folder to C:\Users\Abcom\Sites\evitely"
-Write-Host "Re-open that folder in Cursor. Start Herd if you use evitely.test."
+Rename-Item -Path $old -NewName 'Invidora'
+Write-Host "Renamed project folder to C:\Users\Abcom\Sites\Invidora"
+Write-Host "Re-open that folder in Cursor. Start Herd if you use invidora.test."

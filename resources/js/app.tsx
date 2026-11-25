@@ -7,7 +7,7 @@ import { initializeTheme } from '@/hooks/use-appearance';
 import AuthGateLayout from '@/layouts/auth-gate-layout';
 import { installUiRipple } from '@/lib/ui-ripple';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Evitely';
+const appName = import.meta.env.VITE_APP_NAME || 'Invidora';
 
 const AppLayout = lazy(() => import('@/layouts/app-layout'));
 const AdminLayout = lazy(() => import('@/layouts/admin-layout'));

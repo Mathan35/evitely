@@ -1,10 +1,10 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "evitely/app",
+    "name": "invidora/app",
     "type": "project",
-    "description": "Evitely — digital invitations and guest websites.",
+    "description": "Invidora — digital invitations and guest websites.",
     "keywords": [
-        "evitely",
+        "invidora",
         "invitations",
         "laravel"
     ],

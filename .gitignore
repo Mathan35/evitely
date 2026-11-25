@@ -42,3 +42,10 @@ yarn-error.log
 /boost.json
 /opencode.json
 /opencode.jsonc
+
+# Hostinger release artifacts
+deploy/hostinger/*.zip
+
+
+# Hostinger local release packs
+deploy/hostinger/*.zip

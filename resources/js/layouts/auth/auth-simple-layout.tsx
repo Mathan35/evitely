@@ -113,7 +113,7 @@ export default function AuthSimpleLayout({
 
                 <div className="invite-rise mx-auto w-full max-w-md">
                     <div className="rounded-[28px] border border-[#241c16]/5 bg-white p-6 shadow-[0_24px_60px_-36px_rgba(36,28,22,0.45)] sm:p-8">
-                        <p className="text-[11px] tracking-[0.22em] text-[#8a7d6e] uppercase">Evitely studio</p>
+                        <p className="text-[11px] tracking-[0.22em] text-[#8a7d6e] uppercase">Invidora studio</p>
                         <h1 className="mt-3 font-serif text-4xl leading-tight">{title}</h1>
                         <span className="mt-4 block h-px w-16 bg-[#c6a36a]" />
                         <p className="mt-4 text-sm leading-6 text-[#5e554c]">{description}</p>
@@ -121,7 +121,7 @@ export default function AuthSimpleLayout({
                     </div>
                     <p className="mt-6 text-center text-sm text-[#5e554c]">
                         <Link href={home()} className="underline decoration-[#c6a36a]/50 underline-offset-4">
-                            Back to Evitely
+                            Back to Invidora
                         </Link>
                     </p>
                 </div>

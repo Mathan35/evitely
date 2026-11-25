@@ -678,7 +678,7 @@ function PricingAndFaq({
                                 Pricing Plans
                             </h2>
                             <p className="mx-auto mt-3 max-w-2xl text-center text-sm leading-6 text-[#5e554c]">
-                                Free cards · pay for live-site days · message credits only if you want Evitely to
+                                Free cards · pay for live-site days · message credits only if you want Invidora to
                                 auto-send bulk invites to emails or phone numbers.
                             </p>
 

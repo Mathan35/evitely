@@ -2217,7 +2217,7 @@ export function SiteLinkPanel({
 
     const rootHost =
         (inviteRootDomain || '').trim() ||
-        (typeof window !== 'undefined' ? window.location.host.replace(/^www\./, '') : 'evitely.com');
+        (typeof window !== 'undefined' ? window.location.host.replace(/^www\./, '') : 'invidora.com');
 
     const sanitizeSlug = (value: string): string =>
         value

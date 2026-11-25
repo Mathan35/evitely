@@ -107,7 +107,7 @@ class InviteHost
     public static function previewHost(string $slug): string
     {
         $slug = strtolower(trim($slug)) ?: 'your-event';
-        $root = self::rootDomain() ?: 'evitely.com';
+        $root = self::rootDomain() ?: 'invidora.com';
 
         return $slug.'.'.$root;
     }

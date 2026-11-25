@@ -41,4 +41,4 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 .dockerignore
-scripts/finalize-evitely-rename.ps1
+scripts/finalize-invidora-rename.ps1

@@ -1,4 +1,4 @@
-# Evitely — Render FREE staging (testing only; spins down after ~15 min idle)
+# Invidora — Render FREE staging (testing only; spins down after ~15 min idle)
 # Deploy: Render Dashboard → New → Blueprint → connect this repo → render.yaml
 # Free Postgres expires ~30 days after creation — fine for testing.
 #
@@ -7,7 +7,7 @@
 
 services:
   - type: web
-    name: evitely-staging
+    name: invidora-staging
     runtime: docker
     plan: free
     dockerfilePath: ./Dockerfile
@@ -15,7 +15,7 @@ services:
     healthCheckPath: /up
     envVars:
       - key: APP_NAME
-        value: Evitely
+        value: Invidora
       - key: APP_ENV
         value: staging
       - key: APP_DEBUG
@@ -45,11 +45,11 @@ services:
       # Laravel 11+ reads DB_URL (not DATABASE_URL)
       - key: DB_URL
         fromDatabase:
-          name: evitely-staging-db
+          name: invidora-staging-db
           property: connectionString
 
 databases:
-  - name: evitely-staging-db
+  - name: invidora-staging-db
     plan: free
-    databaseName: evitely_staging
-    user: evitely
+    databaseName: invidora_staging
+    user: invidora

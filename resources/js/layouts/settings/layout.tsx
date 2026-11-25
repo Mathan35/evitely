@@ -62,7 +62,7 @@ const sidebarNavItems: (NavItem & {
         description: 'Theme preference',
         eyebrow: 'Account',
         headline: 'Appearance',
-        blurb: 'Choose how Evitely looks across light and dark sessions.',
+        blurb: 'Choose how Invidora looks across light and dark sessions.',
     },
 ];
 

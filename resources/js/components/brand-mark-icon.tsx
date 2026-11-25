@@ -7,7 +7,7 @@ type BrandMarkIconProps = SVGAttributes<SVGElement> & {
 };
 
 /**
- * Evitely mark: open invitation + guest-site window + wax seal.
+ * Invidora mark: open invitation + guest-site window + wax seal.
  * Colorful, neat, no background tile.
  */
 export function BrandMarkIcon({ className, style, tone = 'color', ...props }: BrandMarkIconProps) {

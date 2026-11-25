@@ -161,7 +161,7 @@
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/brand/evitely-mark.jpg">
+        <link rel="apple-touch-icon" href="/brand/invidora-mark.jpg">
         <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
         <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
         <link rel="manifest" href="/manifest.webmanifest">
@@ -170,14 +170,14 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-title" content="Evitely">
+        <meta name="apple-mobile-web-app-title" content="Invidora">
 
         @fonts
 
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         <x-inertia::head>
-            <title>{{ config('app.name', 'Evitely') }}</title>
+            <title>{{ config('app.name', 'Invidora') }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">

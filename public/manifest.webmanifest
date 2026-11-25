@@ -1,6 +1,6 @@
 {
-  "name": "Evitely",
-  "short_name": "Evitely",
+  "name": "Invidora",
+  "short_name": "Invidora",
   "description": "Wedding invitations, guest sites, and host studio.",
   "start_url": "/dashboard",
   "scope": "/",

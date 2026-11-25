@@ -25,7 +25,7 @@ export function PlatformBrandBadge({
             >
                 <BrandMarkIcon tone="light" className="h-3.5 w-3.5 shrink-0" />
                 <span className="leading-tight">
-                    <span className="tracking-[0.12em] text-white/70 uppercase">Made with Evitely</span>
+                    <span className="tracking-[0.12em] text-white/70 uppercase">Made with Invidora</span>
                     <span className="mt-0.5 block text-[12px] font-semibold tracking-normal normal-case">
                         Make yours free →
                     </span>

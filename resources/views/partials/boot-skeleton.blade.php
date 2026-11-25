@@ -99,7 +99,7 @@
             'welcome' => [
                 'left' => "{$cut}/groom-cut.png",
                 'right' => "{$cut}/bride-cut.png",
-                'title' => 'Welcome to Evitely',
+                'title' => 'Welcome to Invidora',
                 'subtitle' => 'Beautiful invitations are gathering for you.',
                 'tone' => 'warm',
             ],

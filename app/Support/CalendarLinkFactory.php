@@ -26,7 +26,7 @@ class CalendarLinkFactory
     public static function ics(Wedding $wedding, WeddingEvent $event): string
     {
         [$start, $end] = self::range($wedding, $event);
-        $uid = 'event-'.$event->id.'@evitely';
+        $uid = 'event-'.$event->id.'@invidora';
         $summary = self::escape($event->title.' — '.$wedding->displayTitle());
         $location = self::escape(self::location($event, $wedding));
         $description = self::escape((string) $event->description);
@@ -34,7 +34,7 @@ class CalendarLinkFactory
         return implode("\r\n", [
             'BEGIN:VCALENDAR',
             'VERSION:2.0',
-            'PRODID:-//Evitely//EN',
+            'PRODID:-//Invidora//EN',
             'CALSCALE:GREGORIAN',
             'METHOD:PUBLISH',
             'BEGIN:VEVENT',

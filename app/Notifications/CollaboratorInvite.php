@@ -32,7 +32,7 @@ class CollaboratorInvite extends Notification implements ShouldQueue
                 ->subject('You\'re invited to co-host '.$wedding->displayTitle())
                 ->line('You\'ve been invited to help manage this invitation as a '.$this->collaborator->role.'.')
                 ->action('Accept invitation', $url)
-                ->line('If you don\'t have an Evitely account yet, create one with this email first, then open the link again.'),
+                ->line('If you don\'t have an Invidora account yet, create one with this email first, then open the link again.'),
         );
     }
 }

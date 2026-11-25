@@ -239,7 +239,7 @@ class RazorpayService
             'key' => $this->keyId(),
             'amount' => $payload['amount_paise'],
             'currency' => $this->currency(),
-            'name' => (string) config('app.name', 'Evitely'),
+            'name' => (string) config('app.name', 'Invidora'),
             'description' => $payload['description'],
             'order_id' => $orderId,
             'payment_id' => $payment->id,

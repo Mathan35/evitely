@@ -31,7 +31,7 @@ class HostDailyDigest extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $mail = (new MailMessage)
-            ->subject('Evitely digest — '.$this->digest['total'].' new guest update'.($this->digest['total'] === 1 ? '' : 's'))
+            ->subject('Invidora digest — '.$this->digest['total'].' new guest update'.($this->digest['total'] === 1 ? '' : 's'))
             ->greeting('Hi '.($notifiable->name ?? 'there').',')
             ->line('Here’s what happened on your events since yesterday:');
 

@@ -31,7 +31,7 @@ export function TrialWelcomeDialog({
         'Hero layout, backgrounds & intro styles included',
         `${trialDays}-day free guest site when you publish`,
         `Up to ${guestLimit} guests · share WhatsApp links free from your phone`,
-        'Evitely badge on the public site (removable on paid)',
+        'Invidora badge on the public site (removable on paid)',
     ];
 
     return (

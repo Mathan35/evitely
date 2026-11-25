@@ -1,4 +1,4 @@
-# Evitely — digital invitations & event sites
+# Invidora — digital invitations & event sites
 
 One platform for invitation cards, guest websites, RSVPs, and host studio tools — weddings and every other celebration.
 
@@ -58,11 +58,18 @@ Public addresses:
 
 Each guest gets a random token. Personal links mark the invitation viewed. RSVP accepts yes, sorry, or maybe, party size, meal, and events. Unapproved guestbook notes stay hidden. Analytics store a visitor hash, not a raw IP.
 
-Music never autoplays. Free trial includes **one listed event**; paid packs unlock styles, longer live windows, and optional message credits. Public sites show a light Evitely badge unless `remove_branding` is unlocked.
+Music never autoplays. Free trial includes **one listed event**; paid packs unlock styles, longer live windows, and optional message credits. Public sites show a light Invidora badge unless `remove_branding` is unlocked.
+
+## Hostinger + invidora.com
+
+1. Point `invidora.com` (and `www`) at your Hostinger site / A record.
+2. Use `.env.hostinger.example` as the server `.env` (`APP_URL=https://invidora.com`).
+3. Upload code, install Composer/Node deps, `npm run build`, `php artisan migrate --force`, `storage:link`.
+4. Enable free SSL in hPanel. Set document root to `/public`.
 
 ## Production checklist (manual)
 
-1. `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://…`, strong `APP_KEY`
+1. `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://invidora.com`, strong `APP_KEY`
 2. MySQL + `php artisan migrate --force` + `storage:link`
 3. `QUEUE_CONNECTION=database|redis` + `php artisan queue:work`
 4. Cron: `* * * * * php artisan schedule:run`

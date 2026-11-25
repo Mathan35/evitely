@@ -73,7 +73,7 @@ class MarketingSeo
 
         return self::page(
             'Free digital invitations & guest websites',
-            "Create beautiful digital invitation cards free forever. Guest websites free for {$trialDays} days — RSVP, WhatsApp share, schedules, and maps. Start in minutes with Evitely.",
+            "Create beautiful digital invitation cards free forever. Guest websites free for {$trialDays} days — RSVP, WhatsApp share, schedules, and maps. Start in minutes with Invidora.",
             '/',
             null,
             HomeMarketing::faqs(),
@@ -147,7 +147,7 @@ class MarketingSeo
      */
     public static function legal(string $name, string $path): array
     {
-        $app = (string) config('app.name', 'Evitely');
+        $app = (string) config('app.name', 'Invidora');
 
         return self::page(
             "{$name} · {$app}",
@@ -220,7 +220,7 @@ class MarketingSeo
         return [
             [
                 'q' => 'Are digital invitation cards free?',
-                'a' => "Yes. Invitation cards stay free forever on Evitely. Guest websites include a {$trialDays}-day free trial when you publish (up to {$guestLimit} guests).",
+                'a' => "Yes. Invitation cards stay free forever on Invidora. Guest websites include a {$trialDays}-day free trial when you publish (up to {$guestLimit} guests).",
             ],
             [
                 'q' => 'Do my guests need an account?',
@@ -228,7 +228,7 @@ class MarketingSeo
             ],
             [
                 'q' => 'Can I share the invitation on WhatsApp?',
-                'a' => 'Yes. Share a personal link from your phone for free, or use optional message credits if you want Evitely to send bulk email, SMS, or WhatsApp invites for you.',
+                'a' => 'Yes. Share a personal link from your phone for free, or use optional message credits if you want Invidora to send bulk email, SMS, or WhatsApp invites for you.',
             ],
             [
                 'q' => 'What is included in a guest website?',
@@ -242,7 +242,7 @@ class MarketingSeo
      */
     private static function organizationSchema(): array
     {
-        $name = (string) config('app.name', 'Evitely');
+        $name = (string) config('app.name', 'Invidora');
 
         return [
             '@context' => 'https://schema.org',
@@ -259,7 +259,7 @@ class MarketingSeo
      */
     private static function websiteSchema(string $canonical, string $description): array
     {
-        $name = (string) config('app.name', 'Evitely');
+        $name = (string) config('app.name', 'Invidora');
 
         return [
             '@context' => 'https://schema.org',

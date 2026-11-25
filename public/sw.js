@@ -1,6 +1,6 @@
-/* Evitely service worker — studio shell + offline guest invite pages. */
-const SHELL_CACHE = 'evitely-shell-v2';
-const INVITE_CACHE = 'evitely-invites-v2';
+/* Invidora service worker — studio shell + offline guest invite pages. */
+const SHELL_CACHE = 'invidora-shell-v2';
+const INVITE_CACHE = 'invidora-invites-v2';
 const SHELL = [
   '/',
   '/dashboard',

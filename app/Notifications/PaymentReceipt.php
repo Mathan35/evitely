@@ -35,18 +35,18 @@ class PaymentReceipt extends Notification implements ShouldQueue
             'pack' => [
                 'Thank you for buying message credits.',
                 sprintf(
-                    '%d credits were added to your Evitely account.',
+                    '%d credits were added to your Invidora account.',
                     (int) ($this->payment->meta['credits'] ?? 0),
                 ),
             ],
             default => [
                 'Thank you for your payment.',
-                'Your Evitely account has been updated.',
+                'Your Invidora account has been updated.',
             ],
         };
 
         $mail = (new MailMessage)
-            ->subject('Evitely payment receipt — '.$rupees)
+            ->subject('Invidora payment receipt — '.$rupees)
             ->greeting('Hi '.($notifiable->name ?? 'there').',')
             ->line($lines[0])
             ->line($lines[1])

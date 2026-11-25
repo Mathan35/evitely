@@ -11,7 +11,7 @@ class LegalController extends Controller
     public function privacy(): Response
     {
         return Inertia::render('legal/privacy', [
-            'appName' => config('app.name', 'Evitely'),
+            'appName' => config('app.name', 'Invidora'),
             'updatedAt' => '2026-11-21',
             'seo' => MarketingSeo::legal('Privacy Policy', '/privacy'),
         ]);
@@ -20,7 +20,7 @@ class LegalController extends Controller
     public function terms(): Response
     {
         return Inertia::render('legal/terms', [
-            'appName' => config('app.name', 'Evitely'),
+            'appName' => config('app.name', 'Invidora'),
             'updatedAt' => '2026-11-21',
             'seo' => MarketingSeo::legal('Terms of Service', '/terms'),
         ]);
@@ -29,7 +29,7 @@ class LegalController extends Controller
     public function cookies(): Response
     {
         return Inertia::render('legal/cookies', [
-            'appName' => config('app.name', 'Evitely'),
+            'appName' => config('app.name', 'Invidora'),
             'updatedAt' => '2026-11-21',
             'seo' => MarketingSeo::legal('Cookie Policy', '/cookies'),
         ]);

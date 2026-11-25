@@ -1,4 +1,4 @@
-Evitely — Oracle Always Free STAGING deploy
+Invidora — Oracle Always Free STAGING deploy
 ===========================================
 
 A) Create free Oracle account
@@ -22,9 +22,9 @@ D) SSH in
    ssh -i YOUR_KEY ubuntu@PUBLIC_IP
 
 E) First deploy (on the VM)
-   sudo mkdir -p /var/www/evitely-staging
-   sudo chown -R ubuntu:ubuntu /var/www/evitely-staging
-   cd /var/www/evitely-staging
+   sudo mkdir -p /var/www/invidora-staging
+   sudo chown -R ubuntu:ubuntu /var/www/invidora-staging
+   cd /var/www/invidora-staging
    REPO_URL=https://github.com/Mathan35/wedding-invitation.git \
      bash -c 'git clone --branch main "$REPO_URL" .'
    # If cloud-init finished, MySQL user/db already exist — update password in .env
@@ -37,4 +37,4 @@ E) First deploy (on the VM)
 F) Open staging
    http://PUBLIC_IP
 
-Live env later: second Nginx site + evitely_live DB on the same VM.
+Live env later: second Nginx site + invidora_live DB on the same VM.

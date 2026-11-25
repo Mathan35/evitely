@@ -30,9 +30,9 @@ class SiteBillingAlert extends Notification
         $url = url('/events/'.$this->wedding->id.'/billing');
 
         return (new MailMessage)
-            ->subject('Evitely · '.$this->wedding->title)
+            ->subject('Invidora · '.$this->wedding->title)
             ->line($this->message)
             ->action('Manage site plan', $url)
-            ->line('Thank you for using Evitely.');
+            ->line('Thank you for using Invidora.');
     }
 }

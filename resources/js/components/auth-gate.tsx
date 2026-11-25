@@ -13,7 +13,7 @@ import { request } from '@/routes/password';
 import { store as loginStore } from '@/routes/login';
 import { store as registerStore } from '@/routes/register';
 
-const INTENT_KEY = 'evitely:auth-intent';
+const INTENT_KEY = 'invidora:auth-intent';
 
 export type AuthIntent =
     | { type: 'favorite'; id: string }
@@ -185,7 +185,7 @@ function AuthDialog({
                         />
                         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#c47a4a]/70 via-[#d8a06a]/20 to-transparent px-6 pb-7 pt-16">
                             <p key={`${tab}-caption`} className={`${paneClass} text-center text-sm font-medium text-white drop-shadow-sm`}>
-                                {isLogin ? 'Create, invite, and celebrate with Evitely ✨' : 'Design beautiful invites in minutes ✨'}
+                                {isLogin ? 'Create, invite, and celebrate with Invidora ✨' : 'Design beautiful invites in minutes ✨'}
                             </p>
                         </div>
                     </aside>

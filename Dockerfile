@@ -1,4 +1,4 @@
-# Evitely — staging container (Render free / Railway / Docker)
+# Invidora — staging container (Render free / Railway / Docker)
 FROM php:8.3-cli-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive \

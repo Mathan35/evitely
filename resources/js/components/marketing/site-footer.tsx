@@ -68,7 +68,7 @@ export function SiteFooter() {
                     </div>
                 </div>
             </div>
-            <p className="border-t border-white/10 px-4 py-4 text-center text-xs text-[#f6f1e8]/50">© 2026 Evitely. All rights reserved.</p>
+            <p className="border-t border-white/10 px-4 py-4 text-center text-xs text-[#f6f1e8]/50">© 2026 Invidora. All rights reserved.</p>
         </footer>
     );
 }

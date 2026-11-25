@@ -248,7 +248,7 @@ class HomeMarketing
                 'badge' => 'Most Popular',
                 'highlight' => true,
                 'includes_label' => 'Day packs (site only)',
-                'note' => 'Prices above are site days only — not message sends. Add message credits at checkout if you want Evitely to email or text guests for you. Custom dates '.$customMin.'–'.$customMax.' days'
+                'note' => 'Prices above are site days only — not message sends. Add message credits at checkout if you want Invidora to email or text guests for you. Custom dates '.$customMin.'–'.$customMax.' days'
                     .($customPerDay ? ' · from '.$customPerDay.'/day' : '').'.',
                 'points' => [
                     'Full studio: RSVP, maps, schedule, music & guest wall',
@@ -266,14 +266,14 @@ class HomeMarketing
             ],
             [
                 'name' => 'Message credits',
-                'tagline' => 'Pay only when Evitely sends invites for you',
+                'tagline' => 'Pay only when Invidora sends invites for you',
                 'price' => $creditFromLabel,
                 'period' => 'from · '.$creditFromCount.' credits',
                 'includes_label' => 'Credit packs',
                 'note' => 'Optional. Skip this if you share the link yourself. Works with Free or a paid site.',
                 'points' => [
                     'Automated bulk send to guest emails or phone numbers',
-                    'Evitely delivers by email, SMS, or WhatsApp — 1 credit ≈ 1 send',
+                    'Invidora delivers by email, SMS, or WhatsApp — 1 credit ≈ 1 send',
                     'Paste a list once; we message everyone for you',
                     'Personal link shares from your phone stay free forever',
                 ],
@@ -303,7 +303,7 @@ class HomeMarketing
             ],
             [
                 'q' => 'What are message credits?',
-                'a' => 'Message credits pay for automated sharing: paste guest emails or phone numbers and Evitely sends the invite for you in bulk (email, SMS, or WhatsApp). One credit is roughly one send. Sharing the link yourself from your phone is always free — buy credits only if you want us to deliver for you.',
+                'a' => 'Message credits pay for automated sharing: paste guest emails or phone numbers and Invidora sends the invite for you in bulk (email, SMS, or WhatsApp). One credit is roughly one send. Sharing the link yourself from your phone is always free — buy credits only if you want us to deliver for you.',
             ],
             [
                 'q' => 'When should I publish?',

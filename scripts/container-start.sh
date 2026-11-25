@@ -79,5 +79,5 @@ php artisan storage:link --force || true
 php artisan migrate --force --no-interaction
 
 PORT="${PORT:-8000}"
-echo "Starting Evitely on 0.0.0.0:${PORT} (APP_URL=${APP_URL:-unset})"
+echo "Starting Invidora on 0.0.0.0:${PORT} (APP_URL=${APP_URL:-unset})"
 exec php artisan serve --host=0.0.0.0 --port="${PORT}"

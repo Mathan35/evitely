@@ -265,7 +265,7 @@ return [
         ],
         [
             'label' => 'Platform branding on public site',
-            'free' => 'Evitely badge',
+            'free' => 'Invidora badge',
             'paid' => 'Removable',
         ],
         [

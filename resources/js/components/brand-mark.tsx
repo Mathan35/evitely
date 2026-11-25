@@ -2,7 +2,7 @@ import { Link, type InertiaLinkProps } from '@inertiajs/react';
 import { BrandMarkIcon } from '@/components/brand-mark-icon';
 import { cn } from '@/lib/utils';
 
-const BRAND_NAME = 'Evitely';
+const BRAND_NAME = 'Invidora';
 
 export function BrandMark({
     href = '/',
