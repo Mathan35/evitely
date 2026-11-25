@@ -70,8 +70,8 @@ export default function AppSidebarLayout({
     return (
         <div className="min-h-svh min-w-0 overflow-x-clip bg-background text-foreground">
             <header className="sticky top-0 z-40 border-b border-zinc-950/8 bg-background/90 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] backdrop-blur-xl dark:border-white/10 dark:shadow-none">
-                <div className="mx-auto grid h-14 w-full min-w-0 max-w-7xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-4 sm:h-16 sm:gap-3 sm:px-6">
-                    <div className="flex min-w-0 items-center gap-2 justify-self-start sm:gap-3">
+                <div className="mx-auto flex h-14 w-full min-w-0 max-w-7xl items-center gap-3 px-4 sm:h-16 sm:gap-4 sm:px-6">
+                    <div className="flex min-w-0 shrink-0 items-center gap-2.5">
                         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                             <SheetTrigger asChild>
                                 <Button
@@ -124,17 +124,15 @@ export default function AppSidebarLayout({
                         </div>
                     </div>
 
-                    <div className="hidden min-w-0 justify-self-center lg:block">
-                        <StudioNavLinks showIcons className="min-w-0" />
-                    </div>
+                    <StudioNavLinks showIcons className="ml-1 hidden min-w-0 lg:flex xl:ml-2" />
 
-                    <div className="flex min-w-0 shrink-0 items-center justify-end gap-2 justify-self-end sm:gap-2.5">
+                    <div className="ml-auto flex shrink-0 items-center gap-2">
                         <ThemeToggle />
                         <StudioSettingsIconLink />
                         <Link
                             href="/events?create=1"
                             aria-label="Create invitation"
-                            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-zinc-950 px-3 text-sm font-medium whitespace-nowrap text-white shadow-lg shadow-zinc-950/15 transition hover:bg-zinc-800 sm:h-10 sm:px-3.5 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+                            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-zinc-950 px-3 text-sm font-medium whitespace-nowrap text-white shadow-lg shadow-zinc-950/15 transition hover:bg-zinc-800 sm:px-3.5 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
                         >
                             <Plus className="size-4 shrink-0" />
                             <span className="hidden xl:inline">Create Invitation</span>
@@ -143,7 +141,7 @@ export default function AppSidebarLayout({
                         {user ? (
                             <DropdownMenu modal={false}>
                                 <DropdownMenuTrigger
-                                    className="inline-flex max-w-[10.5rem] items-center rounded-full border border-zinc-950/10 bg-white/80 p-1 backdrop-blur xl:max-w-none xl:pr-2.5 dark:border-white/10 dark:bg-zinc-900/70 [&_.user-name]:hidden xl:[&_.user-name]:grid"
+                                    className="inline-flex h-10 max-w-[10.5rem] items-center rounded-full border border-zinc-950/10 bg-white/80 p-1 backdrop-blur xl:max-w-none xl:pr-2.5 dark:border-white/10 dark:bg-zinc-900/70 [&_.user-name]:hidden xl:[&_.user-name]:grid"
                                     data-test="sidebar-menu-button"
                                 >
                                     <UserInfo user={user} />

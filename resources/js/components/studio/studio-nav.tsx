@@ -117,7 +117,7 @@ export function StudioSettingsIconLink({ className }: { className?: string }) {
             title={item.label}
             aria-label={item.label}
             className={cn(
-                'inline-flex size-8 shrink-0 items-center justify-center rounded-full transition sm:size-9',
+                'inline-flex size-10 shrink-0 items-center justify-center rounded-full transition sm:size-9',
                 active
                     ? 'bg-zinc-950 text-white shadow-sm shadow-zinc-950/20 dark:bg-white dark:text-zinc-950'
                     : 'bg-zinc-100 text-zinc-950 ring-1 ring-zinc-950/15 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-white dark:ring-white/20 dark:hover:bg-zinc-700',
