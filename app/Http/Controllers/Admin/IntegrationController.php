@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Notifications\AdminIntegrationTestMail;
 use App\Services\Admin\AdminAuditLogger;
 use App\Services\Admin\IntegrationSecretsService;
+use App\Services\Auth\SocialAuthService;
 use App\Services\Billing\BillingService;
 use App\Services\ContentTranslator;
 use App\Services\PlatformReadinessService;
@@ -27,6 +28,7 @@ class IntegrationController extends Controller
         BillingService $billing,
         TwilioMessagingService $twilio,
         IntegrationSecretsService $secrets,
+        SocialAuthService $social,
     ): Response {
         $summary = $platform->summary();
         $razorpayKey = (string) config('razorpay.key');
@@ -34,6 +36,7 @@ class IntegrationController extends Controller
 
         $fields = $secrets->fieldsForAdmin();
         $byGroup = collect($fields)->groupBy('group')->map->values()->all();
+        $socialEnabled = $social->enabledProviders();
 
         return Inertia::render('admin/integrations/index', [
             'platform' => $summary,
@@ -56,6 +59,17 @@ class IntegrationController extends Controller
                     'key_prefix' => $stripeKey !== '' ? substr($stripeKey, 0, 12).'…' : null,
                     'webhook_url' => url('/stripe/webhook'),
                 ],
+                'social' => [
+                    'google' => $social->isConfigured('google'),
+                    'apple' => $social->isConfigured('apple'),
+                    'facebook' => $social->isConfigured('facebook'),
+                    'enabled' => $socialEnabled,
+                    'callbacks' => [
+                        'google' => url('/auth/google/callback'),
+                        'apple' => url('/auth/apple/callback'),
+                        'facebook' => url('/auth/facebook/callback'),
+                    ],
+                ],
                 'storage' => [
                     'disk' => (string) config('filesystems.default'),
                     'bucket_set' => filled(config('filesystems.disks.s3.bucket')),
@@ -75,6 +89,17 @@ class IntegrationController extends Controller
                 ],
             ],
             'secret_groups' => [
+                [
+                    'id' => 'social',
+                    'title' => 'Social login · Google / Apple / Facebook',
+                    'hint' => 'Paste OAuth credentials here to enable Continue with Google / Apple / Facebook. Callback URLs must match your provider consoles exactly.',
+                    'callback_urls' => [
+                        url('/auth/google/callback'),
+                        url('/auth/apple/callback'),
+                        url('/auth/facebook/callback'),
+                    ],
+                    'fields' => $byGroup['social'] ?? [],
+                ],
                 [
                     'id' => 'razorpay',
                     'title' => 'Razorpay',
@@ -117,7 +142,7 @@ class IntegrationController extends Controller
         $allowed = array_keys($secrets->definitions());
         $data = $request->validate([
             'values' => ['required', 'array'],
-            'values.*' => ['nullable', 'string', 'max:2000'],
+            'values.*' => ['nullable', 'string', 'max:12000'],
             'clear' => ['sometimes', 'array'],
             'clear.*' => ['string', Rule::in($allowed)],
         ]);

@@ -11,7 +11,7 @@ class IntegrationSecretsService
     /**
      * Config path map for each editable secret.
      *
-     * @return array<string, array{config: string, label: string, group: string, secret?: bool, placeholder?: string}>
+     * @return array<string, array{config: string, label: string, group: string, secret?: bool, placeholder?: string, multiline?: bool}>
      */
     public function definitions(): array
     {
@@ -168,10 +168,17 @@ class IntegrationSecretsService
             ],
             'apple.private_key' => [
                 'config' => 'services.apple.private_key',
-                'label' => 'Apple .p8 private key absolute path',
+                'label' => 'Apple .p8 key (path or paste PEM)',
                 'group' => 'social',
                 'secret' => true,
-                'placeholder' => '/home/…/AuthKey_XXXXX.p8',
+                'multiline' => true,
+                'placeholder' => '/home/…/AuthKey_XXXXX.p8  — or paste -----BEGIN PRIVATE KEY----- …',
+            ],
+            'apple.passphrase' => [
+                'config' => 'services.apple.passphrase',
+                'label' => 'Apple key passphrase (optional)',
+                'group' => 'social',
+                'secret' => true,
             ],
         ];
     }
@@ -212,7 +219,7 @@ class IntegrationSecretsService
     /**
      * Masked field state for the admin UI (never expose full secrets).
      *
-     * @return list<array{key: string, label: string, group: string, secret: bool, placeholder: string|null, set: bool, preview: string|null, source: string}>
+     * @return list<array{key: string, label: string, group: string, secret: bool, multiline: bool, placeholder: string|null, set: bool, preview: string|null, source: string}>
      */
     public function fieldsForAdmin(): array
     {
@@ -235,6 +242,7 @@ class IntegrationSecretsService
                 'label' => $def['label'],
                 'group' => $def['group'],
                 'secret' => $secret,
+                'multiline' => (bool) ($def['multiline'] ?? false),
                 'placeholder' => $def['placeholder'] ?? null,
                 'set' => $set,
                 'preview' => $set ? $this->mask($effective, $secret) : null,

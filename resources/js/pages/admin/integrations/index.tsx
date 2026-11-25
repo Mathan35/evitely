@@ -9,6 +9,13 @@ type Integrations = {
     twilio?: { configured?: boolean; email?: boolean; sms?: boolean; whatsapp?: boolean; hints?: Record<string, string> };
     razorpay?: { ready?: boolean; mode?: string; key_prefix?: string | null; webhook_url?: string };
     stripe?: { ready?: boolean; mode?: string; key_prefix?: string | null; webhook_url?: string };
+    social?: {
+        google?: boolean;
+        apple?: boolean;
+        facebook?: boolean;
+        enabled?: string[];
+        callbacks?: { google?: string; apple?: string; facebook?: string };
+    };
     storage?: { disk?: string; bucket_set?: boolean; region?: string | null };
     translation?: { driver?: string; deepl_key_set?: boolean };
     sentry?: { dsn_set?: boolean; package?: boolean };
@@ -20,6 +27,7 @@ type SecretField = {
     label: string;
     group: string;
     secret: boolean;
+    multiline?: boolean;
     placeholder?: string | null;
     set: boolean;
     preview?: string | null;
@@ -31,6 +39,7 @@ type SecretGroup = {
     title: string;
     hint?: string;
     webhook_url?: string;
+    callback_urls?: string[];
     fields: SecretField[];
 };
 
@@ -136,11 +145,19 @@ export default function IntegrationsIndex({
                 </p>
             ) : null}
 
-            <div className="mb-4 grid gap-3 sm:grid-cols-4">
+            <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 <AdminStat label="Mailer" value={integrations.mail?.mailer ?? platform.mailer ?? '—'} />
                 <AdminStat label="Queue" value={platform.queue ?? '—'} />
                 <AdminStat label="Razorpay" value={integrations.razorpay?.mode ?? '—'} />
                 <AdminStat label="Stripe" value={integrations.stripe?.mode ?? '—'} />
+                <AdminStat
+                    label="Social login"
+                    value={
+                        (integrations.social?.enabled?.length ?? 0) > 0
+                            ? `${integrations.social?.enabled?.length}/3 ready`
+                            : 'Off'
+                    }
+                />
             </div>
 
             <form onSubmit={submit} className="space-y-3">
@@ -152,11 +169,26 @@ export default function IntegrationsIndex({
                                 Webhook · <span className="break-all text-zinc-800">{group.webhook_url}</span>
                             </div>
                         ) : null}
+                        {group.callback_urls && group.callback_urls.length > 0 ? (
+                            <div className="space-y-1 border-b border-zinc-100 px-4 py-2 text-[12px] text-zinc-500">
+                                <p className="font-medium text-zinc-600">OAuth callback URLs (add these in each provider console)</p>
+                                {group.callback_urls.map((url) => (
+                                    <p key={url} className="break-all font-mono text-[11px] text-zinc-800">
+                                        {url}
+                                    </p>
+                                ))}
+                            </div>
+                        ) : null}
                         <div className="divide-y divide-zinc-100">
                             {group.fields.map((field) => {
                                 const clearing = clearKeys.includes(field.key);
+                                const inputClass =
+                                    'w-full rounded-lg border border-zinc-200 bg-white px-3 text-[13px] text-zinc-900 disabled:bg-zinc-50';
                                 return (
-                                    <div key={field.key} className="grid gap-2 px-4 py-3 sm:grid-cols-[11rem_1fr_auto] sm:items-center">
+                                    <div
+                                        key={field.key}
+                                        className={`grid gap-2 px-4 py-3 sm:grid-cols-[11rem_1fr_auto] ${field.multiline ? 'sm:items-start' : 'sm:items-center'}`}
+                                    >
                                         <div>
                                             <p className="text-[13px] font-medium text-zinc-800">{field.label}</p>
                                             <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-zinc-400">
@@ -166,20 +198,45 @@ export default function IntegrationsIndex({
                                                 {field.preview ? <span className="font-mono">{field.preview}</span> : <span>Not set</span>}
                                             </p>
                                         </div>
-                                        <input
-                                            type={field.secret ? 'password' : 'text'}
-                                            autoComplete="off"
-                                            disabled={clearing || form.processing}
-                                            placeholder={clearing ? 'Will clear database override' : field.placeholder || (field.set ? '•••• keep current' : 'Paste value')}
-                                            value={form.data.values[field.key] ?? ''}
-                                            onChange={(e) =>
-                                                form.setData('values', {
-                                                    ...form.data.values,
-                                                    [field.key]: e.target.value,
-                                                })
-                                            }
-                                            className="h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 text-[13px] text-zinc-900 disabled:bg-zinc-50"
-                                        />
+                                        {field.multiline ? (
+                                            <textarea
+                                                rows={4}
+                                                autoComplete="off"
+                                                disabled={clearing || form.processing}
+                                                placeholder={
+                                                    clearing
+                                                        ? 'Will clear database override'
+                                                        : field.placeholder || (field.set ? '•••• keep current' : 'Paste value')
+                                                }
+                                                value={form.data.values[field.key] ?? ''}
+                                                onChange={(e) =>
+                                                    form.setData('values', {
+                                                        ...form.data.values,
+                                                        [field.key]: e.target.value,
+                                                    })
+                                                }
+                                                className={`${inputClass} py-2 font-mono text-[12px]`}
+                                            />
+                                        ) : (
+                                            <input
+                                                type={field.secret ? 'password' : 'text'}
+                                                autoComplete="off"
+                                                disabled={clearing || form.processing}
+                                                placeholder={
+                                                    clearing
+                                                        ? 'Will clear database override'
+                                                        : field.placeholder || (field.set ? '•••• keep current' : 'Paste value')
+                                                }
+                                                value={form.data.values[field.key] ?? ''}
+                                                onChange={(e) =>
+                                                    form.setData('values', {
+                                                        ...form.data.values,
+                                                        [field.key]: e.target.value,
+                                                    })
+                                                }
+                                                className={`${inputClass} h-9`}
+                                            />
+                                        )}
                                         <button
                                             type="button"
                                             className={`h-9 rounded-lg border px-2.5 text-[11px] font-medium ${
@@ -222,6 +279,11 @@ export default function IntegrationsIndex({
                     <Row label="Disk" value={integrations.storage?.disk || '—'} />
                     <Row label="Bucket" value={integrations.storage?.bucket_set ? 'Set' : 'Unset'} />
                     <Row label="Region" value={integrations.storage?.region || '—'} />
+                </AdminCard>
+                <AdminCard title="Social login">
+                    <Row label="Google" value={integrations.social?.google ? 'Ready' : 'Off'} />
+                    <Row label="Apple" value={integrations.social?.apple ? 'Ready' : 'Off'} />
+                    <Row label="Facebook" value={integrations.social?.facebook ? 'Ready' : 'Off'} />
                 </AdminCard>
                 <AdminCard title="Extras">
                     <Row label="Driver" value={integrations.translation?.driver || '—'} />
