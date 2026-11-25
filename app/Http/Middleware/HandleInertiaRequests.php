@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\User;
+use App\Services\Auth\SocialAuthService;
 use App\Services\Billing\BillingService;
 use App\Services\Growth\GrowthService;
 use App\Services\HostAlertsService;
@@ -94,6 +95,7 @@ class HandleInertiaRequests extends Middleware
                 : false,
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'canRegister' => Features::enabled(Features::registration()),
+            'socialProviders' => app(SocialAuthService::class)->enabledProviders(),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

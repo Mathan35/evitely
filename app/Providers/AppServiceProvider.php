@@ -13,6 +13,7 @@ use App\Services\PlatformReadinessService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -20,6 +21,7 @@ use Illuminate\Validation\Rules\Password;
 use Laravel\Cashier\Cashier;
 use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,6 +40,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Cashier::ignoreRoutes();
+
+        Event::listen(function (SocialiteWasCalled $event): void {
+            $event->extendSocialite('apple', \SocialiteProviders\Apple\Provider::class);
+        });
 
         if (! app()->environment(['local', 'testing'])) {
             URL::forceScheme('https');

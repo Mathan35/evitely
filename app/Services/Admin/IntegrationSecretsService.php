@@ -118,6 +118,61 @@ class IntegrationSecretsService
                 'group' => 'extras',
                 'secret' => true,
             ],
+            'google.client_id' => [
+                'config' => 'services.google.client_id',
+                'label' => 'Google OAuth client ID',
+                'group' => 'social',
+                'secret' => false,
+            ],
+            'google.client_secret' => [
+                'config' => 'services.google.client_secret',
+                'label' => 'Google OAuth client secret',
+                'group' => 'social',
+                'secret' => true,
+            ],
+            'facebook.client_id' => [
+                'config' => 'services.facebook.client_id',
+                'label' => 'Facebook App ID',
+                'group' => 'social',
+                'secret' => false,
+            ],
+            'facebook.client_secret' => [
+                'config' => 'services.facebook.client_secret',
+                'label' => 'Facebook App secret',
+                'group' => 'social',
+                'secret' => true,
+            ],
+            'apple.client_id' => [
+                'config' => 'services.apple.client_id',
+                'label' => 'Apple Services ID',
+                'group' => 'social',
+                'secret' => false,
+            ],
+            'apple.client_secret' => [
+                'config' => 'services.apple.client_secret',
+                'label' => 'Apple client secret JWT (optional if key path set)',
+                'group' => 'social',
+                'secret' => true,
+            ],
+            'apple.team_id' => [
+                'config' => 'services.apple.team_id',
+                'label' => 'Apple Team ID',
+                'group' => 'social',
+                'secret' => false,
+            ],
+            'apple.key_id' => [
+                'config' => 'services.apple.key_id',
+                'label' => 'Apple Key ID',
+                'group' => 'social',
+                'secret' => false,
+            ],
+            'apple.private_key' => [
+                'config' => 'services.apple.private_key',
+                'label' => 'Apple .p8 private key absolute path',
+                'group' => 'social',
+                'secret' => true,
+                'placeholder' => '/home/…/AuthKey_XXXXX.p8',
+            ],
         ];
     }
 

@@ -11,6 +11,7 @@ import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 import PasskeyVerify from '@/components/passkey-verify';
+import { SocialLoginButtons } from '@/components/social-login-buttons';
 
 type Props = {
     status?: string;
@@ -92,6 +93,8 @@ export default function Login({ status, canResetPassword }: Props) {
                                 {processing && <Spinner />}
                                 Open the studio
                             </Button>
+
+                            <SocialLoginButtons />
                         </div>
 
                         <div className="text-center text-sm text-[#5e554c]">

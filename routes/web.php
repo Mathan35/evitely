@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DesignGalleryController;
 use App\Http\Controllers\EventCardController;
@@ -78,6 +79,15 @@ foreach (array_keys(SeoPageController::pages()) as $page) {
 Route::get('privacy', [LegalController::class, 'privacy'])->name('legal.privacy');
 Route::get('terms', [LegalController::class, 'terms'])->name('legal.terms');
 Route::get('cookies', [LegalController::class, 'cookies'])->name('legal.cookies');
+
+Route::middleware('guest')->group(function (): void {
+    Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
+        ->whereIn('provider', ['google', 'apple', 'facebook'])
+        ->name('social.redirect');
+    Route::match(['get', 'post'], 'auth/{provider}/callback', [SocialAuthController::class, 'callback'])
+        ->whereIn('provider', ['google', 'apple', 'facebook'])
+        ->name('social.callback');
+});
 
 $inviteRoutes = function (callable $name): void {
     Route::get('/', [PublicWeddingController::class, 'show'])->name($name('public'));

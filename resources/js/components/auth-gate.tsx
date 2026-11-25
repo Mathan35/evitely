@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { SocialLoginButtons } from '@/components/social-login-buttons';
 import { request } from '@/routes/password';
 import { store as loginStore } from '@/routes/login';
 import { store as registerStore } from '@/routes/register';
@@ -258,7 +259,7 @@ function AuthDialog({
                                             {processing && <Spinner />}
                                             Continue
                                         </Button>
-                                        <SocialRow />
+                                        <SocialLoginButtons compact />
                                     </>
                                 )}
                             </Form>
@@ -283,7 +284,7 @@ function AuthDialog({
                                             {processing && <Spinner />}
                                             Continue
                                         </Button>
-                                        <SocialRow />
+                                        <SocialLoginButtons compact />
                                     </>
                                 )}
                             </Form>
@@ -293,47 +294,6 @@ function AuthDialog({
                 </div>
             </DialogContent>
         </Dialog>
-    );
-}
-
-function SocialRow() {
-    return (
-        <div className="pt-1">
-            <p className="relative text-center text-[12px] text-[#b0a89e]">
-                <span className="absolute inset-x-0 top-1/2 border-t border-[#eee7dc]" />
-                <span className="relative bg-white px-3">or continue with</span>
-            </p>
-            <div className="mt-3 grid grid-cols-3 gap-2">
-                <SocialButton label="Google">
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
-                        <path fill="#EA4335" d="M12 10.2v3.6h5.1c-.2 1.2-1.4 3.6-5.1 3.6-3.1 0-5.6-2.5-5.6-5.6S8.9 6.2 12 6.2c1.8 0 3 .7 3.7 1.4l2.5-2.4C16.7 3.7 14.6 2.8 12 2.8 6.9 2.8 2.8 6.9 2.8 12S6.9 21.2 12 21.2c5.3 0 8.8-3.7 8.8-8.9 0-.6 0-1-.1-1.5H12Z" />
-                    </svg>
-                </SocialButton>
-                <SocialButton label="Apple">
-                    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden>
-                        <path d="M16.7 12.6c0-2.2 1.8-3.2 1.9-3.3-1-.1.5-2.5-.1-3.5-.9-1.5-2.4-1.7-2.9-1.7-1.2-.1-2.4.7-3 .7s-1.6-.7-2.7-.7c-1.4 0-2.7.8-3.4 2.1-1.5 2.5-.4 6.3 1 8.3.7 1 1.5 2.1 2.6 2 1 0 1.4-.7 2.7-.7s1.6.7 2.7.6c1.1 0 1.8-1 2.5-2 .8-1.1 1.1-2.2 1.1-2.3-.1 0-2.1-.8-2.4-3.2ZM14.4 5.3c.6-.7 1-1.7.9-2.7-1 .1-2.1.7-2.7 1.5-.6.6-1.1 1.7-.9 2.6 1 .1 2.1-.5 2.7-1.4Z" />
-                    </svg>
-                </SocialButton>
-                <SocialButton label="Facebook">
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
-                        <path fill="#1877F2" d="M14.2 20.5v-6.3h2.1l.3-2.4h-2.4V10.2c0-.7.2-1.2 1.2-1.2h1.3V6.9c-.2 0-1-.1-1.9-.1-1.9 0-3.2 1.1-3.2 3.3v1.8H9.2v2.4h2.4v6.2h2.6Z" />
-                    </svg>
-                </SocialButton>
-            </div>
-        </div>
-    );
-}
-
-function SocialButton({ label, children }: { label: string; children: ReactNode }) {
-    return (
-        <button
-            type="button"
-            className="inline-flex h-11 items-center justify-center gap-1.5 rounded-full border border-[#eadfd0] bg-white text-[12px] text-[#2b241c]"
-            aria-label={`Continue with ${label}`}
-        >
-            {children}
-            {label}
-        </button>
     );
 }
 
