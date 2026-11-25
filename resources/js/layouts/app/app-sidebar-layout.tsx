@@ -63,7 +63,8 @@ export default function AppSidebarLayout({
     children,
     breadcrumbs = [],
 }: AppLayoutProps) {
-    const { auth } = usePage<{ auth: Auth }>().props;
+    const { auth } = usePage<{ auth?: Auth | null }>().props;
+    const user = auth?.user ?? null;
     const [mobileOpen, setMobileOpen] = useState(false);
 
     return (
@@ -138,20 +139,20 @@ export default function AppSidebarLayout({
                             <span className="hidden xl:inline">Create Invitation</span>
                             <span className="xl:hidden">Create</span>
                         </Link>
-                        {auth.user ? (
+                        {user ? (
                             <DropdownMenu modal={false}>
                                 <DropdownMenuTrigger
                                     className="inline-flex max-w-[10.5rem] items-center rounded-full border border-zinc-950/10 bg-white/80 p-1 backdrop-blur xl:max-w-none xl:pr-2.5 dark:border-white/10 dark:bg-zinc-900/70 [&_.user-name]:hidden xl:[&_.user-name]:grid"
                                     data-test="sidebar-menu-button"
                                 >
-                                    <UserInfo user={auth.user} />
+                                    <UserInfo user={user} />
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
                                     align="end"
                                     sideOffset={8}
                                     className="min-w-56 duration-200 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-top-2"
                                 >
-                                    <UserMenuContent user={auth.user} />
+                                    <UserMenuContent user={user} />
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         ) : null}

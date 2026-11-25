@@ -1,9 +1,8 @@
 /* Invidora service worker — studio shell + offline guest invite pages. */
-const SHELL_CACHE = 'invidora-shell-v2';
-const INVITE_CACHE = 'invidora-invites-v2';
+const SHELL_CACHE = 'invidora-shell-v3';
+const INVITE_CACHE = 'invidora-invites-v3';
 const SHELL = [
   '/',
-  '/dashboard',
   '/manifest.webmanifest',
   '/favicon.svg',
   '/icons/icon-192.png',

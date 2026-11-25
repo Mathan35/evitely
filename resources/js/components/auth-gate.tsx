@@ -48,7 +48,8 @@ function writeIntent(intent: AuthIntent | null): void {
 }
 
 export function AuthGateProvider({ children }: { children: ReactNode }) {
-    const { auth } = usePage().props;
+    const pageProps = usePage().props as { auth?: { user?: unknown } | null };
+    const auth = pageProps.auth ?? { user: null };
     const [visible, setVisible] = useState(false);
     const [tab, setTab] = useState<'login' | 'register'>('login');
     const wasGuest = useRef(!auth.user);
