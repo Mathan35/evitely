@@ -49,6 +49,8 @@ fi
 echo "==> Laravel setup"
 php artisan migrate --force --no-interaction
 php artisan storage:link --force || true
+# Always rebuild caches so new routes (e.g. /auth/google/redirect) are live after git pull.
+php artisan optimize:clear || true
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache || true
