@@ -6,6 +6,11 @@ set -euo pipefail
 APP_DIR="${APP_DIR:-$HOME/domains/invidora.com/invidora}"
 cd "$APP_DIR"
 
+# Hostinger SSH defaults can be older PHP; prefer 8.4 for artisan/composer.
+if [[ -x /opt/alt/php84/usr/bin/php ]]; then
+  export PATH=/opt/alt/php84/usr/bin:$PATH
+fi
+
 bash "$APP_DIR/deploy/hostinger/maintenance-down.sh"
 
 cleanup() {
