@@ -197,6 +197,12 @@ export function MarketingHeader({
                             </nav>
 
                             <div className="shrink-0 border-t border-zinc-950/8 p-4 dark:border-white/10">
+                                <div className="mb-3 flex items-center justify-between gap-3 rounded-2xl border border-zinc-950/8 bg-white/70 px-3.5 py-2.5 dark:border-white/10 dark:bg-zinc-900/50">
+                                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                                        Appearance
+                                    </span>
+                                    <ThemeToggle />
+                                </div>
                                 {user ? (
                                     <div className="grid gap-2">
                                         <button
@@ -294,7 +300,7 @@ export function MarketingHeader({
                 )}
 
                 <div className="ml-auto flex shrink-0 items-center gap-2">
-                    <ThemeToggle />
+                    <ThemeToggle className="hidden lg:inline-flex" />
                     <InstallAppButton variant="nav" className="hidden lg:inline-flex" />
                     {user ? (
                         <>

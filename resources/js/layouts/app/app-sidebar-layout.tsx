@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Menu, Plus } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { BrandMark } from '@/components/brand-mark';
 import { Breadcrumbs } from '@/components/breadcrumbs';
@@ -33,7 +33,6 @@ import {
     skeletonShell,
     useInertiaNavigating,
 } from '@/hooks/use-inertia-navigating';
-import { openCreateInvitation } from '@/lib/open-create-invitation';
 import type { AppLayoutProps, Auth } from '@/types';
 
 /** Studio body skeleton — skip when AuthGate or settings panel owns the overlay. */
@@ -104,23 +103,16 @@ export default function AppSidebarLayout({
                                 </div>
 
                                 <div className="shrink-0 border-t border-zinc-950/8 p-4 dark:border-white/10">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            openCreateInvitation();
-                                        }}
-                                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-zinc-950 text-sm font-medium text-white shadow-lg shadow-zinc-950/20 dark:bg-white dark:text-zinc-950"
-                                    >
-                                        <Plus className="size-4" />
-                                        Create Invitation
-                                    </button>
-                                    <div className="mt-2">
-                                        <InstallAppButton
-                                            variant="sheet"
-                                            onAfterClick={() => setMobileOpen(false)}
-                                        />
+                                    <div className="mb-3 flex items-center justify-between gap-3 rounded-2xl border border-zinc-950/8 bg-white/70 px-3.5 py-2.5 dark:border-white/10 dark:bg-zinc-900/50">
+                                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                                            Appearance
+                                        </span>
+                                        <ThemeToggle />
                                     </div>
+                                    <InstallAppButton
+                                        variant="sheet"
+                                        onAfterClick={() => setMobileOpen(false)}
+                                    />
                                     <Link
                                         href="/"
                                         onClick={() => setMobileOpen(false)}
@@ -142,19 +134,9 @@ export default function AppSidebarLayout({
 
                     <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
                         {user ? <NotificationsBell /> : null}
-                        <ThemeToggle />
+                        <ThemeToggle className="hidden lg:inline-flex" />
                         <InstallAppButton variant="nav" className="hidden xl:inline-flex" />
-                        <StudioSettingsIconLink />
-                        <button
-                            type="button"
-                            onClick={() => openCreateInvitation()}
-                            aria-label="Create invitation"
-                            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-zinc-950 px-3 text-sm font-medium whitespace-nowrap text-white shadow-lg shadow-zinc-950/15 transition hover:bg-zinc-800 sm:px-3.5 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
-                        >
-                            <Plus className="size-4 shrink-0" />
-                            <span className="hidden xl:inline">Create Invitation</span>
-                            <span className="xl:hidden">Create</span>
-                        </button>
+                        <StudioSettingsIconLink className="hidden lg:inline-flex" />
                         {user ? (
                             <DropdownMenu modal={false}>
                                 <DropdownMenuTrigger
