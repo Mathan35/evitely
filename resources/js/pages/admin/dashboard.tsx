@@ -1,6 +1,14 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { FormEvent } from 'react';
-import { AdminBarChart, AdminCard, AdminLineChart, AdminPageHeader, AdminStat, AdminTable } from '@/components/admin/admin-ui';
+import {
+    AdminBarChart,
+    AdminCard,
+    AdminFilters,
+    AdminLineChart,
+    AdminPageHeader,
+    AdminStat,
+    AdminTable,
+} from '@/components/admin/admin-ui';
 import { rupees, shortDate } from '@/components/admin/pagination';
 
 type Check = { id: string; label: string; done: boolean; hint: string; group?: string };
@@ -127,77 +135,115 @@ export default function Dashboard({ platform, analytics, filters, webhook_urls, 
                 }
             />
 
-            <form onSubmit={onSubmit} className="mb-4 flex flex-wrap items-end gap-2 rounded-2xl border border-zinc-200 bg-white p-3">
-                <label className="text-[11px] text-zinc-500">
-                    Range
-                    <select
-                        name="preset"
-                        defaultValue={preset}
-                        className="mt-1 block h-9 rounded-lg border border-zinc-200 bg-white px-2 text-[13px]"
-                        onChange={(e) => apply({ preset: e.target.value, from: '', to: '' })}
-                    >
-                        <option value="7d">Last 7 days</option>
-                        <option value="30d">Last 30 days</option>
-                        <option value="90d">Last 90 days</option>
-                    </select>
-                </label>
-                <label className="text-[11px] text-zinc-500">
-                    From
-                    <input name="from" type="date" defaultValue={filters.from ?? analytics.range.from} className="mt-1 block h-9 rounded-lg border border-zinc-200 px-2 text-[13px]" />
-                </label>
-                <label className="text-[11px] text-zinc-500">
-                    To
-                    <input name="to" type="date" defaultValue={filters.to ?? analytics.range.to} className="mt-1 block h-9 rounded-lg border border-zinc-200 px-2 text-[13px]" />
-                </label>
-                <label className="text-[11px] text-zinc-500">
-                    Mode
-                    <select name="invitation_mode" defaultValue={filters.invitation_mode ?? ''} className="mt-1 block h-9 rounded-lg border border-zinc-200 bg-white px-2 text-[13px]">
-                        <option value="">All modes</option>
-                        <option value="site">Site</option>
-                        <option value="card">Card</option>
-                        <option value="both">Both</option>
-                        <option value="link">Link</option>
-                    </select>
-                </label>
-                <label className="text-[11px] text-zinc-500">
-                    Billing
-                    <select name="billing" defaultValue={filters.billing ?? ''} className="mt-1 block h-9 rounded-lg border border-zinc-200 bg-white px-2 text-[13px]">
-                        <option value="">All billing</option>
-                        <option value="draft_ready">Draft ready</option>
-                        <option value="trial">Trial</option>
-                        <option value="active">Active</option>
-                        <option value="paid">Paid</option>
-                        <option value="expired">Expired</option>
-                    </select>
-                </label>
-                <label className="text-[11px] text-zinc-500">
-                    Plan
-                    <select name="plan" defaultValue={filters.plan ?? ''} className="mt-1 block h-9 rounded-lg border border-zinc-200 bg-white px-2 text-[13px]">
-                        <option value="">All plans</option>
-                        <option value="free">Free</option>
-                        <option value="pro">Pro</option>
-                    </select>
-                </label>
-                <button type="submit" className="h-9 rounded-lg bg-zinc-950 px-3 text-[13px] font-medium text-white">
-                    Apply filters
-                </button>
-                <button
-                    type="button"
-                    className="h-9 rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-700"
-                    onClick={() => apply({ preset: '7d', from: '', to: '', invitation_mode: '', billing: '', plan: '' })}
-                >
-                    Reset
-                </button>
+            <form onSubmit={onSubmit}>
+                <AdminFilters className="sm:gap-2">
+                    <label className="block text-[11px] text-zinc-500 sm:min-w-[8rem]">
+                        Range
+                        <select
+                            name="preset"
+                            defaultValue={preset}
+                            className="mt-1 block h-10 w-full rounded-lg border border-zinc-200 bg-white px-2 text-[13px] sm:h-9"
+                            onChange={(e) => apply({ preset: e.target.value, from: '', to: '' })}
+                        >
+                            <option value="7d">Last 7 days</option>
+                            <option value="30d">Last 30 days</option>
+                            <option value="90d">Last 90 days</option>
+                        </select>
+                    </label>
+                    <label className="block text-[11px] text-zinc-500 sm:min-w-[9rem]">
+                        From
+                        <input
+                            name="from"
+                            type="date"
+                            defaultValue={filters.from ?? analytics.range.from}
+                            className="mt-1 block h-10 w-full rounded-lg border border-zinc-200 px-2 text-[13px] sm:h-9"
+                        />
+                    </label>
+                    <label className="block text-[11px] text-zinc-500 sm:min-w-[9rem]">
+                        To
+                        <input
+                            name="to"
+                            type="date"
+                            defaultValue={filters.to ?? analytics.range.to}
+                            className="mt-1 block h-10 w-full rounded-lg border border-zinc-200 px-2 text-[13px] sm:h-9"
+                        />
+                    </label>
+                    <label className="block text-[11px] text-zinc-500 sm:min-w-[8rem]">
+                        Mode
+                        <select
+                            name="invitation_mode"
+                            defaultValue={filters.invitation_mode ?? ''}
+                            className="mt-1 block h-10 w-full rounded-lg border border-zinc-200 bg-white px-2 text-[13px] sm:h-9"
+                        >
+                            <option value="">All modes</option>
+                            <option value="site">Site</option>
+                            <option value="card">Card</option>
+                            <option value="both">Both</option>
+                            <option value="link">Link</option>
+                        </select>
+                    </label>
+                    <label className="block text-[11px] text-zinc-500 sm:min-w-[8rem]">
+                        Billing
+                        <select
+                            name="billing"
+                            defaultValue={filters.billing ?? ''}
+                            className="mt-1 block h-10 w-full rounded-lg border border-zinc-200 bg-white px-2 text-[13px] sm:h-9"
+                        >
+                            <option value="">All billing</option>
+                            <option value="draft_ready">Draft ready</option>
+                            <option value="trial">Trial</option>
+                            <option value="active">Active</option>
+                            <option value="paid">Paid</option>
+                            <option value="expired">Expired</option>
+                        </select>
+                    </label>
+                    <label className="block text-[11px] text-zinc-500 sm:min-w-[7rem]">
+                        Plan
+                        <select
+                            name="plan"
+                            defaultValue={filters.plan ?? ''}
+                            className="mt-1 block h-10 w-full rounded-lg border border-zinc-200 bg-white px-2 text-[13px] sm:h-9"
+                        >
+                            <option value="">All plans</option>
+                            <option value="free">Free</option>
+                            <option value="pro">Pro</option>
+                        </select>
+                    </label>
+                    <div className="grid grid-cols-2 gap-2 sm:flex sm:items-end">
+                        <button
+                            type="submit"
+                            className="h-10 rounded-lg bg-zinc-950 px-3 text-[13px] font-medium text-white sm:h-9"
+                        >
+                            Apply filters
+                        </button>
+                        <button
+                            type="button"
+                            className="h-10 rounded-lg border border-zinc-200 px-3 text-[13px] font-medium text-zinc-700 sm:h-9"
+                            onClick={() =>
+                                apply({
+                                    preset: '7d',
+                                    from: '',
+                                    to: '',
+                                    invitation_mode: '',
+                                    billing: '',
+                                    plan: '',
+                                })
+                            }
+                        >
+                            Reset
+                        </button>
+                    </div>
+                </AdminFilters>
             </form>
 
-            <div className="mb-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mb-3 grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-4">
                 <AdminStat label="Users (all)" value={totals.users ?? 0} />
                 <AdminStat label="Events (all)" value={totals.events ?? 0} />
                 <AdminStat label="Published (all)" value={totals.published_events ?? 0} />
                 <AdminStat label="Cards (all)" value={totals.cards ?? 0} />
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-4">
                 <AdminStat label="New users" value={kpis.new_users ?? 0} />
                 <AdminStat label="Events created" value={kpis.events_created ?? 0} />
                 <AdminStat label="Published" value={kpis.events_published ?? 0} />

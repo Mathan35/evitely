@@ -174,6 +174,7 @@ class MarketingSeo
             ['loc' => url('/privacy'), 'changefreq' => 'yearly', 'priority' => '0.3'],
             ['loc' => url('/terms'), 'changefreq' => 'yearly', 'priority' => '0.3'],
             ['loc' => url('/cookies'), 'changefreq' => 'yearly', 'priority' => '0.3'],
+            ['loc' => url('/support'), 'changefreq' => 'monthly', 'priority' => '0.5'],
         ];
 
         foreach (DesignGallery::occasions() as $occasion) {

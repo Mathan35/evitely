@@ -46,6 +46,20 @@ if [[ ! -f .env ]]; then
   exit 0
 fi
 
+echo "==> Maintenance (friendly wait page for visitors)"
+MAINTENANCE_SECRET="${MAINTENANCE_SECRET:-deploy-bypass}"
+php artisan down \
+  --render="maintenance" \
+  --retry=30 \
+  --refresh=12 \
+  --secret="$MAINTENANCE_SECRET" \
+  --status=503 || true
+
+cleanup_maintenance() {
+  php artisan up || true
+}
+trap cleanup_maintenance EXIT
+
 echo "==> Laravel setup"
 php artisan migrate --force --no-interaction
 php artisan storage:link --force || true
@@ -55,6 +69,10 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache || true
 php artisan event:cache || true
+
+echo "==> Bring site back online"
+php artisan up
+trap - EXIT
 
 echo "==> Permissions"
 chmod -R ug+rwx storage bootstrap/cache || true

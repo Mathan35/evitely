@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { ExternalLink, Redo2, Undo2 } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Redo2, Undo2 } from 'lucide-react';
 import { NotificationsBell } from '@/components/studio/notifications-bell';
 import { cn } from '@/lib/utils';
 
@@ -51,54 +51,65 @@ export function EditorTopBar({
     className?: string;
 }) {
     const backClassName =
-        'inline-flex h-8 shrink-0 items-center rounded-full px-2 text-[12px] font-medium text-zinc-500 transition hover:bg-white/70 hover:text-zinc-900 hover:shadow-sm sm:h-9 sm:px-3 sm:text-[13px]';
+        'inline-flex size-9 shrink-0 items-center justify-center rounded-full text-zinc-600 transition hover:bg-white/80 hover:text-zinc-900 hover:shadow-sm sm:h-9 sm:w-auto sm:justify-start sm:gap-1.5 sm:px-3 sm:text-[13px] sm:font-medium sm:text-zinc-500';
+
+    const previewClassName =
+        'inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-white/80 text-zinc-600 shadow-sm ring-1 ring-zinc-950/5 transition hover:text-zinc-900 sm:h-9 sm:w-auto sm:gap-1.5 sm:px-3 sm:text-[12px] sm:font-semibold';
+
+    const secondaryActionClassName =
+        'inline-flex h-9 shrink-0 items-center rounded-full bg-white/80 px-3 text-[12px] font-semibold text-zinc-700 shadow-sm ring-1 ring-zinc-950/5 transition hover:text-zinc-900 disabled:opacity-50';
 
     return (
         <header
             className={cn(
-                'relative z-20 flex h-12 w-full min-w-0 max-w-full shrink-0 items-center gap-1.5 overflow-hidden px-2 sm:h-14 sm:gap-3 sm:px-5',
+                'relative z-20 flex h-12 w-full min-w-0 max-w-full shrink-0 items-center gap-2 overflow-hidden px-2.5 sm:h-14 sm:gap-3 sm:px-5',
                 className,
             )}
         >
             {onBack ? (
-                <button type="button" onClick={onBack} className={backClassName}>
-                    {eventsLabel}
+                <button type="button" onClick={onBack} className={backClassName} aria-label="Back to events">
+                    <ArrowLeft className="size-4 shrink-0" aria-hidden />
+                    <span className="hidden sm:inline">{eventsLabel.replace(/^←\s*/, '')}</span>
                 </button>
             ) : (
-                <Link href={eventsHref} className={backClassName}>
-                    {eventsLabel}
+                <Link href={eventsHref} className={backClassName} aria-label="Back to events">
+                    <ArrowLeft className="size-4 shrink-0" aria-hidden />
+                    <span className="hidden sm:inline">{eventsLabel.replace(/^←\s*/, '')}</span>
                 </Link>
             )}
 
-            <div className="flex min-w-0 flex-1 items-center justify-center">
+            {/* Title / draft note — desktop only; on mobile it crushed into a useless “A”. */}
+            <div className="hidden min-w-0 flex-1 items-center justify-center sm:flex">
                 {centerNote ? (
-                    <p className="max-w-[min(100%,28rem)] truncate text-center text-[12px] font-medium tracking-tight text-zinc-600 sm:text-[13px]">
+                    <p className="max-w-[min(100%,28rem)] truncate text-center text-[13px] font-medium tracking-tight text-zinc-600">
                         {centerNote}
                     </p>
                 ) : (
-                    <div className="inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 shadow-sm ring-1 ring-zinc-950/5 backdrop-blur sm:gap-2 sm:px-3.5 sm:py-1.5">
+                    <div className="inline-flex max-w-full min-w-0 items-center gap-2 rounded-full bg-white/90 px-3.5 py-1.5 shadow-sm ring-1 ring-zinc-950/5 backdrop-blur">
                         <span className="size-1.5 shrink-0 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.18)]" />
-                        <p className="truncate text-[12px] font-semibold tracking-tight text-zinc-900 sm:text-[13px]">{projectName}</p>
-                        <span className="hidden truncate text-[11px] text-zinc-400 sm:inline">{savedAt ?? 'Ready'}</span>
+                        <p className="truncate text-[13px] font-semibold tracking-tight text-zinc-900">
+                            {projectName}
+                        </p>
+                        <span className="truncate text-[11px] text-zinc-400">{savedAt ?? 'Ready'}</span>
                     </div>
                 )}
             </div>
 
-            <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
-                <NotificationsBell className="mr-0.5 size-9 border-zinc-950/8 bg-white/80 sm:mr-1" />
-                <IconButton label="Undo" onClick={onUndo} disabled={!canUndo}>
-                    <Undo2 className="h-3.5 w-3.5" />
-                </IconButton>
-                <IconButton label="Redo" onClick={onRedo} disabled={!canRedo}>
-                    <Redo2 className="h-3.5 w-3.5" />
-                </IconButton>
+            <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:ml-0 sm:gap-2">
+                <NotificationsBell className="size-9 border-zinc-950/8 bg-white/80" />
+
+                <div className="hidden items-center gap-0.5 md:flex">
+                    <IconButton label="Undo" onClick={onUndo} disabled={!canUndo}>
+                        <Undo2 className="h-3.5 w-3.5" />
+                    </IconButton>
+                    <IconButton label="Redo" onClick={onRedo} disabled={!canRedo}>
+                        <Redo2 className="h-3.5 w-3.5" />
+                    </IconButton>
+                </div>
+
                 {onPreview ? (
-                    <button
-                        type="button"
-                        onClick={onPreview}
-                        className="ml-0.5 inline-flex h-9 items-center gap-1.5 rounded-full bg-white/75 px-2.5 text-[12px] font-semibold text-zinc-600 shadow-sm ring-1 ring-zinc-950/5 transition hover:text-zinc-900 sm:ml-1 sm:px-3"
-                    >
-                        <ExternalLink className="h-3.5 w-3.5" />
+                    <button type="button" onClick={onPreview} className={previewClassName} aria-label="Preview">
+                        <ExternalLink className="size-3.5 shrink-0" aria-hidden />
                         <span className="hidden sm:inline">Preview</span>
                     </button>
                 ) : (
@@ -106,38 +117,42 @@ export function EditorTopBar({
                         href={previewHref}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="ml-0.5 inline-flex h-9 items-center gap-1.5 rounded-full bg-white/75 px-2.5 text-[12px] font-semibold text-zinc-600 shadow-sm ring-1 ring-zinc-950/5 transition hover:text-zinc-900 sm:ml-1 sm:px-3"
+                        className={previewClassName}
+                        aria-label="Preview"
                     >
-                        <ExternalLink className="h-3.5 w-3.5" />
+                        <ExternalLink className="size-3.5 shrink-0" aria-hidden />
                         <span className="hidden sm:inline">Preview</span>
                     </Link>
                 )}
+
                 {onSave ? (
                     <button
                         type="button"
                         onClick={onSave}
                         disabled={saving}
-                        className="ml-0.5 inline-flex h-9 items-center rounded-full bg-white/75 px-3 text-[12px] font-semibold text-zinc-700 shadow-sm ring-1 ring-zinc-950/5 transition hover:text-zinc-900 disabled:opacity-50 sm:ml-1 sm:px-4"
+                        className={secondaryActionClassName}
                     >
                         {saving ? 'Saving…' : saveLabel}
                     </button>
                 ) : null}
+
                 {onStopLive ? (
                     <button
                         type="button"
                         onClick={onStopLive}
                         disabled={publishing}
-                        className="ml-0.5 inline-flex h-9 items-center rounded-full bg-white/75 px-3 text-[12px] font-semibold text-rose-700 shadow-sm ring-1 ring-rose-200/80 transition hover:bg-rose-50 disabled:opacity-50 sm:ml-1 sm:px-4"
+                        className="hidden h-9 shrink-0 items-center rounded-full bg-white/80 px-3 text-[12px] font-semibold text-rose-700 shadow-sm ring-1 ring-rose-200/80 transition hover:bg-rose-50 disabled:opacity-50 sm:inline-flex sm:px-4"
                     >
                         Stop live
                     </button>
                 ) : null}
+
                 <button
                     type="button"
                     onClick={onPublish}
                     disabled={publishing}
                     className={cn(
-                        'ml-0.5 inline-flex h-9 items-center rounded-full px-3 text-[12px] font-semibold transition active:scale-[0.98] disabled:opacity-50 sm:ml-1 sm:px-4',
+                        'inline-flex h-9 shrink-0 items-center rounded-full px-3.5 text-[12px] font-semibold transition active:scale-[0.98] disabled:opacity-50 sm:px-4',
                         publishLabel === 'View site' || publishLabel === 'Go live'
                             ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-700/25 hover:bg-emerald-500'
                             : 'bg-zinc-900 text-white shadow-lg shadow-zinc-900/25 hover:bg-zinc-800',
@@ -168,7 +183,7 @@ function IconButton({
             title={label}
             onClick={onClick}
             disabled={disabled}
-            className="grid size-8 place-items-center rounded-full text-zinc-500 transition hover:bg-white/80 hover:text-zinc-900 hover:shadow-sm disabled:opacity-30 sm:size-9"
+            className="grid size-9 place-items-center rounded-full text-zinc-500 transition hover:bg-white/80 hover:text-zinc-900 hover:shadow-sm disabled:opacity-30"
         >
             {children}
         </button>

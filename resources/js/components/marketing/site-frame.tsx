@@ -44,8 +44,9 @@ export function SiteFrame({
                         ]}
                     />
                     <FooterColumn
-                        title="Legal"
+                        title="Help & legal"
                         links={[
+                            ['/support', 'Support'],
                             ['/privacy', 'Privacy'],
                             ['/terms', 'Terms'],
                             ['/cookies', 'Cookies'],

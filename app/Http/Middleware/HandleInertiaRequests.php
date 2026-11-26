@@ -91,6 +91,7 @@ class HandleInertiaRequests extends Middleware
                     'trial_event_limit' => (bool) $request->session()->get('trial_event_limit', false),
                     'toast' => $request->session()->get('toast'),
                     'publish_growth' => $request->session()->get('publish_growth'),
+                    'support_sent' => (bool) $request->session()->get('support_sent', false),
                 ],
             ),
             'growth' => app(GrowthService::class)->publicProps($user),

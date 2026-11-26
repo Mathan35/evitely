@@ -5,21 +5,22 @@ import { cn } from '@/lib/utils';
 /** Exact mirror of `EditorTopBar` chrome. */
 export function EditorTopBarSkeleton() {
     return (
-        <header className="relative z-20 flex h-12 w-full min-w-0 max-w-full shrink-0 items-center gap-1.5 overflow-hidden px-2 sm:h-14 sm:gap-3 sm:px-5">
-            <Bone className="h-8 w-[4.5rem] shrink-0 rounded-full sm:h-9 sm:w-[5.25rem]" />
-            <div className="flex min-w-0 flex-1 items-center justify-center">
-                <div className="inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 shadow-sm ring-1 ring-zinc-950/5 backdrop-blur sm:gap-2 sm:px-3.5 sm:py-1.5">
+        <header className="relative z-20 flex h-12 w-full min-w-0 max-w-full shrink-0 items-center gap-2 overflow-hidden px-2.5 sm:h-14 sm:gap-3 sm:px-5">
+            <Bone className="size-9 shrink-0 rounded-full sm:h-9 sm:w-[5.25rem]" />
+            <div className="hidden min-w-0 flex-1 items-center justify-center sm:flex">
+                <div className="inline-flex max-w-full min-w-0 items-center gap-2 rounded-full bg-white/90 px-3.5 py-1.5 shadow-sm ring-1 ring-zinc-950/5 backdrop-blur">
                     <span className="size-1.5 shrink-0 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.18)]" />
-                    <Bone className="h-3.5 w-28 sm:w-40" />
-                    <Bone className="hidden h-3 w-12 sm:block" />
+                    <Bone className="h-3.5 w-40" />
+                    <Bone className="h-3 w-12" />
                 </div>
             </div>
-            <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
-                <Bone className="size-8 rounded-full sm:size-9" />
-                <Bone className="size-8 rounded-full sm:size-9" />
-                <Bone className="ml-0.5 h-9 w-9 rounded-full sm:ml-1 sm:w-[5.5rem]" />
-                <Bone className="ml-0.5 h-9 w-14 rounded-full sm:ml-1 sm:w-16" />
-                <Bone className="ml-0.5 h-9 w-16 rounded-full bg-zinc-900/90 sm:ml-1 sm:w-20" />
+            <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:ml-0 sm:gap-2">
+                <Bone className="size-9 rounded-full" />
+                <Bone className="hidden size-9 rounded-full md:block" />
+                <Bone className="hidden size-9 rounded-full md:block" />
+                <Bone className="size-9 rounded-full sm:h-9 sm:w-[5.5rem]" />
+                <Bone className="h-9 w-14 rounded-full sm:w-16" />
+                <Bone className="h-9 w-16 rounded-full bg-zinc-900/90 sm:w-20" />
             </div>
         </header>
     );

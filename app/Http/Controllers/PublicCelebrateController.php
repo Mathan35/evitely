@@ -60,7 +60,7 @@ class PublicCelebrateController extends Controller
             increment: true,
         );
 
-        $analytics->record($wedding, 'celebrate', null, null, 'fab');
+        $analytics->recordLiveAction($wedding, 'celebrate', null, null, 'fab', $request->user());
 
         return response()->json(['ok' => true]);
     }

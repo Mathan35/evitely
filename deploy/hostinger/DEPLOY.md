@@ -73,6 +73,28 @@ npm run build
 
 Then push / re-upload so `public/build` exists on the server.
 
+## D2) Friendly wait page during deploys
+
+Visitors should see a branded “We’re updating” page instead of blank/error screens while you ship.
+
+**Before** git pull / composer / migrate / asset overwrite:
+
+```bash
+cd ~/domains/invidora.com/invidora
+bash deploy/hostinger/maintenance-down.sh
+```
+
+**After** everything is ready:
+
+```bash
+bash deploy/hostinger/maintenance-up.sh
+```
+
+`setup-on-server.sh` turns maintenance on automatically and turns it off when finished (also on failure via trap).
+
+- Bypass for you: open `https://invidora.com/deploy-bypass` once (or set `MAINTENANCE_SECRET`).
+- Optional env: `MAINTENANCE_SECRET`, `MAINTENANCE_RETRY` (seconds for Retry-After), `MAINTENANCE_REFRESH` (auto-reload).
+
 ## E) Cron (optional but recommended)
 
 hPanel → **Advanced → Cron Jobs** → every minute:

@@ -58,7 +58,7 @@ export function SocialLoginButtons({
     const providers = PROVIDERS;
 
     return (
-        <div className={cn(compact ? 'pt-1' : 'pt-2', className)}>
+        <div className={cn(compact ? 'pt-2 pb-1' : 'pt-2', className)}>
             <p className="relative text-center text-[12px] text-[#b0a89e]">
                 <span className="absolute inset-x-0 top-1/2 border-t border-[#eee7dc]" />
                 <span className="relative bg-white px-3">or continue with</span>

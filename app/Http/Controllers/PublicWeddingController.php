@@ -224,7 +224,7 @@ class PublicWeddingController extends Controller
             'channel' => ['required', 'in:whatsapp,telegram,facebook,email,copy,instagram,sms'],
         ])['channel'];
 
-        $analytics->record($wedding, 'share', null, null, $channel);
+        $analytics->recordLiveAction($wedding, 'share', null, null, $channel, $request->user());
 
         return back();
     }

@@ -15,6 +15,7 @@ use App\Http\Controllers\GuestPhotoController;
 use App\Http\Controllers\GuestPhotoModerationController;
 use App\Http\Controllers\GuestGroupController;
 use App\Http\Controllers\LegalController;
+use App\Http\Controllers\SupportController;
 use App\Http\Controllers\RsvpReminderController;
 use App\Http\Controllers\TranslateContentController;
 use App\Http\Controllers\PublicWeddingController;
@@ -79,6 +80,11 @@ foreach (array_keys(SeoPageController::pages()) as $page) {
 Route::get('privacy', [LegalController::class, 'privacy'])->name('legal.privacy');
 Route::get('terms', [LegalController::class, 'terms'])->name('legal.terms');
 Route::get('cookies', [LegalController::class, 'cookies'])->name('legal.cookies');
+
+Route::get('support', [SupportController::class, 'show'])->name('support');
+Route::post('support', [SupportController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('support.store');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])

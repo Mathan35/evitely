@@ -114,8 +114,14 @@ export function resolveSkeletonKind(pathOrComponent: string | null | undefined):
     if (value === 'errors/show') {
         return 'error';
     }
+    if (value === 'support') {
+        return 'seo';
+    }
 
     // URL paths
+    if (value === 'support') {
+        return 'seo';
+    }
     if (value === 'dashboard') {
         return 'dashboard';
     }

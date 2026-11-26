@@ -37,6 +37,7 @@ function clearBootSkeleton(): void {
 function resolveLayout(name: string): ComponentType<{ children: ReactNode }> | ComponentType<{ children: ReactNode }>[] {
     switch (true) {
         case name === 'welcome':
+        case name === 'support':
         case name === 'weddings/preview':
         case name === 'weddings/edit':
         case name === 'events/card':

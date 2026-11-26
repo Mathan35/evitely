@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\GuestController;
 use App\Http\Controllers\Admin\IntegrationController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\QueueController;
+use App\Http\Controllers\Admin\SupportController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +58,11 @@ Route::middleware(['auth', 'platform.admin'])
         Route::post('moderation/photos/{photo}', [ModerationController::class, 'photo'])->middleware('throttle:60,1')->name('moderation.photos');
         Route::delete('moderation/photos/{photo}', [ModerationController::class, 'destroyPhoto'])->middleware('throttle:30,1')->name('moderation.photos.destroy');
         Route::post('moderation/gifts/{claim}', [ModerationController::class, 'gift'])->middleware('throttle:60,1')->name('moderation.gifts');
+
+        Route::get('support', [SupportController::class, 'index'])->name('support.index');
+        Route::get('support/{support}', [SupportController::class, 'show'])->name('support.show');
+        Route::post('support/{support}', [SupportController::class, 'update'])->middleware('throttle:60,1')->name('support.update');
+        Route::delete('support/{support}', [SupportController::class, 'destroy'])->middleware('throttle:30,1')->name('support.destroy');
 
         Route::get('integrations', [IntegrationController::class, 'index'])->name('integrations.index');
         Route::post('integrations', [IntegrationController::class, 'update'])->middleware('throttle:20,1')->name('integrations.update');

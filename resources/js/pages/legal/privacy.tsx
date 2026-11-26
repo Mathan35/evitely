@@ -42,7 +42,13 @@ export default function Privacy({
                     account deletion from support. Backups may retain residual copies for a limited period.
                 </p>
                 <h2>Contact</h2>
-                <p>Questions about privacy: use the email on your account billing or ops contact for this deployment.</p>
+                <p>
+                    Questions about privacy: visit our{' '}
+                    <a href="/support" className="underline underline-offset-2">
+                        Support
+                    </a>{' '}
+                    page and send a message — we will get back to you.
+                </p>
             </LegalPage>
         </>
     );

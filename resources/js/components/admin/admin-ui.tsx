@@ -11,13 +11,21 @@ export function AdminPageHeader({
     actions?: ReactNode;
 }) {
     return (
-        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-            <div>
-                <p className="text-[10px] font-semibold tracking-[0.16em] text-zinc-400 uppercase">Admin</p>
-                <h1 className="mt-1 font-serif text-2xl tracking-tight text-zinc-950 sm:text-3xl">{title}</h1>
-                {description ? <p className="mt-1 max-w-2xl text-[13px] text-zinc-500">{description}</p> : null}
+        <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+            <div className="min-w-0">
+                <p className="hidden text-[10px] font-semibold tracking-[0.16em] text-zinc-400 uppercase md:block">
+                    Admin
+                </p>
+                <h1 className="font-serif text-[1.65rem] leading-tight tracking-tight text-zinc-950 sm:mt-1 sm:text-3xl">
+                    {title}
+                </h1>
+                {description ? (
+                    <p className="mt-1 max-w-2xl text-[13px] leading-5 text-zinc-500">{description}</p>
+                ) : null}
             </div>
-            {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
+            {actions ? (
+                <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">{actions}</div>
+            ) : null}
         </div>
     );
 }
@@ -32,10 +40,17 @@ export function AdminCard({
     title?: string;
 }) {
     return (
-        <section className={cn('overflow-hidden rounded-2xl border border-zinc-200 bg-white', className)}>
+        <section
+            className={cn(
+                'overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-[0_1px_0_rgba(24,24,27,0.03)]',
+                className,
+            )}
+        >
             {title ? (
-                <div className="border-b border-zinc-100 px-4 py-3">
-                    <p className="text-[11px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">{title}</p>
+                <div className="border-b border-zinc-100 px-3.5 py-3 sm:px-4">
+                    <p className="text-[11px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">
+                        {title}
+                    </p>
                 </div>
             ) : null}
             {children}
@@ -45,21 +60,23 @@ export function AdminCard({
 
 export function AdminStat({ label, value }: { label: string; value: string | number }) {
     return (
-        <AdminCard className="px-4 py-3">
-            <p className="text-[10px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">{label}</p>
-            <p className="mt-1 truncate text-lg font-semibold text-zinc-950">{value}</p>
+        <AdminCard className="px-3.5 py-3 sm:px-4">
+            <p className="text-[10px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">
+                {label}
+            </p>
+            <p className="mt-1 truncate text-base font-semibold text-zinc-950 sm:text-lg">{value}</p>
         </AdminCard>
     );
 }
 
 export function AdminTable({ headers, rows }: { headers: string[]; rows: ReactNode[][] }) {
     return (
-        <div className="overflow-x-auto">
+        <div className="-mx-0 overflow-x-auto overscroll-x-contain">
             <table className="min-w-full text-left text-[13px]">
                 <thead className="border-b border-zinc-100 bg-zinc-50/80 text-[10px] tracking-[0.12em] text-zinc-400 uppercase">
                     <tr>
                         {headers.map((h) => (
-                            <th key={h} className="px-4 py-2.5 font-semibold whitespace-nowrap">
+                            <th key={h} className="px-3 py-2.5 font-semibold whitespace-nowrap sm:px-4">
                                 {h}
                             </th>
                         ))}
@@ -69,7 +86,10 @@ export function AdminTable({ headers, rows }: { headers: string[]; rows: ReactNo
                     {rows.map((cells, i) => (
                         <tr key={i} className="hover:bg-zinc-50/60">
                             {cells.map((cell, j) => (
-                                <td key={j} className="px-4 py-2.5 align-middle whitespace-nowrap text-zinc-700">
+                                <td
+                                    key={j}
+                                    className="px-3 py-2.5 align-middle whitespace-nowrap text-zinc-700 sm:px-4"
+                                >
                                     {cell}
                                 </td>
                             ))}
@@ -106,8 +126,8 @@ export function AdminLineChart({
     }
 
     return (
-        <div className="w-full overflow-x-auto px-2 py-3">
-            <svg viewBox={`0 0 ${width} ${height}`} className="h-40 w-full min-w-[320px]">
+        <div className="w-full overflow-x-auto px-1 py-3 sm:px-2">
+            <svg viewBox={`0 0 ${width} ${height}`} className="h-36 w-full min-w-[280px] sm:h-40 sm:min-w-[320px]">
                 {series.map((s) => {
                     const d = s.points
                         .map((p, i) => `${i === 0 ? 'M' : 'L'} ${x(i).toFixed(1)} ${y(p.value).toFixed(1)}`)
@@ -138,12 +158,15 @@ export function AdminBarChart({
 }) {
     const max = Math.max(1, ...items.map((i) => Number(i[valueKey] || 0)));
     return (
-        <div className="space-y-2 px-4 py-3">
+        <div className="space-y-2 px-3.5 py-3 sm:px-4">
             {items.map((item) => {
                 const label = String(item[labelKey] ?? '');
                 const value = Number(item[valueKey] || 0);
                 return (
-                    <div key={label} className="grid grid-cols-[7rem_1fr_3rem] items-center gap-2 text-[12px]">
+                    <div
+                        key={label}
+                        className="grid grid-cols-[minmax(0,5.5rem)_1fr_2.5rem] items-center gap-2 text-[12px] sm:grid-cols-[7rem_1fr_3rem]"
+                    >
                         <span className="truncate text-zinc-500">{label}</span>
                         <div className="h-2 overflow-hidden rounded-full bg-zinc-100">
                             <div
@@ -156,6 +179,20 @@ export function AdminBarChart({
                 );
             })}
             {items.length === 0 ? <p className="text-[13px] text-zinc-400">No data.</p> : null}
+        </div>
+    );
+}
+
+/** Shared mobile-friendly filter toolbar shell. */
+export function AdminFilters({ children, className }: { children: ReactNode; className?: string }) {
+    return (
+        <div
+            className={cn(
+                'mb-4 grid grid-cols-1 gap-2 rounded-2xl border border-zinc-200 bg-white p-3 sm:flex sm:flex-wrap sm:items-end',
+                className,
+            )}
+        >
+            {children}
         </div>
     );
 }

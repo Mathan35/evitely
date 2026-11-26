@@ -175,24 +175,24 @@ function AuthDialog({
             <DialogContent
                 // Above event preview dialog (overlay z-70 / content z-80) so login isn't trapped behind it.
                 overlayClassName="z-[90] bg-[#1c1814]/55 backdrop-blur-[8px]"
-                className="z-[100] flex h-[min(90vh,780px)] max-h-[90vh] flex-col overflow-hidden border-0 bg-white p-0 shadow-[0_40px_80px_-24px_rgba(28,24,20,0.55)] sm:max-w-[860px] rounded-[1.75rem] gap-0 [&>button]:top-5 [&>button]:right-5 [&>button]:z-20 [&>button]:rounded-full [&>button]:bg-white [&>button]:p-1.5 [&>button]:opacity-100 [&>button]:shadow-sm [&>button]:ring-1 [&>button]:ring-black/5"
+                className="z-[100] flex max-h-[calc(100dvh-3.5rem-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px))] w-[calc(100%-1.5rem)] flex-col overflow-hidden border-0 bg-white p-0 shadow-[0_40px_80px_-24px_rgba(28,24,20,0.55)] max-sm:rounded-[1.5rem] sm:h-[min(90vh,780px)] sm:max-h-[90vh] sm:w-full sm:max-w-[860px] rounded-[1.75rem] gap-0 [&>button]:top-4 [&>button]:right-4 [&>button]:z-20 [&>button]:rounded-full [&>button]:bg-white [&>button]:p-1.5 [&>button]:opacity-100 [&>button]:shadow-sm [&>button]:ring-1 [&>button]:ring-black/5 sm:[&>button]:top-5 sm:[&>button]:right-5"
             >
-                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain md:grid md:h-full md:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] md:overflow-hidden">
-                    <aside className="relative h-44 shrink-0 overflow-hidden md:h-full md:min-h-0">
+                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain scroll-pb-8 md:grid md:h-full md:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] md:overflow-hidden md:scroll-pb-0">
+                    <aside className="relative h-40 shrink-0 overflow-hidden sm:h-44 md:h-full md:min-h-0">
                         <img
                             key={tab}
                             src={isLogin ? '/images/auth/login-hero.jpg' : '/images/auth/register-hero.jpg'}
                             alt=""
                             className="auth-hero-in absolute inset-0 h-full w-full object-cover"
                         />
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#c47a4a]/70 via-[#d8a06a]/20 to-transparent px-6 pb-7 pt-16">
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#c47a4a]/70 via-[#d8a06a]/20 to-transparent px-6 pb-6 pt-14 sm:pb-7 sm:pt-16">
                             <p key={`${tab}-caption`} className={`${paneClass} text-center text-sm font-medium text-white drop-shadow-sm`}>
                                 {isLogin ? 'Create, invite, and celebrate with Invidora ✨' : 'Design beautiful invites in minutes ✨'}
                             </p>
                         </div>
                     </aside>
 
-                    <div className="min-h-0 bg-white px-6 pt-7 pb-8 sm:px-9 sm:pt-8 sm:pb-10 md:overflow-y-auto md:overscroll-contain">
+                    <div className="min-h-0 bg-white px-5 pt-8 pb-[max(2.75rem,calc(1.25rem+env(safe-area-inset-bottom,0px)))] sm:px-9 sm:pt-8 sm:pb-10 md:overflow-y-auto md:overscroll-contain md:pb-10">
                         <DialogHeader className="gap-1 text-left">
                             <BrandMark href="/" className="pointer-events-none text-[1.65rem]" iconClassName="h-8 w-8" />
                         </DialogHeader>
@@ -259,7 +259,7 @@ function AuthDialog({
                                             {processing && <Spinner />}
                                             Continue
                                         </Button>
-                                        <SocialLoginButtons compact />
+                                        <SocialLoginButtons compact className="mb-1" />
                                     </>
                                 )}
                             </Form>
@@ -284,12 +284,14 @@ function AuthDialog({
                                             {processing && <Spinner />}
                                             Continue
                                         </Button>
-                                        <SocialLoginButtons compact />
+                                        <SocialLoginButtons compact className="mb-1" />
                                     </>
                                 )}
                             </Form>
                         )}
                         </div>
+                        {/* Guarantees clear space under OAuth when the sheet is scrolled to the end on mobile. */}
+                        <div className="h-4 shrink-0 md:hidden" aria-hidden />
                     </div>
                 </div>
             </DialogContent>

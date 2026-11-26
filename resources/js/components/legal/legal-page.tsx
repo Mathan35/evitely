@@ -24,6 +24,10 @@ export function LegalPage({
                 </div>
                 <p className="mt-12 text-sm text-[#5e554c]">
                     Also see{' '}
+                    <Link href="/support" className="underline underline-offset-2">
+                        Support
+                    </Link>
+                    ,{' '}
                     <Link href="/privacy" className="underline underline-offset-2">
                         Privacy
                     </Link>

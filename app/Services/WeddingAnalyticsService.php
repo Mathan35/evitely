@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AnalyticsEvent;
+use App\Models\User;
 use App\Models\Wedding;
 use App\Models\WeddingGuest;
 use Illuminate\Http\Request;
@@ -10,8 +11,14 @@ use Illuminate\Support\Str;
 
 class WeddingAnalyticsService
 {
+    public function __construct(private PlatformReadinessService $platform) {}
+
     public function recordView(Request $request, Wedding $wedding, ?WeddingGuest $guest = null): void
     {
+        if ($this->shouldIgnoreLiveTraffic($wedding, $request->user())) {
+            return;
+        }
+
         $cookieName = 'wv_'.$wedding->id;
         $visitor = $request->cookie($cookieName);
 
@@ -33,6 +40,25 @@ class WeddingAnalyticsService
         }
     }
 
+    /**
+     * Guest-facing live-page actions (share, celebrate, etc.).
+     * Skips platform admins and the event host so studio testing doesn't inflate stats.
+     */
+    public function recordLiveAction(
+        Wedding $wedding,
+        string $type,
+        ?WeddingGuest $guest = null,
+        ?string $hash = null,
+        ?string $channel = null,
+        ?User $actor = null,
+    ): void {
+        if ($this->shouldIgnoreLiveTraffic($wedding, $actor ?? request()->user())) {
+            return;
+        }
+
+        $this->record($wedding, $type, $guest, $hash, $channel);
+    }
+
     public function record(Wedding $wedding, string $type, ?WeddingGuest $guest = null, ?string $hash = null, ?string $channel = null): void
     {
         AnalyticsEvent::query()->create([
@@ -43,6 +69,22 @@ class WeddingAnalyticsService
             'visitor_hash' => $hash,
             'created_at' => now(),
         ]);
+    }
+
+    /**
+     * Platform owners and the event host should not inflate live guest metrics.
+     */
+    public function shouldIgnoreLiveTraffic(Wedding $wedding, ?User $user): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+
+        if ($this->platform->isAdmin($user)) {
+            return true;
+        }
+
+        return (int) $wedding->user_id === (int) $user->id;
     }
 
     /**
