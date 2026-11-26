@@ -9,6 +9,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useAuthGate } from '@/components/auth-gate';
 import { BrandMark } from '@/components/brand-mark';
+import { InstallAppButton } from '@/components/install-app-button';
 import {
     StudioNavLinks,
     StudioNavSheetLinks,
@@ -124,9 +125,9 @@ export function MarketingHeader({
                         </SheetTrigger>
                         <SheetContent
                             side="left"
-                            className="flex w-[min(100%,20rem)] flex-col gap-0 border-zinc-950/10 bg-[linear-gradient(180deg,#fafafa_0%,#f4f4f5_48%,#eef2f0_100%)] p-0 dark:border-white/10 dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#111113_100%)]"
+                            className="flex h-dvh max-h-dvh w-[min(100%,20rem)] flex-col gap-0 overflow-hidden border-zinc-950/10 bg-[linear-gradient(180deg,#fafafa_0%,#f4f4f5_48%,#eef2f0_100%)] p-0 dark:border-white/10 dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#111113_100%)]"
                         >
-                            <SheetHeader className="border-b border-zinc-950/8 px-5 py-5 text-left dark:border-white/10">
+                            <SheetHeader className="shrink-0 border-b border-zinc-950/8 px-5 py-5 text-left dark:border-white/10">
                                 <BrandMark href="/" />
                                 <SheetTitle className="sr-only">Site menu</SheetTitle>
                                 <SheetDescription className="mt-2 text-sm text-zinc-500">
@@ -136,13 +137,16 @@ export function MarketingHeader({
                                 </SheetDescription>
                             </SheetHeader>
 
-                            <nav className="flex flex-1 flex-col gap-5 overflow-y-auto p-4" aria-label="Primary">
+                            <nav
+                                className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 [-webkit-overflow-scrolling:touch]"
+                                aria-label="Primary"
+                            >
                                 {user ? (
                                     <div className="-mx-4 -mt-4">
                                         <StudioNavSheetLinks onNavigate={() => setMobileOpen(false)} />
                                     </div>
                                 ) : (
-                                    <>
+                                    <div className="flex flex-col gap-5">
                                         <div className="space-y-1.5">
                                             <p className="px-1 text-[10px] font-semibold tracking-[0.18em] text-zinc-500 uppercase">
                                                 Templates
@@ -188,23 +192,29 @@ export function MarketingHeader({
                                                 Pricing
                                             </a>
                                         </div>
-                                    </>
+                                    </div>
                                 )}
                             </nav>
 
-                            <div className="border-t border-zinc-950/8 p-4 dark:border-white/10">
+                            <div className="shrink-0 border-t border-zinc-950/8 p-4 dark:border-white/10">
                                 {user ? (
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setMobileOpen(false);
-                                            start();
-                                        }}
-                                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-zinc-950 text-sm font-medium text-white shadow-lg shadow-zinc-950/20 dark:bg-white dark:text-zinc-950"
-                                    >
-                                        <Plus className="size-4" />
-                                        Create Invitation
-                                    </button>
+                                    <div className="grid gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setMobileOpen(false);
+                                                start();
+                                            }}
+                                            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-zinc-950 text-sm font-medium text-white shadow-lg shadow-zinc-950/20 dark:bg-white dark:text-zinc-950"
+                                        >
+                                            <Plus className="size-4" />
+                                            Create Invitation
+                                        </button>
+                                        <InstallAppButton
+                                            variant="sheet"
+                                            onAfterClick={() => setMobileOpen(false)}
+                                        />
+                                    </div>
                                 ) : (
                                     <div className="grid gap-2">
                                         <button
@@ -228,6 +238,10 @@ export function MarketingHeader({
                                             <Sparkles className="size-4" />
                                             Get Started
                                         </button>
+                                        <InstallAppButton
+                                            variant="sheet"
+                                            onAfterClick={() => setMobileOpen(false)}
+                                        />
                                     </div>
                                 )}
                             </div>
@@ -281,6 +295,7 @@ export function MarketingHeader({
 
                 <div className="ml-auto flex shrink-0 items-center gap-2">
                     <ThemeToggle />
+                    <InstallAppButton variant="nav" className="hidden lg:inline-flex" />
                     {user ? (
                         <>
                             <button

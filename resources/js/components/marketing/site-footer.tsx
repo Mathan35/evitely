@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import { BrandMark } from '@/components/brand-mark';
+import { InstallAppButton } from '@/components/install-app-button';
 
 const eventTypes: Array<[string, string]> = [
     ['/designs/wedding', 'Wedding'],
@@ -30,6 +31,7 @@ export function SiteFooter() {
                         ['/', 'Home'],
                         ['/designs', 'All Event Types'],
                         ['/events?create=1', 'Create Invite'],
+                        ['/#get-app', 'Install app'],
                         ['/#planning', 'Planning Tools'],
                         ['/#pricing', 'Pricing'],
                     ]}
@@ -54,6 +56,13 @@ export function SiteFooter() {
                             </Link>
                         </li>
                     </ul>
+                    <p className="mt-6 text-xs tracking-[0.18em] uppercase">Get the app</p>
+                    <div className="mt-3">
+                        <InstallAppButton
+                            variant="outline"
+                            className="[&_button]:border-white/20 [&_button]:bg-white/5 [&_button]:text-[#f6f1e8] [&_button]:hover:border-[#c6a36a]/50 [&_button]:hover:bg-white/10"
+                        />
+                    </div>
                     <p className="mt-6 text-xs tracking-[0.18em] uppercase">Social</p>
                     <div className="mt-4 flex gap-3">
                         <SocialBadge label="Instagram">

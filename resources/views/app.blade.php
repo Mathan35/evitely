@@ -161,13 +161,11 @@
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/brand/invidora-mark.jpg">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
         <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
         <link rel="manifest" href="/manifest.webmanifest">
-        <meta name="theme-color" content="#18181b">
-        <meta name="mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="theme-color" content="#241c16">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-title" content="Invidora">

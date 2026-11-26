@@ -3,6 +3,7 @@ import { Menu, Plus } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { BrandMark } from '@/components/brand-mark';
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import { InstallAppButton } from '@/components/install-app-button';
 import { PageLoadingFrame } from '@/components/page-loading-frame';
 import {
     StudioNavLinks,
@@ -88,9 +89,9 @@ export default function AppSidebarLayout({
                             </SheetTrigger>
                             <SheetContent
                                 side="left"
-                                className="flex w-[min(100%,20rem)] flex-col gap-0 border-zinc-950/10 bg-[linear-gradient(180deg,#fafafa_0%,#f4f4f5_48%,#eef2f0_100%)] p-0 dark:border-white/10 dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#111113_100%)]"
+                                className="flex h-dvh max-h-dvh w-[min(100%,20rem)] flex-col gap-0 overflow-hidden border-zinc-950/10 bg-[linear-gradient(180deg,#fafafa_0%,#f4f4f5_48%,#eef2f0_100%)] p-0 dark:border-white/10 dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#111113_100%)]"
                             >
-                                <SheetHeader className="border-b border-zinc-950/8 px-5 py-5 text-left dark:border-white/10">
+                                <SheetHeader className="shrink-0 border-b border-zinc-950/8 px-5 py-5 text-left dark:border-white/10">
                                     <BrandMark href="/" />
                                     <SheetTitle className="sr-only">Studio menu</SheetTitle>
                                     <SheetDescription className="mt-2 text-sm text-zinc-500">
@@ -98,9 +99,11 @@ export default function AppSidebarLayout({
                                     </SheetDescription>
                                 </SheetHeader>
 
-                                <StudioNavSheetLinks onNavigate={() => setMobileOpen(false)} />
+                                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
+                                    <StudioNavSheetLinks onNavigate={() => setMobileOpen(false)} />
+                                </div>
 
-                                <div className="border-t border-zinc-950/8 p-4 dark:border-white/10">
+                                <div className="shrink-0 border-t border-zinc-950/8 p-4 dark:border-white/10">
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -112,6 +115,12 @@ export default function AppSidebarLayout({
                                         <Plus className="size-4" />
                                         Create Invitation
                                     </button>
+                                    <div className="mt-2">
+                                        <InstallAppButton
+                                            variant="sheet"
+                                            onAfterClick={() => setMobileOpen(false)}
+                                        />
+                                    </div>
                                     <Link
                                         href="/"
                                         onClick={() => setMobileOpen(false)}
@@ -134,6 +143,7 @@ export default function AppSidebarLayout({
                     <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
                         {user ? <NotificationsBell /> : null}
                         <ThemeToggle />
+                        <InstallAppButton variant="nav" className="hidden xl:inline-flex" />
                         <StudioSettingsIconLink />
                         <button
                             type="button"

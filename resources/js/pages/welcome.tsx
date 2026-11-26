@@ -2,6 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { Check, Globe, LayoutGrid, Mail, Plus } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { CardPreview } from '@/components/marketing/gallery-previews';
+import { HomeAppInstall } from '@/components/marketing/home-app-install';
 import { HomeHostEdge } from '@/components/marketing/home-host-edge';
 import { HomeSiteStrip, type HomeSiteDesign } from '@/components/marketing/home-site-strip';
 import { MarketingHeader } from '@/components/marketing/marketing-header';
@@ -330,6 +331,8 @@ export default function Welcome({
                     </section>
 
                     {designs.length > 0 && <HomeSiteStrip designs={designs} />}
+
+                    <HomeAppInstall />
 
                     {samples.length > 0 && <SampleInvites samples={samples} />}
 

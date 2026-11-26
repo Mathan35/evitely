@@ -3,6 +3,7 @@ import { lazy, Suspense, type ComponentType, type ReactNode } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
+import { capturePwaInstallPrompt } from '@/hooks/use-pwa-install';
 import AuthGateLayout from '@/layouts/auth-gate-layout';
 import { clearStaleDocumentScrollLocks } from '@/lib/document-scroll-lock';
 import { installUiRipple } from '@/lib/ui-ripple';
@@ -97,14 +98,8 @@ if (! onAdmin) {
     // Studio-only: theme + ripple + PWA. Admin stays lean for fast loads.
     initializeTheme();
     installUiRipple();
-
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            void navigator.serviceWorker.register('/sw.js').catch(() => {
-                // Ignore SW registration failures (private mode / unsupported).
-            });
-        });
-    }
+    // Captures beforeinstallprompt + registers the service worker immediately.
+    capturePwaInstallPrompt();
 } else {
     clearBootSkeleton();
 }

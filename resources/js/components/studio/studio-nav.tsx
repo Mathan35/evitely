@@ -133,7 +133,7 @@ export function StudioNavSheetLinks({ onNavigate }: { onNavigate?: () => void })
     const linkActive = useStudioNavActive();
 
     return (
-        <nav className="flex flex-1 flex-col gap-1.5 p-4" aria-label="Studio">
+        <nav className="flex flex-col gap-1.5 p-4" aria-label="Studio">
             {STUDIO_NAV_LINKS.map((item) => {
                 const active = linkActive(item);
                 const Icon = item.icon;

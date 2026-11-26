@@ -179,6 +179,15 @@ function HomeSiteTile({
     const site = design.site;
     const cover = site?.image_mobile || site?.image || design.image;
     const styleLabel = site?.style || 'Event website';
+    const [showTapCue, setShowTapCue] = useState(false);
+
+    useEffect(() => {
+        const sync = () => setShowTapCue(!canHoverPreview());
+        sync();
+        const media = window.matchMedia('(hover: hover) and (pointer: fine)');
+        media.addEventListener?.('change', sync);
+        return () => media.removeEventListener?.('change', sync);
+    }, []);
 
     return (
         <article
@@ -207,6 +216,7 @@ function HomeSiteTile({
                     if (active) {
                         onDeactivate();
                     } else {
+                        prefetchGalleryCanvas();
                         onActivate();
                     }
                 }}
@@ -227,6 +237,14 @@ function HomeSiteTile({
                 ) : (
                     <div className="grid h-full place-items-center bg-[#efe6d8] text-xs text-[#8a7d6e]">Site</div>
                 )}
+
+                {site && !active && showTapCue ? (
+                    <span className="pointer-events-none absolute inset-0 z-[5] grid place-items-center" aria-hidden>
+                        <span className="rounded-full border border-white/70 bg-transparent px-3.5 py-2 text-[10px] font-semibold tracking-[0.16em] text-white uppercase [text-shadow:0_1px_8px_rgba(28,24,20,0.55)]">
+                            Click to preview
+                        </span>
+                    </span>
+                ) : null}
 
                 {site ? <SiteCardHoverPreview design={site} occasionSlug={design.occasion} active={active} /> : null}
             </button>

@@ -161,16 +161,14 @@
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/brand/evitely-mark.jpg">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
         <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
         <link rel="manifest" href="/manifest.webmanifest">
-        <meta name="theme-color" content="#18181b">
+        <meta name="theme-color" content="#241c16">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-title" content="Evitely">
+        <meta name="apple-mobile-web-app-title" content="Invidora">
 
         <?php echo app('Illuminate\Foundation\Vite')->fonts(); ?>
 
@@ -186,7 +184,7 @@
 <?php $attributes = $attributes->except(\Inertia\View\Components\Head::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
-            <title><?php echo e(config('app.name', 'Evitely')); ?></title>
+            <title><?php echo e(config('app.name', 'Invidora')); ?></title>
          <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal56673881198e3a2924721e242dee6899)): ?>
