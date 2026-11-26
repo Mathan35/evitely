@@ -28,7 +28,9 @@ class SocialAuthController extends Controller
         $request->session()->put('social_auth.referral_code', $request->query('referral_code', $request->query('ref')));
         $request->session()->put('social_auth.partner_code', $request->query('partner_code', $request->query('partner')));
 
-        $driver = Socialite::driver($provider);
+        // Always use the live HTTPS callback so Google/Facebook reject insecure APP_URL values.
+        $callback = $this->callbackUrl($provider);
+        $driver = Socialite::driver($provider)->redirectUrl($callback);
 
         if ($provider === 'apple') {
             // Apple posts back cross-site; cookieNonce keeps verification without SameSite=none globally.
@@ -49,7 +51,8 @@ class SocialAuthController extends Controller
         }
 
         try {
-            $driver = Socialite::driver($provider);
+            $callback = $this->callbackUrl($provider);
+            $driver = Socialite::driver($provider)->redirectUrl($callback);
             /** @var mixed $driver */
             $socialUser = $provider === 'apple'
                 ? $driver->stateless()->cookieNonce()->user()
@@ -90,5 +93,15 @@ class SocialAuthController extends Controller
         return redirect()->to('/login')->withErrors([
             'email' => $message,
         ]);
+    }
+
+    private function callbackUrl(string $provider): string
+    {
+        $configured = (string) config("services.{$provider}.redirect");
+        if ($configured !== '' && str_starts_with($configured, 'https://')) {
+            return $configured;
+        }
+
+        return url('/auth/'.$provider.'/callback');
     }
 }
