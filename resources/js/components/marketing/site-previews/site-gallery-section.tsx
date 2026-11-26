@@ -1,5 +1,13 @@
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import {
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+    type CSSProperties,
+    type ReactNode,
+    type TouchEvent as ReactTouchEvent,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { liveGalleryMediaStyle } from '@/components/marketing/site-previews/preview-live';
 import {
@@ -557,14 +565,55 @@ function GalleryLightbox({
     onClose: () => void;
     onChange: (next: number) => void;
 }) {
-    const photo = photos[index];
-    const [slideKey, setSlideKey] = useState(0);
+    const safeIndex = photos.length > 0 ? ((index % photos.length) + photos.length) % photos.length : 0;
+    const photo = photos[safeIndex];
     const [host, setHost] = useState<HTMLElement | null>(null);
+    const [mediaEpoch, setMediaEpoch] = useState(0);
+    const [isNav, setIsNav] = useState(false);
     const anchorRef = useRef<HTMLSpanElement>(null);
+    const indexRef = useRef(safeIndex);
+    const photosRef = useRef(photos);
+    const onChangeRef = useRef(onChange);
+    const onCloseRef = useRef(onClose);
+    const prevIndexRef = useRef(safeIndex);
+    const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
-    useEffect(() => {
-        setSlideKey((value) => value + 1);
-    }, [index, photo?.src]);
+    indexRef.current = safeIndex;
+    photosRef.current = photos;
+    onChangeRef.current = onChange;
+    onCloseRef.current = onClose;
+
+    const go = (dir: -1 | 1) => {
+        const list = photosRef.current;
+        if (list.length < 2) {
+            return;
+        }
+        const next = (indexRef.current + dir + list.length) % list.length;
+        onChangeRef.current(next);
+    };
+
+    const onTouchStart = (event: ReactTouchEvent) => {
+        const touch = event.changedTouches[0];
+        if (!touch) {
+            return;
+        }
+        touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    };
+
+    const onTouchEnd = (event: ReactTouchEvent) => {
+        const start = touchStartRef.current;
+        const touch = event.changedTouches[0];
+        touchStartRef.current = null;
+        if (!start || !touch || photosRef.current.length < 2) {
+            return;
+        }
+        const dx = touch.clientX - start.x;
+        const dy = Math.abs(touch.clientY - start.y);
+        if (Math.abs(dx) < 48 || Math.abs(dx) < dy * 1.25) {
+            return;
+        }
+        go(dx < 0 ? 1 : -1);
+    };
 
     // Portal out of the gallery section — `relative` on the section made absolute
     // overlays as tall as the whole photo grid on mobile.
@@ -578,51 +627,80 @@ function GalleryLightbox({
             const shell = anchor.closest(
                 '[data-editor-preview], .editor-live-preview, .site-live-preview',
             ) as HTMLElement | null;
-            setHost(shell ?? document.body);
+            const target = shell ?? document.body;
+            // Ensure absolute inset-0 covers the framed shell even if a parent
+            // forgot position:relative.
+            if (target !== document.body) {
+                const style = window.getComputedStyle(target);
+                if (style.position === 'static') {
+                    target.style.position = 'relative';
+                }
+            }
+            setHost(target);
             return;
         }
 
         setHost(document.body);
     }, [framed]);
 
+    const lightboxOpen = Boolean(host && photo);
+
+    // Keep scroll lock stable for the whole open session. Re-acquiring on every
+    // slide used to pin/unpin the body and freeze preview scrollers, which raced
+    // with taps and made arrows / close feel broken (see doc-scroll-lock notes).
     useEffect(() => {
-        if (!host || !photo) {
+        if (!lightboxOpen) {
             return;
         }
 
-        const release = acquireDocumentScrollLock({
+        return acquireDocumentScrollLock({
             pin: !framed,
             freezePreviewScrollers: true,
         });
+    }, [framed, lightboxOpen]);
+
+    useEffect(() => {
+        if (!lightboxOpen) {
+            return;
+        }
 
         const onKey = (event: KeyboardEvent): void => {
             if (event.key === 'Escape') {
                 event.preventDefault();
-                onClose();
+                onCloseRef.current();
                 return;
             }
-            if (photos.length < 2) {
+            if (photosRef.current.length < 2) {
                 return;
             }
             if (event.key === 'ArrowLeft') {
                 event.preventDefault();
-                onChange((index + photos.length - 1) % photos.length);
+                go(-1);
             } else if (event.key === 'ArrowRight') {
                 event.preventDefault();
-                onChange((index + 1) % photos.length);
+                go(1);
             }
         };
 
         window.addEventListener('keydown', onKey);
-        return () => {
-            release();
-            window.removeEventListener('keydown', onKey);
-        };
-    }, [framed, host, index, onChange, onClose, photo, photos.length]);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [lightboxOpen]);
+
+    useEffect(() => {
+        if (prevIndexRef.current === safeIndex) {
+            return;
+        }
+        prevIndexRef.current = safeIndex;
+        setIsNav(true);
+        setMediaEpoch((value) => value + 1);
+    }, [safeIndex, photo?.src]);
 
     if (!photo) {
-        return null;
+        return <span ref={anchorRef} className="hidden" aria-hidden />;
     }
+
+    const counter = `${safeIndex + 1} / ${photos.length}`;
+    const canNavigate = photos.length > 1;
 
     const overlay = (
         <div
@@ -630,56 +708,86 @@ function GalleryLightbox({
             aria-modal="true"
             aria-label={photo.title || 'Gallery photo'}
             className={cn(
-                'site-gallery-lightbox z-[80] flex flex-col bg-[#140f0c]/96',
+                'site-gallery-lightbox z-[100] flex flex-col bg-[#140f0c]/96',
                 framed ? 'absolute inset-0' : 'fixed inset-0',
             )}
+            onClick={() => onCloseRef.current()}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
         >
             <button
                 type="button"
-                onClick={onClose}
+                data-ripple="off"
+                onClick={(event) => {
+                    event.stopPropagation();
+                    onCloseRef.current();
+                }}
                 aria-label="Close gallery"
                 className={cn(
-                    'absolute z-[90] grid size-10 place-items-center rounded-full',
-                    'bg-black/60 text-white shadow-lg ring-1 ring-white/25 backdrop-blur-md',
-                    'transition hover:bg-black/75 active:scale-95',
+                    'pointer-events-auto absolute z-[110] grid size-11 place-items-center rounded-full',
+                    'bg-black/65 text-white shadow-lg ring-1 ring-white/30 backdrop-blur-md',
+                    'transition hover:bg-black/80 active:scale-95',
                     'top-[max(0.65rem,env(safe-area-inset-top))] right-[max(0.65rem,env(safe-area-inset-right))]',
                 )}
             >
                 <X className="size-5" strokeWidth={2.25} />
             </button>
 
-            <div className="pointer-events-none shrink-0 px-14 pt-[max(0.85rem,env(safe-area-inset-top))] pb-1.5 text-center text-white">
+            <div className="pointer-events-none shrink-0 px-14 pt-[max(0.95rem,env(safe-area-inset-top))] pb-1.5 text-center text-white">
                 <p
-                    key={`title-${slideKey}`}
-                    className="site-gallery-lightbox__meta truncate font-serif text-[15px] font-light tracking-tight sm:text-lg"
+                    key={`title-${mediaEpoch}`}
+                    className={cn(
+                        'site-gallery-lightbox__meta truncate font-serif text-[15px] font-light tracking-tight sm:text-lg',
+                        isNav && 'site-gallery-lightbox__meta--nav',
+                    )}
                 >
-                    {photo.title}
+                    {photo.title || 'Gallery'}
                 </p>
             </div>
 
             <div className="relative flex min-h-0 flex-1 items-center justify-center px-3 py-2 sm:px-5">
                 <img
-                    key={`img-${slideKey}`}
+                    key={`img-${mediaEpoch}-${photo.src}`}
                     src={photo.src}
                     alt={photo.title}
-                    className="site-gallery-lightbox__image max-h-[min(72dvh,100%)] max-w-full object-contain"
+                    className={cn(
+                        'site-gallery-lightbox__image max-h-[min(72dvh,100%)] max-w-full select-none object-contain',
+                        isNav && 'site-gallery-lightbox__image--nav',
+                    )}
                     draggable={false}
+                    onClick={(event) => event.stopPropagation()}
                 />
-                {photos.length > 1 ? (
+                {canNavigate ? (
                     <>
                         <button
                             type="button"
+                            data-ripple="off"
                             aria-label="Previous photo"
-                            className="absolute top-1/2 left-2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-black/50 text-white ring-1 ring-white/15 transition hover:bg-black/65 sm:left-3"
-                            onClick={() => onChange((index + photos.length - 1) % photos.length)}
+                            className={cn(
+                                'pointer-events-auto absolute top-1/2 left-2 z-[2] grid size-11 -translate-y-1/2 place-items-center',
+                                'rounded-full bg-black/55 text-white ring-1 ring-white/20 backdrop-blur-sm',
+                                'transition hover:bg-black/70 active:scale-95 sm:left-3',
+                            )}
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                go(-1);
+                            }}
                         >
                             <ChevronLeft className="size-5" />
                         </button>
                         <button
                             type="button"
+                            data-ripple="off"
                             aria-label="Next photo"
-                            className="absolute top-1/2 right-2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-black/50 text-white ring-1 ring-white/15 transition hover:bg-black/65 sm:right-3"
-                            onClick={() => onChange((index + 1) % photos.length)}
+                            className={cn(
+                                'pointer-events-auto absolute top-1/2 right-2 z-[2] grid size-11 -translate-y-1/2 place-items-center',
+                                'rounded-full bg-black/55 text-white ring-1 ring-white/20 backdrop-blur-sm',
+                                'transition hover:bg-black/70 active:scale-95 sm:right-3',
+                            )}
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                go(1);
+                            }}
                         >
                             <ChevronRight className="size-5" />
                         </button>
@@ -688,10 +796,14 @@ function GalleryLightbox({
             </div>
 
             <p
-                key={`note-${slideKey}`}
-                className="site-gallery-lightbox__meta shrink-0 px-5 pt-1 pb-[max(0.85rem,env(safe-area-inset-bottom))] text-center text-[11px] tracking-[0.18em] text-white/70 uppercase"
+                key={`note-${mediaEpoch}`}
+                className={cn(
+                    'site-gallery-lightbox__meta pointer-events-none shrink-0 px-5 pt-1',
+                    'pb-[max(0.95rem,env(safe-area-inset-bottom))] text-center text-[11px] tracking-[0.18em] text-white/70 uppercase',
+                    isNav && 'site-gallery-lightbox__meta--nav',
+                )}
             >
-                {photo.note || `${index + 1} / ${photos.length}`}
+                {photo.note || counter}
             </p>
         </div>
     );
@@ -752,6 +864,19 @@ export function SiteGallerySection({
         setLightboxIndex(null);
     }, [style]);
 
+    useEffect(() => {
+        if (lightboxIndex === null) {
+            return;
+        }
+        if (!photos.length) {
+            setLightboxIndex(null);
+            return;
+        }
+        if (lightboxIndex >= photos.length) {
+            setLightboxIndex(photos.length - 1);
+        }
+    }, [lightboxIndex, photos.length]);
+
     if (!photos.length) {
         return null;
     }
@@ -761,7 +886,7 @@ export function SiteGallerySection({
             <div key={`gallery-layout-${style}-${motionKey}`} className="site-gallery__stage">
                 {renderLayout(style, photos, desktop, setLightboxIndex)}
             </div>
-            {lightboxIndex !== null ? (
+            {lightboxIndex !== null && photos[lightboxIndex] ? (
                 <GalleryLightbox
                     photos={photos}
                     index={lightboxIndex}

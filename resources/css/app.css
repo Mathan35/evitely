@@ -2542,6 +2542,16 @@ html.dark #app-boot-skeleton {
         }
     }
 
+    /* Soft crossfade only — no scale on arrow nav (scale remount felt like a glitch). */
+    @keyframes site-gallery-lightbox-nav {
+        from {
+            opacity: 0.15;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
     .site-gallery__stage {
         animation: site-gallery-stage-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
     }
@@ -2601,6 +2611,11 @@ html.dark #app-boot-skeleton {
         animation: site-gallery-lightbox-media-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
+    .site-gallery-lightbox__image--nav,
+    .site-gallery-lightbox__meta--nav {
+        animation: site-gallery-lightbox-nav 220ms ease-out both;
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .site-gallery__stage,
         .site-gallery__stage > * > button,
@@ -2609,7 +2624,9 @@ html.dark #app-boot-skeleton {
         .site-gallery-slide,
         .site-gallery-lightbox,
         .site-gallery-lightbox__image,
-        .site-gallery-lightbox__meta {
+        .site-gallery-lightbox__meta,
+        .site-gallery-lightbox__image--nav,
+        .site-gallery-lightbox__meta--nav {
             animation: none !important;
         }
     }
