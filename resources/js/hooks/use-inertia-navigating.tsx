@@ -139,6 +139,13 @@ export function InertiaNavigatingProvider({ children }: { children: ReactNode })
             }
 
             const nextPath = pathFromVisitUrl(visit?.url);
+            const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+            const normalizedNext = nextPath.replace(/\/$/, '') || '/';
+            // Same path, query-only (e.g. /events → /events?create=1) — no skeleton flash.
+            if (normalizedNext === currentPath) {
+                return;
+            }
+
             setTo(nextPath);
             active = true;
 

@@ -17,6 +17,7 @@ import {
     StudioTitle,
 } from '@/components/studio/studio-surface';
 import { Button } from '@/components/ui/button';
+import { openCreateInvitation } from '@/lib/open-create-invitation';
 import { cn } from '@/lib/utils';
 
 const metricMeta = [
@@ -95,11 +96,13 @@ export default function Dashboard({
                                     <ArrowUpRight className="ml-1.5 size-3.5" />
                                 </Link>
                             </Button>
-                            <Button asChild className="h-11 rounded-full bg-zinc-950 px-5 text-white shadow-lg shadow-zinc-950/20 hover:bg-zinc-800">
-                                <Link href="/events?create=1">
-                                    <Plus className="mr-1.5 size-4" />
-                                    Create Invitation
-                                </Link>
+                            <Button
+                                type="button"
+                                className="h-11 rounded-full bg-zinc-950 px-5 text-white shadow-lg shadow-zinc-950/20 hover:bg-zinc-800"
+                                onClick={() => openCreateInvitation()}
+                            >
+                                <Plus className="mr-1.5 size-4" />
+                                Create Invitation
                             </Button>
                         </div>
                     </div>
@@ -177,11 +180,13 @@ export default function Dashboard({
                                     Create your first invitation and the next celebration will light up here.
                                 </p>
                             </div>
-                            <Button asChild className="mt-6 w-fit rounded-full bg-zinc-950 px-5 text-white hover:bg-zinc-800">
-                                <Link href="/events?create=1">
-                                    <Plus className="mr-1.5 size-4" />
-                                    Create Invitation
-                                </Link>
+                            <Button
+                                type="button"
+                                className="mt-6 w-fit rounded-full bg-zinc-950 px-5 text-white hover:bg-zinc-800"
+                                onClick={() => openCreateInvitation()}
+                            >
+                                <Plus className="mr-1.5 size-4" />
+                                Create Invitation
                             </Button>
                         </StudioCard>
                     )}
@@ -240,8 +245,12 @@ export default function Dashboard({
                             <p className="mt-2 text-sm text-zinc-500">
                                 Create an invitation to begin designing cards and guest sites.
                             </p>
-                            <Button asChild className="mt-5 rounded-full bg-zinc-950 px-5 text-white hover:bg-zinc-800">
-                                <Link href="/events?create=1">Create Invitation</Link>
+                            <Button
+                                type="button"
+                                className="mt-5 rounded-full bg-zinc-950 px-5 text-white hover:bg-zinc-800"
+                                onClick={() => openCreateInvitation()}
+                            >
+                                Create Invitation
                             </Button>
                         </StudioCard>
                     ) : (

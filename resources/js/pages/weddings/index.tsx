@@ -28,6 +28,10 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { TrialEventLimitDialog } from '@/components/studio/trial-event-limit-dialog';
+import {
+    OPEN_CREATE_INVITATION_EVENT,
+    registerCreateInvitationOpener,
+} from '@/lib/open-create-invitation';
 import { cn } from '@/lib/utils';
 import type { WeddingSummary } from '@/types/wedding';
 
@@ -225,22 +229,21 @@ export default function WeddingIndex({
         }
     }, [createOpen]);
 
-    function syncCreateQueryParam(open: boolean): void {
+    function clearCreateQueryParam(): void {
         if (typeof window === 'undefined') {
             return;
         }
         const url = new URL(window.location.href);
-        const hasCreate = url.searchParams.get('create') === '1';
-        if (open && !hasCreate) {
-            url.searchParams.set('create', '1');
-            window.history.replaceState(window.history.state, '', `${url.pathname}?${url.searchParams.toString()}`);
+        if (!url.searchParams.has('create')) {
             return;
         }
-        if (!open && hasCreate) {
-            url.searchParams.delete('create');
-            const next = url.searchParams.toString();
-            window.history.replaceState(window.history.state, '', next ? `${url.pathname}?${next}` : url.pathname);
-        }
+        url.searchParams.delete('create');
+        const next = url.searchParams.toString();
+        window.history.replaceState(
+            window.history.state,
+            '',
+            next ? `${url.pathname}?${next}` : url.pathname,
+        );
     }
 
     function requestCreate(): void {
@@ -248,7 +251,7 @@ export default function WeddingIndex({
             setLimitOpen(true);
             return;
         }
-        setCreateDialog(true);
+        setCreateOpen(true);
     }
 
     function setCreateDialog(open: boolean): void {
@@ -256,10 +259,27 @@ export default function WeddingIndex({
             setLimitOpen(true);
             return;
         }
-        // Local state first — avoid Inertia remount fighting the close animation.
         setCreateOpen(open);
-        syncCreateQueryParam(open);
+        if (!open) {
+            clearCreateQueryParam();
+        }
     }
+
+    useEffect(() => {
+        const onOpen = () => {
+            if (!canCreateEvent) {
+                setLimitOpen(true);
+                return;
+            }
+            setCreateOpen(true);
+        };
+        registerCreateInvitationOpener(onOpen);
+        window.addEventListener(OPEN_CREATE_INVITATION_EVENT, onOpen);
+        return () => {
+            registerCreateInvitationOpener(null);
+            window.removeEventListener(OPEN_CREATE_INVITATION_EVENT, onOpen);
+        };
+    }, [canCreateEvent]);
 
     function transitionTo(nextMode: ModeFilter, nextLayout: LayoutView): void {
         if (nextMode === mode && nextLayout === layout) {

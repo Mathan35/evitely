@@ -1,4 +1,4 @@
-import { Link, router, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     ArrowLeft,
     ChevronDown,
@@ -30,6 +30,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
+import { openCreateInvitation } from '@/lib/open-create-invitation';
 import { cn } from '@/lib/utils';
 import type { Auth } from '@/types';
 
@@ -98,7 +99,7 @@ export function MarketingHeader({
 
     function start(): void {
         if (user) {
-            router.visit('/events?create=1');
+            openCreateInvitation();
             return;
         }
 

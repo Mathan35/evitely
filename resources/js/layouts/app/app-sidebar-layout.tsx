@@ -32,6 +32,7 @@ import {
     skeletonShell,
     useInertiaNavigating,
 } from '@/hooks/use-inertia-navigating';
+import { openCreateInvitation } from '@/lib/open-create-invitation';
 import type { AppLayoutProps, Auth } from '@/types';
 
 /** Studio body skeleton — skip when AuthGate or settings panel owns the overlay. */
@@ -100,14 +101,17 @@ export default function AppSidebarLayout({
                                 <StudioNavSheetLinks onNavigate={() => setMobileOpen(false)} />
 
                                 <div className="border-t border-zinc-950/8 p-4 dark:border-white/10">
-                                    <Link
-                                        href="/events?create=1"
-                                        onClick={() => setMobileOpen(false)}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setMobileOpen(false);
+                                            openCreateInvitation();
+                                        }}
                                         className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-zinc-950 text-sm font-medium text-white shadow-lg shadow-zinc-950/20 dark:bg-white dark:text-zinc-950"
                                     >
                                         <Plus className="size-4" />
                                         Create Invitation
-                                    </Link>
+                                    </button>
                                     <Link
                                         href="/"
                                         onClick={() => setMobileOpen(false)}
@@ -131,15 +135,16 @@ export default function AppSidebarLayout({
                         {user ? <NotificationsBell /> : null}
                         <ThemeToggle />
                         <StudioSettingsIconLink />
-                        <Link
-                            href="/events?create=1"
+                        <button
+                            type="button"
+                            onClick={() => openCreateInvitation()}
                             aria-label="Create invitation"
                             className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-zinc-950 px-3 text-sm font-medium whitespace-nowrap text-white shadow-lg shadow-zinc-950/15 transition hover:bg-zinc-800 sm:px-3.5 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
                         >
                             <Plus className="size-4 shrink-0" />
                             <span className="hidden xl:inline">Create Invitation</span>
                             <span className="xl:hidden">Create</span>
-                        </Link>
+                        </button>
                         {user ? (
                             <DropdownMenu modal={false}>
                                 <DropdownMenuTrigger

@@ -20,6 +20,7 @@ import {
 } from '@/components/studio/studio-surface';
 import { Button } from '@/components/ui/button';
 import { copyToClipboard } from '@/lib/clipboard';
+import { openCreateInvitation } from '@/lib/open-create-invitation';
 import { cn } from '@/lib/utils';
 
 type EventOption = { id: number; title: string };
@@ -264,11 +265,13 @@ export default function GuestDirectory({
                                 <Plus className="mr-1.5 size-4" />
                                 Add guest
                             </Button>
-                            <Button asChild className="h-11 rounded-full bg-zinc-950 px-5 text-white shadow-lg shadow-zinc-950/20 hover:bg-zinc-800">
-                                <Link href="/events?create=1">
-                                    <Plus className="mr-1.5 size-4" />
-                                    Create Invitation
-                                </Link>
+                            <Button
+                                type="button"
+                                className="h-11 rounded-full bg-zinc-950 px-5 text-white shadow-lg shadow-zinc-950/20 hover:bg-zinc-800"
+                                onClick={() => openCreateInvitation()}
+                            >
+                                <Plus className="mr-1.5 size-4" />
+                                Create Invitation
                             </Button>
                         </div>
                     </div>
