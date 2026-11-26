@@ -76,11 +76,11 @@ class BillingCurrency
 
     public function gatewayLabel(string $gateway): string
     {
+        // Host-facing label — never expose third-party processor brand names.
         return match (strtolower($gateway)) {
-            'razorpay' => 'Razorpay',
-            'stripe' => 'Stripe',
-            'local' => 'Local',
-            default => ucfirst($gateway),
+            'razorpay', 'stripe' => 'Secure checkout',
+            'local' => 'Local checkout',
+            default => 'Secure checkout',
         };
     }
 }

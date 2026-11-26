@@ -89,6 +89,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 import type { GalleryDesign } from '@/types/gallery';
 import type { WeddingPage } from '@/types/wedding';
 
@@ -375,6 +376,7 @@ export default function EditWedding({
     const [publishing, setPublishing] = useState(false);
     const [publishGateOpen, setPublishGateOpen] = useState(false);
     const [publishChooserOpen, setPublishChooserOpen] = useState(false);
+    const [trialConfirmOpen, setTrialConfirmOpen] = useState(false);
     const [saving, setSaving] = useState(false);
     const [status, setStatus] = useState(wedding.status);
     const [leaveOpen, setLeaveOpen] = useState(false);
@@ -827,21 +829,32 @@ export default function EditWedding({
         });
     }
 
-    function runPublish(): void {
+    function runPublish(paid = false): void {
         setPublishing(true);
-        router.post(`/events/${wedding.id}/publish`, {}, {
+        router.post(`/events/${wedding.id}/publish`, paid ? { paid: 1 } : {}, {
             preserveScroll: true,
             preserveState: true,
             showProgress: false,
             onSuccess: (pageResult) => {
                 setStatus('published');
                 setListed(true);
-                setSavedAt('Published');
+                setSavedAt(isLivePaused ? 'Live again' : 'Published');
                 const flash = (pageResult.props as typeof page.props).flash?.publish_growth;
                 if (flash?.open) {
                     setGrowthOpen(true);
                 }
             },
+            onFinish: () => setPublishing(false),
+        });
+    }
+
+    function stopLive(): void {
+        setPublishing(true);
+        router.delete(`/events/${wedding.id}/publish`, {
+            preserveScroll: true,
+            preserveState: true,
+            showProgress: false,
+            onSuccess: () => setSavedAt('Live stopped'),
             onFinish: () => setPublishing(false),
         });
     }
@@ -858,7 +871,14 @@ export default function EditWedding({
             is_card_only?: boolean;
             can_use_premium?: boolean;
             features?: Record<string, boolean>;
+            trial_available?: boolean;
+            trial_used_on?: { id: number; title: string; status: string } | null;
+            is_live_paused?: boolean;
+            is_public_live?: boolean;
         } }).site_billing;
+    const trialAvailable = siteBilling?.trial_available !== false;
+    const trialUsedOn = siteBilling?.trial_used_on ?? null;
+    const isLivePaused = Boolean(siteBilling?.is_live_paused);
 
     const premiumFeatures = siteBilling?.features ?? null;
     const canUsePremium = Boolean(siteBilling?.can_use_premium);
@@ -907,6 +927,14 @@ export default function EditWedding({
         && siteBilling?.is_card_only !== true;
 
     function publish(): void {
+        if (status === 'published' && isLivePaused) {
+            if (dirty) {
+                saveChanges(() => runPublish());
+                return;
+            }
+            runPublish();
+            return;
+        }
         if (status === 'published') {
             window.open(wedding.share_url, '_blank', 'noopener,noreferrer');
             return;
@@ -921,37 +949,52 @@ export default function EditWedding({
             return;
         }
         if (isSiteInvitation) {
+            // Trial publish must confirm first — show ConfirmDialog immediately.
+            if (trialAvailable) {
+                setTrialConfirmOpen(true);
+                return;
+            }
             setPublishChooserOpen(true);
             return;
         }
         if (dirty) {
-            saveChanges(runPublish);
+            saveChanges(() => runPublish());
             return;
         }
         runPublish();
     }
 
-    function confirmPublishNow(): void {
-        setPublishChooserOpen(false);
+    function proceedTrialPublish(): void {
+        setTrialConfirmOpen(false);
         if (dirty) {
-            saveChanges(runPublish);
+            saveChanges(() => runPublish(false));
             return;
         }
-        runPublish();
+        runPublish(false);
+    }
+
+    function openPaidPublishOptions(): void {
+        setTrialConfirmOpen(false);
+        setPublishChooserOpen(true);
+    }
+
+    function confirmPublishPaid(): void {
+        setPublishChooserOpen(false);
+        const billingUrl = siteBilling?.upgrade_url || `/events/${wedding.id}/billing`;
+        if (siteBilling?.has_paid_pack || siteBilling?.legacy_account_pro) {
+            if (dirty) {
+                saveChanges(() => runPublish(true));
+                return;
+            }
+            runPublish(true);
+            return;
+        }
+        window.location.assign(`${billingUrl}?intent=publish`);
     }
 
     function confirmSchedulePublish(): void {
         setPublishChooserOpen(false);
-        const canSchedule = Boolean(
-            siteBilling?.can_schedule_publish
-            || siteBilling?.has_paid_pack
-            || siteBilling?.legacy_account_pro,
-        );
         const billingUrl = siteBilling?.upgrade_url || `/events/${wedding.id}/billing`;
-        if (!canSchedule) {
-            window.location.assign(`${billingUrl}?intent=schedule`);
-            return;
-        }
         window.location.assign(`${billingUrl}?intent=schedule`);
     }
 
@@ -1021,13 +1064,16 @@ export default function EditWedding({
                         publishing={publishing}
                         publishLabel={
                             publishing
-                                ? 'Publishing…'
+                                ? 'Working…'
                                 : siteBilling?.is_view_only
                                   ? 'Upgrade'
                                   : status === 'published'
-                                    ? 'View site'
+                                    ? isLivePaused
+                                        ? 'Go live'
+                                        : 'View site'
                                     : 'Publish'
                         }
+                        onStopLive={status === 'published' && !isLivePaused ? stopLive : undefined}
                         onPreview={openPreview}
                         previewHref={`/events/${wedding.id}/preview?from=edit`}
                         onBack={requestLeave}
@@ -1083,7 +1129,13 @@ export default function EditWedding({
                                 }
                             />
                         ) : (
-                            <div className={device === 'mobile' ? 'mx-auto max-w-[390px]' : undefined}>
+                            <div
+                                data-editor-preview
+                                className={cn(
+                                    'editor-live-preview relative flex min-h-0 flex-1 flex-col overflow-hidden',
+                                    device === 'mobile' && 'mx-auto w-full max-w-[390px]',
+                                )}
+                            >
                                 <WeddingExperience wedding={live} preview interactive={false} />
                             </div>
                         )}
@@ -1532,8 +1584,8 @@ export default function EditWedding({
                                 title={form.data.seo_title || ''}
                                 description={form.data.seo_description || ''}
                                 fallbackTitle={
-                                    form.data.title ||
-                                    [form.data.bride_display_name || form.data.bride_name, form.data.groom_display_name || form.data.groom_name]
+                                    wedding.title
+                                    || [form.data.bride_display_name || form.data.bride_name, form.data.groom_display_name || form.data.groom_name]
                                         .filter(Boolean)
                                         .join(' & ')
                                 }
@@ -1645,6 +1697,30 @@ export default function EditWedding({
                 }}
             />
 
+            <ConfirmDialog
+                open={trialConfirmOpen}
+                onOpenChange={setTrialConfirmOpen}
+                title="Use your one free trial publish?"
+                description={
+                    <>
+                        Free accounts can publish only one guest site with the {trialDays}-day trial. Other events will
+                        need a paid pack. Are you sure you want to publish this invitation with your free try?
+                        <button
+                            type="button"
+                            className="mt-3 block text-left text-[13px] font-medium text-zinc-700 underline-offset-2 hover:underline"
+                            onClick={openPaidPublishOptions}
+                        >
+                            Prefer a paid pack instead…
+                        </button>
+                    </>
+                }
+                confirmLabel="Yes, publish with free try"
+                cancelLabel="Not now"
+                tone="default"
+                loading={publishing}
+                onConfirm={proceedTrialPublish}
+            />
+
             <Dialog open={publishChooserOpen} onOpenChange={setPublishChooserOpen}>
                 <DialogContent className="gap-5 rounded-[1.35rem] border-zinc-200/80 p-6 shadow-2xl shadow-zinc-950/15 sm:max-w-md">
                     <DialogHeader className="gap-2 text-left">
@@ -1652,7 +1728,11 @@ export default function EditWedding({
                             Go live
                         </DialogTitle>
                         <DialogDescription className="text-[13px] leading-relaxed text-zinc-500">
-                            Publish now starts a {trialDays}-day free guest site. Share with friends first — day packs can wait. Scheduling a future date requires a paid site pack first.
+                            {trialAvailable
+                                ? `Choose how to publish. One free ${trialDays}-day try per account.`
+                                : trialUsedOn
+                                  ? `Your free ${trialDays}-day try is already used on “${trialUsedOn.title}”. Buy a site pack to publish this invitation.`
+                                  : `Your free ${trialDays}-day try was already used. Buy a site pack to publish this invitation.`}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col gap-2">
@@ -1660,9 +1740,11 @@ export default function EditWedding({
                             type="button"
                             className="h-11 rounded-full"
                             disabled={publishing}
-                            onClick={confirmPublishNow}
+                            onClick={confirmPublishPaid}
                         >
-                            Publish now (free {trialDays}-day try)
+                            {siteBilling?.has_paid_pack || siteBilling?.legacy_account_pro
+                                ? 'Publish with paid plan'
+                                : 'Publish with paid pack…'}
                         </Button>
                         <Button
                             type="button"
@@ -1675,6 +1757,19 @@ export default function EditWedding({
                                 ? 'Schedule publish…'
                                 : 'Schedule publish (pay first)…'}
                         </Button>
+                        {!trialAvailable && trialUsedOn ? (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                className="h-10 rounded-full text-zinc-600"
+                                onClick={() => {
+                                    setPublishChooserOpen(false);
+                                    window.location.assign(`/events/${trialUsedOn.id}`);
+                                }}
+                            >
+                                Open “{trialUsedOn.title}”
+                            </Button>
+                        ) : null}
                     </div>
                 </DialogContent>
             </Dialog>

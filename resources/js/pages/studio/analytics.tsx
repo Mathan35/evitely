@@ -400,9 +400,9 @@ export default function Analytics({
                                                 }}
                                             />
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
+                        </div>
+                    ))}
+                </div>
                         )}
 
                         <div className="mt-6 rounded-2xl bg-zinc-950 p-4 text-white sm:mt-8">

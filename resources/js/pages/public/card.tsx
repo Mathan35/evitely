@@ -39,15 +39,17 @@ export default function PublicCard({ wedding }: { wedding: WeddingPage }) {
                 fullscreen
                 className="min-h-svh"
             >
-                <main className="flex min-h-svh items-center justify-center bg-[#1c1712] p-6">
+                <main className="flex min-h-svh w-full items-center justify-center bg-[#1c1712] px-4 py-6 sm:p-8">
                     {card ? (
-                        <CardCanvas
-                            document={card.document}
-                            width={card.width}
-                            height={card.height}
-                            fitWidth={420}
-                            musicUrl={wedding.music_url}
-                        />
+                        <div className="w-full max-w-[min(100%,28rem)]">
+                            <ResponsiveCardCanvas
+                                document={card.document}
+                                width={card.width}
+                                height={card.height}
+                                musicUrl={wedding.music_url}
+                                frameClassName="rounded-[1.2rem]"
+                            />
+                        </div>
                     ) : (
                         <p className="text-[#f4efe6]">This invitation does not have a card yet.</p>
                     )}

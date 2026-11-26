@@ -17,8 +17,7 @@ import {
     type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { CardCanvas } from '@/components/cards/card-canvas';
-import { PreviewInvitationCard } from '@/components/marketing/site-previews/preview-invitation-card';
+import { PreviewSiteCard } from '@/components/marketing/site-previews/preview-site-card';
 import { PreviewMusicToggle } from '@/components/marketing/site-previews/preview-music-toggle';
 import { PreviewCelebrateBurst } from '@/components/marketing/site-previews/preview-celebrate-burst';
 import { useAllowRsvp } from '@/components/marketing/site-previews/preview-interactions';
@@ -477,33 +476,24 @@ export function WeddingWebsitePreview({
                 </section>
                 </SiteSectionGate>
 
-                <section id="gh-card" data-preview-reveal className={cn('preview-reveal relative px-5 pt-12 pb-6 text-center', desktop && 'px-10 pt-16')}>
-                    <p className="text-[10px] tracking-[0.34em] text-[var(--w-accent)] uppercase">The Card</p>
-                    <h3 className="mt-3 font-serif text-4xl font-light tracking-tight">Wedding Invitation</h3>
-                    <div className="relative mx-auto mt-10 flex h-[17.5rem] w-[12.5rem] items-center justify-center">
-                        {userCard?.document ? (
-                            <div
-                                className="mx-auto w-[11.5rem] overflow-hidden rounded-[1.2rem] border border-[var(--w-accent)]/25 bg-[var(--w-surface)] shadow-[0_16px_30px_-12px_rgba(0,0,0,0.35)]"
-                                style={{
-                                    aspectRatio: `${userCard.width || 1080} / ${userCard.height || 1440}`}}
-                            >
-                                <CardCanvas
-                                    document={userCard.document}
-                                    width={userCard.width || 1080}
-                                    height={userCard.height || 1440}
-                                    fitWidth={184}
-                                    className="!mx-0"
-                                />
-                            </div>
-                        ) : invitationCard ? (
-                            <PreviewInvitationCard
-                                card={invitationCard}
-                                fallbackSrc={CARDS[0].src}
-                                alt=""
-                                compact
-                            />
-                        ) : (
-                            CARDS.map((card, index) => (
+                {userCard?.document || invitationCard ? (
+                    <PreviewSiteCard
+                        title="Wedding Invitation"
+                        invitationCard={invitationCard}
+                        userCard={userCard}
+                        fallbackSrc={CARDS[0].src}
+                        designName={design.name}
+                        outlineBtn={outlineBtn}
+                        open={openCard}
+                        onToggle={() => setOpenCard((value) => !value)}
+                        desktop={desktop}
+                    />
+                ) : (
+                    <section id="gh-card" data-preview-reveal className={cn('preview-reveal relative px-5 pt-12 pb-6 text-center', desktop && 'px-10 pt-16')}>
+                        <p className="text-[10px] tracking-[0.34em] text-[var(--w-accent)] uppercase">The Card</p>
+                        <h3 className="mt-3 font-serif text-4xl font-light tracking-tight">Wedding Invitation</h3>
+                        <div className="relative mx-auto mt-10 flex h-[17.5rem] w-[12.5rem] items-center justify-center">
+                            {CARDS.map((card, index) => (
                                 <img
                                     key={card.id}
                                     src={card.src}
@@ -513,58 +503,32 @@ export function WeddingWebsitePreview({
                                         transform: `translateX(calc(-50% + ${(index - 1) * 18}px)) rotate(${(index - 1) * 7}deg)`,
                                         zIndex: index === 0 ? 3 : 3 - index}}
                                 />
-                            ))
-                        )}
-                    </div>
-                    <button type="button" onClick={() => setOpenCard((value) => !value)} className={cn('mx-auto mt-8 inline-flex items-center gap-2 px-7 py-2.5 text-[11px] tracking-[0.22em] uppercase', outlineBtn)}>
-                        <ChevronDown className={`h-3.5 w-3.5 transition ${openCard ? 'rotate-180' : ''}`} />
-                        {openCard ? 'Hide invitation' : 'View invitation'}
-                    </button>
-                    {openCard && (
-                        <div className="invite-open-stage mt-8">
-                            <div className="preview-envelope-flap mx-auto mb-[-8px] h-10 w-full max-w-sm origin-top rounded-t-[1.2rem] bg-[var(--w-accent)]/35" aria-hidden />
-                            {userCard?.document ? (
-                                <div
-                                    className="invite-open-card mx-auto w-full max-w-sm overflow-hidden rounded-[1.4rem] border border-[var(--w-accent)]/25 bg-[var(--w-surface)]"
-                                    style={{
-                                        aspectRatio: `${userCard.width || 1080} / ${userCard.height || 1440}`}}
-                                >
-                                    <CardCanvas
-                                        document={userCard.document}
-                                        width={userCard.width || 1080}
-                                        height={userCard.height || 1440}
-                                        fitWidth={384}
-                                        className="!mx-0"
-                                    />
-                                </div>
-                            ) : invitationCard ? (
-                                <div className="invite-open-card">
-                                    <PreviewInvitationCard
-                                        card={invitationCard}
-                                        fallbackSrc={CARDS[0].src}
-                                        alt={`${design.name} invitation card`}
-                                    />
-                                </div>
-                            ) : (
-                                <>
-                                    <img
-                                        key={CARDS[cardIndex].id}
-                                        src={CARDS[cardIndex].src}
-                                        alt={CARDS[cardIndex].alt}
-                                        className="invite-open-card mx-auto aspect-[3/4] w-full max-w-sm rounded-[1.4rem] border border-[var(--w-accent)]/25 object-cover"
-                                    />
-                                    <div className="mt-5 flex justify-center gap-3">
-                                        {CARDS.map((card, index) => (
-                                            <button key={card.id} type="button" onClick={() => setCardIndex(index)} className={`h-[4.6rem] w-[3.3rem] overflow-hidden rounded-lg border ${cardIndex === index ? 'border-[var(--w-accent)]' : 'border-[var(--w-accent)]/20'}`}>
-                                                <img src={card.src} alt="" className="h-full w-full object-cover" />
-                                            </button>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
+                            ))}
                         </div>
-                    )}
-                </section>
+                        <button type="button" onClick={() => setOpenCard((value) => !value)} className={cn('mx-auto mt-8 inline-flex items-center gap-2 px-7 py-2.5 text-[11px] tracking-[0.22em] uppercase', outlineBtn)}>
+                            <ChevronDown className={`h-3.5 w-3.5 transition ${openCard ? 'rotate-180' : ''}`} />
+                            {openCard ? 'Hide invitation' : 'View invitation'}
+                        </button>
+                        {openCard ? (
+                            <div className="invite-open-stage mt-8">
+                                <div className="preview-envelope-flap mx-auto mb-[-8px] h-10 w-full max-w-sm origin-top rounded-t-[1.2rem] bg-[var(--w-accent)]/35" aria-hidden />
+                                <img
+                                    key={CARDS[cardIndex].id}
+                                    src={CARDS[cardIndex].src}
+                                    alt={CARDS[cardIndex].alt}
+                                    className="invite-open-card mx-auto aspect-[3/4] w-full max-w-sm rounded-[1.4rem] border border-[var(--w-accent)]/25 object-cover"
+                                />
+                                <div className="mt-5 flex justify-center gap-3">
+                                    {CARDS.map((card, index) => (
+                                        <button key={card.id} type="button" onClick={() => setCardIndex(index)} className={`h-[4.6rem] w-[3.3rem] overflow-hidden rounded-lg border ${cardIndex === index ? 'border-[var(--w-accent)]' : 'border-[var(--w-accent)]/20'}`}>
+                                            <img src={card.src} alt="" className="h-full w-full object-cover" />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : null}
+                    </section>
+                )}
 
                 <SiteSectionGate sectionKey="story" desktop={desktop} sectionId="gh-story">
                 <section id="gh-story" data-preview-reveal className={cn('preview-reveal relative px-7 py-16 text-center', desktop && 'px-10')}>

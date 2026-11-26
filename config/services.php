@@ -76,11 +76,10 @@ return [
     ],
 
     /*
-     * Social sign-in (Laravel Socialite).
+     * Social sign-in (Laravel Socialite) — Google + Facebook.
      * Redirect URIs (production):
      *   https://invidora.com/auth/google/callback
      *   https://invidora.com/auth/facebook/callback
-     *   https://invidora.com/auth/apple/callback
      */
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
@@ -92,17 +91,6 @@ return [
         'client_id' => env('FACEBOOK_CLIENT_ID'),
         'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
         'redirect' => env('FACEBOOK_REDIRECT_URI', rtrim((string) env('APP_URL', 'http://localhost'), '/').'/auth/facebook/callback'),
-    ],
-
-    'apple' => [
-        'client_id' => env('APPLE_CLIENT_ID'),
-        'client_secret' => env('APPLE_CLIENT_SECRET'),
-        'key_id' => env('APPLE_KEY_ID'),
-        'team_id' => env('APPLE_TEAM_ID'),
-        // Absolute path to AuthKey_XXXX.p8 on the server, OR leave blank if APPLE_CLIENT_SECRET JWT is set.
-        'private_key' => env('APPLE_PRIVATE_KEY'),
-        'passphrase' => env('APPLE_PASSPHRASE'),
-        'redirect' => env('APPLE_REDIRECT_URI', rtrim((string) env('APP_URL', 'http://localhost'), '/').'/auth/apple/callback'),
     ],
 
 ];

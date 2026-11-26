@@ -35,7 +35,7 @@ const sidebarNavItems: (NavItem & {
         description: 'Season passes & credits',
         eyebrow: 'Account',
         headline: 'Billing',
-        blurb: 'Buy a wedding-season Pro pass and message credits via Razorpay (UPI, cards, netbanking).',
+        blurb: 'Buy a wedding-season Pro pass and message credits (UPI, cards, netbanking).',
     },
     {
         title: 'Admin',

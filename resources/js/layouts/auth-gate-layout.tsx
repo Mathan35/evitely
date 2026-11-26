@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import { AuthGateProvider } from '@/components/auth-gate';
+import { CookieConsentBanner } from '@/components/cookie-consent-banner';
 import { PageLoadingFrame } from '@/components/page-loading-frame';
 import { PageSkeleton } from '@/components/page-skeletons';
 import {

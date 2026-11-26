@@ -60,20 +60,20 @@ function resolveHost(target: EventTarget | null): HTMLElement | null {
 }
 
 function ensureLayer(host: HTMLElement): HTMLElement {
+    // Data attr survives React className rewrites; class alone does not.
+    host.setAttribute(HOST_ATTR, '');
+    host.classList.add('ui-ripple-host');
+
     let layer = host.querySelector(':scope > .ui-ripple-layer') as HTMLElement | null;
     if (!layer) {
         layer = document.createElement('span');
         layer.className = 'ui-ripple-layer';
         layer.setAttribute('aria-hidden', 'true');
-        host.appendChild(layer);
-    }
-
-    if (!host.hasAttribute(HOST_ATTR)) {
-        host.setAttribute(HOST_ATTR, '');
-        const position = window.getComputedStyle(host).position;
-        if (position === 'static') {
-            host.classList.add('ui-ripple-host');
+        const radius = window.getComputedStyle(host).borderRadius;
+        if (radius && radius !== '0px') {
+            layer.style.borderRadius = radius;
         }
+        host.appendChild(layer);
     }
 
     return layer;

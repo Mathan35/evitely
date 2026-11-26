@@ -11,10 +11,9 @@ type Integrations = {
     stripe?: { ready?: boolean; mode?: string; key_prefix?: string | null; webhook_url?: string };
     social?: {
         google?: boolean;
-        apple?: boolean;
         facebook?: boolean;
         enabled?: string[];
-        callbacks?: { google?: string; apple?: string; facebook?: string };
+        callbacks?: { google?: string; facebook?: string };
     };
     storage?: { disk?: string; bucket_set?: boolean; region?: string | null };
     translation?: { driver?: string; deepl_key_set?: boolean };
@@ -154,7 +153,7 @@ export default function IntegrationsIndex({
                     label="Social login"
                     value={
                         (integrations.social?.enabled?.length ?? 0) > 0
-                            ? `${integrations.social?.enabled?.length}/3 ready`
+                            ? `${integrations.social?.enabled?.length}/2 ready`
                             : 'Off'
                     }
                 />
@@ -282,7 +281,6 @@ export default function IntegrationsIndex({
                 </AdminCard>
                 <AdminCard title="Social login">
                     <Row label="Google" value={integrations.social?.google ? 'Ready' : 'Off'} />
-                    <Row label="Apple" value={integrations.social?.apple ? 'Ready' : 'Off'} />
                     <Row label="Facebook" value={integrations.social?.facebook ? 'Ready' : 'Off'} />
                 </AdminCard>
                 <AdminCard title="Extras">

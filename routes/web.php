@@ -82,10 +82,10 @@ Route::get('cookies', [LegalController::class, 'cookies'])->name('legal.cookies'
 
 Route::middleware('guest')->group(function (): void {
     Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
-        ->whereIn('provider', ['google', 'apple', 'facebook'])
+        ->whereIn('provider', ['google', 'facebook'])
         ->name('social.redirect');
     Route::match(['get', 'post'], 'auth/{provider}/callback', [SocialAuthController::class, 'callback'])
-        ->whereIn('provider', ['google', 'apple', 'facebook'])
+        ->whereIn('provider', ['google', 'facebook'])
         ->name('social.callback');
 });
 

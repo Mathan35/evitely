@@ -170,7 +170,7 @@ export function EditorShell({
                                     aria-modal="true"
                                     className={cn(
                                         'absolute inset-x-0 bottom-0 z-[70] flex max-h-[min(78dvh,36rem)] min-h-[min(48dvh,26rem)] flex-col overflow-hidden rounded-t-[1.4rem] bg-white shadow-[0_-22px_60px_-18px_rgba(24,24,27,0.5)] ring-1 ring-zinc-950/10',
-                                        'origin-bottom will-change-transform',
+                                        'origin-bottom touch-pan-y will-change-transform',
                                         'transition-[transform,opacity] duration-[380ms] ease-[cubic-bezier(0.16,1,0.3,1)]',
                                         sheetEntered ? 'translate-y-0 opacity-100' : 'translate-y-[108%] opacity-0',
                                     )}
@@ -188,7 +188,7 @@ export function EditorShell({
                                             </button>
                                         ) : null}
                                     </div>
-                                    <div className="min-h-0 flex-1 overflow-hidden">{inspector}</div>
+                                    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{inspector}</div>
                                 </div>
                             ) : null}
 

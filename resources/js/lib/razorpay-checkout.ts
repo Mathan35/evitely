@@ -42,7 +42,7 @@ let scriptPromise: Promise<void> | null = null;
 
 export function loadRazorpayScript(): Promise<void> {
     if (typeof window === 'undefined') {
-        return Promise.reject(new Error('Razorpay requires a browser.'));
+        return Promise.reject(new Error('Checkout requires a browser.'));
     }
     if (window.Razorpay) {
         return Promise.resolve();
@@ -55,7 +55,7 @@ export function loadRazorpayScript(): Promise<void> {
         const existing = document.querySelector<HTMLScriptElement>('script[data-razorpay-checkout]');
         if (existing) {
             existing.addEventListener('load', () => resolve());
-            existing.addEventListener('error', () => reject(new Error('Failed to load Razorpay.')));
+            existing.addEventListener('error', () => reject(new Error('Failed to load checkout.')));
             return;
         }
 
@@ -66,7 +66,7 @@ export function loadRazorpayScript(): Promise<void> {
         script.onload = () => resolve();
         script.onerror = () => {
             scriptPromise = null;
-            reject(new Error('Failed to load Razorpay Checkout.'));
+            reject(new Error('Failed to load checkout.'));
         };
         document.body.appendChild(script);
     });
@@ -140,7 +140,10 @@ async function postJson<T>(url: string, body: Record<string, unknown>): Promise<
 function friendlyPaymentError(detail: string): string {
     const lower = detail.toLowerCase();
     if (lower.includes('international')) {
-        return 'International cards are not enabled on this Razorpay account. Pay with UPI, an Indian debit/credit card, or netbanking — or enable International Cards in the Razorpay Dashboard.';
+        return 'International cards aren’t available for this checkout. Pay with UPI, an Indian debit/credit card, or netbanking.';
+    }
+    if (lower.includes('razorpay') || lower.includes('stripe')) {
+        return 'Checkout isn’t available right now. Please try again later.';
     }
     return detail;
 }

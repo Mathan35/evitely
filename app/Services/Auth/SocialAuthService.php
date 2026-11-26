@@ -13,7 +13,7 @@ use Laravel\Socialite\Contracts\User as SocialiteUser;
 class SocialAuthService
 {
     /** @var list<string> */
-    public const PROVIDERS = ['google', 'apple', 'facebook'];
+    public const PROVIDERS = ['google', 'facebook'];
 
     public function __construct(private GrowthService $growth) {}
 
@@ -27,15 +27,6 @@ class SocialAuthService
 
         if ($clientId === '') {
             return false;
-        }
-
-        if ($provider === 'apple') {
-            $secret = (string) config('services.apple.client_secret');
-            $privateKey = (string) config('services.apple.private_key');
-            $keyId = (string) config('services.apple.key_id');
-            $teamId = (string) config('services.apple.team_id');
-
-            return $secret !== '' || ($privateKey !== '' && $keyId !== '' && $teamId !== '');
         }
 
         return filled(config("services.{$provider}.client_secret"));

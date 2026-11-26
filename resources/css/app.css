@@ -7,9 +7,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Product-wide press ripple (buttons, links, button-like controls) */
+/* Product-wide press ripple (buttons, links, button-like controls).
+   Prefer [data-ui-ripple-host] over .ui-ripple-host — React className
+   re-renders wipe imperative classes and orphan the absolute layer onto
+   a positioned ancestor (e.g. search+filter rows). */
+[data-ui-ripple-host],
 .ui-ripple-host {
     position: relative;
+    isolation: isolate;
 }
 
 .ui-ripple-layer {
@@ -19,6 +24,7 @@
     overflow: hidden;
     border-radius: inherit;
     pointer-events: none;
+    contain: paint;
 }
 
 .ui-ripple {
@@ -241,12 +247,13 @@ html.popup-scroll-lock body {
     overscroll-behavior: none;
 }
 
-/* Framed site preview scroller — freeze behind RSVP / modal sheets only */
+/* Framed site preview scroller — freeze behind RSVP / modal sheets only.
+   Do not set touch-action:none — it intermittently eats taps on buttons/icons
+   inside the preview after a lightbox/sheet unlock race on some browsers. */
 html.doc-scroll-lock-previews .preview-scroll-pane,
 html.popup-scroll-lock .preview-scroll-pane {
     overflow: hidden !important;
     overscroll-behavior: none;
-    touch-action: none;
 }
 
 html.boot-skeleton-active #app-boot-skeleton {

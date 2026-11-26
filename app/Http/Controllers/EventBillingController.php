@@ -71,19 +71,54 @@ class EventBillingController extends Controller
         Request $request,
         Wedding $wedding,
         SiteBillingService $siteBilling,
+        \App\Services\ScheduledAutoShareService $autoShare,
     ): RedirectResponse|JsonResponse {
         Gate::authorize('update', $wedding);
 
         $data = $request->validate([
             'scheduled_publish_at' => ['required', 'date'],
+            'auto_share' => ['nullable', 'array'],
+            'auto_share.enabled' => ['nullable', 'boolean'],
+            'auto_share.channel_mode' => ['nullable', 'in:smart,whatsapp,sms,email'],
+            'auto_share.guest_ids' => ['nullable', 'array'],
+            'auto_share.guest_ids.*' => ['integer'],
+            'auto_share.new_contacts' => ['nullable', 'array', 'max:200'],
+            'auto_share.new_contacts.*.first_name' => ['nullable', 'string', 'max:80'],
+            'auto_share.new_contacts.*.last_name' => ['nullable', 'string', 'max:80'],
+            'auto_share.new_contacts.*.email' => ['nullable', 'email', 'max:160'],
+            'auto_share.new_contacts.*.phone' => ['nullable', 'string', 'max:40'],
+            'auto_share.new_contacts.*.country_code' => ['nullable', 'string', 'max:8'],
+            'share_guest_template' => ['nullable', 'string', 'max:800'],
+            'share_public_template' => ['nullable', 'string', 'max:800'],
         ]);
 
-        $siteBilling->schedulePublish($wedding, Carbon::parse($data['scheduled_publish_at']));
+        $at = Carbon::parse($data['scheduled_publish_at']);
+        $siteBilling->schedulePublish($wedding, $at);
+
+        $templateInput = array_filter([
+            'share_guest_template' => $data['share_guest_template'] ?? null,
+            'share_public_template' => $data['share_public_template'] ?? null,
+        ], fn ($value) => $value !== null);
+        if ($templateInput !== []) {
+            \App\Support\ShareMessageFactory::persistTemplates($wedding, $templateInput);
+        }
+
+        $auto = $data['auto_share'] ?? null;
+        if (is_array($auto)) {
+            $autoShare->upsertPending($wedding, $request->user(), [
+                'enabled' => (bool) ($auto['enabled'] ?? false),
+                'channel_mode' => $auto['channel_mode'] ?? 'smart',
+                'guest_ids' => $auto['guest_ids'] ?? [],
+                'new_contacts' => $auto['new_contacts'] ?? [],
+                'scheduled_for' => $at,
+            ]);
+        }
 
         if ($request->expectsJson()) {
             return response()->json([
                 'ok' => true,
                 'state' => $siteBilling->state($wedding->fresh())->toArray(),
+                'auto_share' => $autoShare->pendingSummary($wedding->fresh()),
             ]);
         }
 

@@ -86,12 +86,14 @@ function formatDate(value: string | null): string | null {
     if (Number.isNaN(date.getTime())) {
         return value;
     }
-    return date.toLocaleDateString(undefined, {
+    // Fixed locale — `undefined` mismatches Node SSR vs browser (en-GB "12 Sept"
+    // vs en-US "Sep 12"), which breaks hydration and kills the view toggle.
+    return new Intl.DateTimeFormat('en-US', {
         weekday: 'short',
         month: 'short',
         day: 'numeric',
         year: 'numeric',
-    });
+    }).format(date);
 }
 
 export default function WeddingIndex({
@@ -236,6 +238,15 @@ export default function WeddingIndex({
         if (nextMode === mode && nextLayout === layout) {
             return;
         }
+
+        // Layout-only: switch immediately so the View toggle feels responsive.
+        if (nextMode === mode) {
+            setLayout(nextLayout);
+            setPanelKey(`${nextMode}-${nextLayout}`);
+            setPanelReady(true);
+            return;
+        }
+
         setPanelReady(false);
         window.setTimeout(() => {
             setMode(nextMode);
@@ -272,7 +283,7 @@ export default function WeddingIndex({
                 </header>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+                    <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:items-end">
                         <StudioFilterSelect
                             label="Format"
                             value={mode}
@@ -328,28 +339,39 @@ export default function WeddingIndex({
                         />
                     </div>
 
-                    <div className="inline-flex rounded-full border border-zinc-950/10 bg-white/70 p-1 backdrop-blur dark:border-white/10 dark:bg-zinc-950/50">
-                        {(
-                            [
-                                ['grid', LayoutGrid],
-                                ['list', List],
-                            ] as const
-                        ).map(([value, Icon]) => (
-                            <button
-                                key={value}
-                                type="button"
-                                aria-label={value === 'grid' ? 'Grid view' : 'List view'}
-                                onClick={() => transitionTo(mode, value)}
-                                className={cn(
-                                    'rounded-full p-2 transition-all duration-300',
-                                    layout === value
-                                        ? 'bg-zinc-950 text-white dark:bg-white dark:text-zinc-950'
-                                        : 'text-zinc-500 hover:text-zinc-950 dark:hover:text-white',
-                                )}
-                            >
-                                <Icon className="size-4" />
-                            </button>
-                        ))}
+                    <div className="flex w-full min-w-0 flex-col gap-1.5 sm:w-auto sm:shrink-0">
+                        <span className="text-[11px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">
+                            View
+                        </span>
+                        <div
+                            role="group"
+                            aria-label="View layout"
+                            className="flex h-11 w-full rounded-full border border-zinc-200/90 bg-white/90 p-1 shadow-[0_1px_0_rgba(24,24,27,0.04)] ring-1 ring-zinc-950/[0.04] backdrop-blur dark:border-white/10 dark:bg-zinc-950/70 sm:w-auto"
+                        >
+                            {(
+                                [
+                                    ['grid', LayoutGrid, 'Grid'],
+                                    ['list', List, 'List'],
+                                ] as const
+                            ).map(([value, Icon, label]) => (
+                                <button
+                                    key={value}
+                                    type="button"
+                                    aria-pressed={layout === value}
+                                    aria-label={`${label} view`}
+                                    onClick={() => transitionTo(mode, value)}
+                                    className={cn(
+                                        'inline-flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-semibold transition-all duration-300 sm:flex-none sm:px-2.5',
+                                        layout === value
+                                            ? 'bg-zinc-950 text-white shadow-sm dark:bg-white dark:text-zinc-950'
+                                            : 'text-zinc-500 hover:text-zinc-950 dark:hover:text-white',
+                                    )}
+                                >
+                                    <Icon className="size-4 shrink-0" aria-hidden />
+                                    <span className="sm:hidden">{label}</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
@@ -563,7 +585,7 @@ function EventCard({ wedding, delay }: { wedding: WeddingSummary; delay: number 
             />
             <div className="relative p-6">
                 <div className="flex flex-wrap items-center gap-2">
-                    <StatusPill status={wedding.status} />
+                    <StatusPill status={wedding.status} paused={Boolean(wedding.live_paused)} />
                     <span className="rounded-full bg-white/80 px-2.5 py-1 text-[10px] font-semibold tracking-[0.14em] text-zinc-500 uppercase ring-1 ring-zinc-950/5 dark:bg-zinc-900/80">
                         {modeLabel(invitation)}
                     </span>
@@ -651,7 +673,7 @@ function EventRow({ wedding, delay }: { wedding: WeddingSummary; delay: number }
         >
             <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                    <StatusPill status={wedding.status} />
+                    <StatusPill status={wedding.status} paused={Boolean(wedding.live_paused)} />
                     <span className="text-[10px] font-semibold tracking-[0.14em] text-zinc-500 uppercase">
                         {modeLabel(wedding.invitation_mode)}
                     </span>
@@ -676,19 +698,27 @@ function EventRow({ wedding, delay }: { wedding: WeddingSummary; delay: number }
     );
 }
 
-function StatusPill({ status }: { status: string }) {
-    const live = status === 'published';
+function StatusPill({ status, paused = false }: { status: string; paused?: boolean }) {
+    const live = status === 'published' && !paused;
+    const stopped = status === 'published' && paused;
     return (
         <span
             className={cn(
                 'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-[0.16em] uppercase',
                 live
                     ? 'bg-emerald-500/12 text-emerald-800 ring-1 ring-emerald-600/20 dark:text-emerald-300'
-                    : 'bg-zinc-900/6 text-zinc-600 ring-1 ring-zinc-950/10 dark:bg-white/5 dark:text-zinc-300',
+                    : stopped
+                      ? 'bg-amber-500/12 text-amber-900 ring-1 ring-amber-600/20 dark:text-amber-200'
+                      : 'bg-zinc-900/6 text-zinc-600 ring-1 ring-zinc-950/10 dark:bg-white/5 dark:text-zinc-300',
             )}
         >
-            <span className={cn('size-1.5 rounded-full', live ? 'bg-emerald-500' : 'bg-zinc-400')} />
-            {live ? 'Live' : status}
+            <span
+                className={cn(
+                    'size-1.5 rounded-full',
+                    live ? 'bg-emerald-500' : stopped ? 'bg-amber-500' : 'bg-zinc-400',
+                )}
+            />
+            {live ? 'Live' : stopped ? 'Stopped' : status}
         </span>
     );
 }

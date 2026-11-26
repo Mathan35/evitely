@@ -1,8 +1,9 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import { CardCanvas } from '@/components/cards/card-canvas';
 import { PreviewLeaves } from '@/components/marketing/preview-effects';
 import { PreviewDeviceShell } from '@/components/preview/preview-device-shell';
+import { useSitePublishFlow } from '@/components/studio/site-publish-flow';
 import { WeddingSiteView, type WeddingSiteUserCard } from '@/components/wedding/wedding-site-view';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import type { GalleryDesign } from '@/types/gallery';
@@ -23,7 +24,10 @@ export default function WeddingPreview({
     editorHref?: string | null;
     previewKind?: 'card' | 'site';
 }) {
-    const [confirmUnpublish, setConfirmUnpublish] = useState(false);
+    const page = usePage<{ growth?: { trial_days?: number } }>();
+    const trialDays = page.props.growth?.trial_days ?? 30;
+    const [confirmStopLive, setConfirmStopLive] = useState(false);
+    const [publishing, setPublishing] = useState(false);
     const backHref =
         editorHref ||
         (previewKind === 'card' ? `/events/${wedding.id}/card` : `/events/${wedding.id}/edit`);
@@ -35,13 +39,77 @@ export default function WeddingPreview({
     }, [selectedUserCard]);
 
     const showCardFace = previewKind === 'card' && Boolean(userCard?.document);
+    const siteBilling =
+        wedding.owner?.messaging?.billing?.site
+        ?? (wedding as { site_billing?: {
+            trial_available?: boolean;
+            trial_used_on?: { id: number; title: string; status: string } | null;
+            has_paid_pack?: boolean;
+            legacy_account_pro?: boolean;
+            can_schedule_publish?: boolean;
+            is_view_only?: boolean;
+            is_card_only?: boolean;
+            is_site?: boolean;
+            upgrade_url?: string;
+            is_live_paused?: boolean;
+        } }).site_billing;
+    const isLivePaused = Boolean(
+        siteBilling?.is_live_paused
+            || (wedding as { live_paused_at?: string | null }).live_paused_at,
+    );
+
+    const { beginSitePublish, sitePublishDialogs } = useSitePublishFlow({
+        weddingId: wedding.id,
+        invitationMode: wedding.invitation_mode,
+        siteBilling,
+        trialDays,
+        publishing,
+        onPublish: (paid) => {
+            setPublishing(true);
+            router.post(`/events/${wedding.id}/publish`, paid ? { paid: 1 } : {}, {
+                preserveScroll: true,
+                preserveState: true,
+                showProgress: false,
+                onFinish: () => setPublishing(false),
+            });
+        },
+    });
+
+    function requestPublish(): void {
+        if (wedding.status === 'published' && isLivePaused) {
+            setPublishing(true);
+            router.post(`/events/${wedding.id}/publish`, {}, {
+                preserveScroll: true,
+                preserveState: true,
+                showProgress: false,
+                onFinish: () => setPublishing(false),
+            });
+            return;
+        }
+        if (beginSitePublish()) {
+            return;
+        }
+        setPublishing(true);
+        router.post(`/events/${wedding.id}/publish`, {}, {
+            preserveScroll: true,
+            preserveState: true,
+            showProgress: false,
+            onFinish: () => setPublishing(false),
+        });
+    }
 
     return (
         <>
             <Head title="Preview" />
             <div className="flex min-h-screen flex-col bg-[#1c1814] text-[#f4efe6]">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
-                    <p className="text-sm text-white/70">Preview · guests cannot see a draft</p>
+                    <p className="text-sm text-white/70">
+                        Preview · {wedding.status === 'published'
+                            ? isLivePaused
+                                ? 'live stopped for guests'
+                                : 'guests see the live link'
+                            : 'guests cannot see a draft'}
+                    </p>
                     <div className="flex items-center gap-3">
                         <Link
                             className="text-sm underline decoration-white/30 underline-offset-4"
@@ -50,37 +118,45 @@ export default function WeddingPreview({
                             Back to editor
                         </Link>
                         {wedding.status === 'published' ? (
-                            <button
-                                type="button"
-                                className="text-sm underline decoration-white/30 underline-offset-4"
-                                onClick={() => setConfirmUnpublish(true)}
-                            >
-                                Unpublish
-                            </button>
+                            isLivePaused ? (
+                                <button
+                                    type="button"
+                                    className="text-sm underline decoration-white/30 underline-offset-4"
+                                    disabled={publishing}
+                                    onClick={requestPublish}
+                                >
+                                    Go live
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="text-sm underline decoration-white/30 underline-offset-4"
+                                    onClick={() => setConfirmStopLive(true)}
+                                >
+                                    Stop live
+                                </button>
+                            )
                         ) : (
                             <button
                                 type="button"
                                 className="text-sm underline decoration-white/30 underline-offset-4"
-                                onClick={() =>
-                                    router.post(`/events/${wedding.id}/publish`, {}, {
-                                        preserveScroll: true,
-                                        preserveState: true,
-                                        showProgress: false,
-                                    })
-                                }
+                                disabled={publishing}
+                                onClick={requestPublish}
                             >
-                                Publish
+                                {publishing ? 'Publishing…' : 'Publish'}
                             </button>
                         )}
                     </div>
                 </div>
 
+                {sitePublishDialogs}
+
                 <ConfirmDialog
-                    open={confirmUnpublish}
-                    onOpenChange={setConfirmUnpublish}
-                    title="Unpublish this invitation?"
-                    description="Guests will no longer be able to open the public link until you publish again."
-                    confirmLabel="Unpublish"
+                    open={confirmStopLive}
+                    onOpenChange={setConfirmStopLive}
+                    title="Stop the live site?"
+                    description="Guests will not open the public link until you go live again. Your plan keeps running."
+                    confirmLabel="Stop live"
                     tone="danger"
                     onConfirm={() => router.delete(`/events/${wedding.id}/publish`)}
                 />

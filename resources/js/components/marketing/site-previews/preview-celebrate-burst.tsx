@@ -281,7 +281,8 @@ export function PreviewCelebrateBurst({
                 title={ui.celebrate}
                 className={cn(
                     'group fixed left-4 bottom-4 z-50 flex h-14 w-14 items-center justify-center',
-                    'bg-transparent transition duration-300',
+                    'rounded-full overflow-hidden bg-transparent transition duration-300',
+                    'outline-none focus-visible:ring-2 focus-visible:ring-[#c9963a]/40 focus-visible:ring-offset-2',
                     'hover:scale-105 active:scale-95 md:left-5 md:bottom-5',
                     'celebrate-fab',
                     pulse && 'celebrate-fab-fire',

@@ -142,44 +142,6 @@ class IntegrationSecretsService
                 'group' => 'social',
                 'secret' => true,
             ],
-            'apple.client_id' => [
-                'config' => 'services.apple.client_id',
-                'label' => 'Apple Services ID',
-                'group' => 'social',
-                'secret' => false,
-            ],
-            'apple.client_secret' => [
-                'config' => 'services.apple.client_secret',
-                'label' => 'Apple client secret JWT (optional if key path set)',
-                'group' => 'social',
-                'secret' => true,
-            ],
-            'apple.team_id' => [
-                'config' => 'services.apple.team_id',
-                'label' => 'Apple Team ID',
-                'group' => 'social',
-                'secret' => false,
-            ],
-            'apple.key_id' => [
-                'config' => 'services.apple.key_id',
-                'label' => 'Apple Key ID',
-                'group' => 'social',
-                'secret' => false,
-            ],
-            'apple.private_key' => [
-                'config' => 'services.apple.private_key',
-                'label' => 'Apple .p8 key (path or paste PEM)',
-                'group' => 'social',
-                'secret' => true,
-                'multiline' => true,
-                'placeholder' => '/home/…/AuthKey_XXXXX.p8  — or paste -----BEGIN PRIVATE KEY----- …',
-            ],
-            'apple.passphrase' => [
-                'config' => 'services.apple.passphrase',
-                'label' => 'Apple key passphrase (optional)',
-                'group' => 'social',
-                'secret' => true,
-            ],
         ];
     }
 

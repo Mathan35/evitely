@@ -45,8 +45,17 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { copyToClipboard } from '@/lib/clipboard';
+import { guestInviteShareText } from '@/lib/share-message';
 import { cn } from '@/lib/utils';
 import type { WeddingGuestRow } from '@/types/wedding';
+
+type GuestShareContext = {
+    title?: string | null;
+    date?: string | null;
+    time?: string | null;
+    place?: string | null;
+    template?: string | null;
+};
 
 function GuestSelectToggle({
     checked,
@@ -203,9 +212,16 @@ function formatSentAt(value?: string | null): string | null {
     });
 }
 
-function guestShareText(guest: WeddingGuestRow, eventTitle?: string | null): string {
-    const title = (eventTitle || 'our celebration').trim();
-    return [`You're invited to ${title}.`, `Open your personal invite:`, guest.guest_url].join('\n');
+function guestShareText(guest: WeddingGuestRow, ctx: GuestShareContext = {}): string {
+    return guestInviteShareText({
+        template: ctx.template,
+        title: ctx.title,
+        date: ctx.date,
+        time: ctx.time,
+        place: ctx.place,
+        guestName: guest.first_name,
+        guestUrl: guest.guest_url,
+    });
 }
 
 function guestPhoneDigits(guest: WeddingGuestRow): string {
@@ -224,8 +240,8 @@ function canOpenNativeSms(): boolean {
     return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
 }
 
-function whatsappShareUrl(guest: WeddingGuestRow, eventTitle?: string | null): string {
-    const text = guestShareText(guest, eventTitle);
+function whatsappShareUrl(guest: WeddingGuestRow, ctx: GuestShareContext = {}): string {
+    const text = guestShareText(guest, ctx);
     const digits = guestPhoneDigits(guest);
     if (digits.length >= 8) {
         return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
@@ -233,8 +249,8 @@ function whatsappShareUrl(guest: WeddingGuestRow, eventTitle?: string | null): s
     return `https://wa.me/?text=${encodeURIComponent(text)}`;
 }
 
-function smsShareUrl(guest: WeddingGuestRow, eventTitle?: string | null): string {
-    const text = guestShareText(guest, eventTitle);
+function smsShareUrl(guest: WeddingGuestRow, ctx: GuestShareContext = {}): string {
+    const text = guestShareText(guest, ctx);
     const digits = guestPhoneDigits(guest);
     // iOS prefers sms:number&body= ; Android often accepts ?body=
     if (digits.length >= 8) {
@@ -243,11 +259,11 @@ function smsShareUrl(guest: WeddingGuestRow, eventTitle?: string | null): string
     return `sms:?body=${encodeURIComponent(text)}`;
 }
 
-function openNativeSmsIfPossible(guest: WeddingGuestRow, eventTitle?: string | null): boolean {
+function openNativeSmsIfPossible(guest: WeddingGuestRow, ctx: GuestShareContext = {}): boolean {
     if (!canOpenNativeSms()) {
         return false;
     }
-    window.location.href = smsShareUrl(guest, eventTitle);
+    window.location.href = smsShareUrl(guest, ctx);
     return true;
 }
 
@@ -643,16 +659,34 @@ export function EventGuestBook({
     guests = [],
     groups = [],
     eventTitle,
+    shareGuestTemplate,
+    shareDate,
+    shareTime,
+    sharePlace,
     messaging,
 }: {
     eventId: number;
     guests?: WeddingGuestRow[] | null;
     groups?: GuestGroupOption[] | null;
     eventTitle?: string | null;
+    shareGuestTemplate?: string | null;
+    shareDate?: string | null;
+    shareTime?: string | null;
+    sharePlace?: string | null;
     messaging?: MessagingOptions | null;
 }) {
     const rows = Array.isArray(guests) ? guests : [];
     const groupRows = Array.isArray(groups) ? groups : [];
+    const shareCtx = useMemo<GuestShareContext>(
+        () => ({
+            title: eventTitle,
+            date: shareDate,
+            time: shareTime,
+            place: sharePlace,
+            template: shareGuestTemplate,
+        }),
+        [eventTitle, shareDate, shareTime, sharePlace, shareGuestTemplate],
+    );
     const twilio = messaging?.twilio ?? {
         configured: false,
         email: false,
@@ -885,7 +919,7 @@ export function EventGuestBook({
         setShareCopied(null);
         setWaQueue(queue);
         setWaIndex(0);
-        window.open(whatsappShareUrl(queue[0], eventTitle), '_blank', 'noopener,noreferrer');
+        window.open(whatsappShareUrl(queue[0], shareCtx), '_blank', 'noopener,noreferrer');
     }
 
     function bulkSms(): void {
@@ -904,7 +938,7 @@ export function EventGuestBook({
         setSmsQueue(queue);
         setSmsIndex(0);
         // Only auto-open Messages on phones — desktop sms: triggers “Pick an app?”.
-        openNativeSmsIfPossible(queue[0], eventTitle);
+        openNativeSmsIfPossible(queue[0], shareCtx);
     }
 
     async function copyShareField(
@@ -917,7 +951,7 @@ export function EventGuestBook({
         }
         const value =
             kind === 'message'
-                ? guestShareText(guest, eventTitle)
+                ? guestShareText(guest, shareCtx)
                 : kind === 'link'
                   ? guest.guest_url
                   : guestPhoneLabel(guest) || guestPhoneDigits(guest);
@@ -958,12 +992,12 @@ export function EventGuestBook({
                 setWaIndex(nextIndex);
                 setWaBusy(false);
                 setShareCopied(null);
-                window.open(whatsappShareUrl(queue[nextIndex], eventTitle), '_blank', 'noopener,noreferrer');
+                window.open(whatsappShareUrl(queue[nextIndex], shareCtx), '_blank', 'noopener,noreferrer');
             } else {
                 setSmsIndex(nextIndex);
                 setSmsBusy(false);
                 setShareCopied(null);
-                openNativeSmsIfPossible(queue[nextIndex], eventTitle);
+                openNativeSmsIfPossible(queue[nextIndex], shareCtx);
             }
         };
 
@@ -1157,7 +1191,7 @@ export function EventGuestBook({
                                     <p className="max-w-2xl text-[12px] leading-relaxed text-zinc-500">
                                         Free keeps phone sharing. Pro adds automated WhatsApp/SMS via
                                         Twilio and up to {planBilling.guest_limit < 500 ? '500' : planBilling.guest_limit}{' '}
-                                        guests — pay once with Razorpay (UPI / cards).
+                                        guests — pay once with UPI or cards.
                                     </p>
                                 ) : null}
                             </div>
@@ -1957,7 +1991,7 @@ export function EventGuestBook({
                                                                 return;
                                                             }
                                                             openShare(
-                                                                whatsappShareUrl(guest, eventTitle),
+                                                                whatsappShareUrl(guest, shareCtx),
                                                                 guest.id,
                                                             );
                                                         }}
@@ -1998,7 +2032,7 @@ export function EventGuestBook({
                                                                 return;
                                                             }
                                                             if (nativeSms) {
-                                                                openNativeSmsIfPossible(guest, eventTitle);
+                                                                openNativeSmsIfPossible(guest, shareCtx);
                                                                 router.post(
                                                                     `/events/${eventId}/guests/bulk`,
                                                                     {
@@ -2138,7 +2172,7 @@ export function EventGuestBook({
                                     Message
                                 </p>
                                 <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-zinc-700">
-                                    {guestShareText(waQueue[waIndex], eventTitle)}
+                                    {guestShareText(waQueue[waIndex], shareCtx)}
                                 </p>
                             </div>
                             <div className="grid grid-cols-3 gap-2">
@@ -2218,7 +2252,7 @@ export function EventGuestBook({
                             onClick={() => {
                                 if (waQueue[waIndex]) {
                                     window.open(
-                                        whatsappShareUrl(waQueue[waIndex], eventTitle),
+                                        whatsappShareUrl(waQueue[waIndex], shareCtx),
                                         '_blank',
                                         'noopener,noreferrer',
                                     );
@@ -2269,7 +2303,7 @@ export function EventGuestBook({
                                     Message
                                 </p>
                                 <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-zinc-700">
-                                    {guestShareText(smsQueue[smsIndex], eventTitle)}
+                                    {guestShareText(smsQueue[smsIndex], shareCtx)}
                                 </p>
                             </div>
                             <div className="grid grid-cols-3 gap-2">
@@ -2349,7 +2383,7 @@ export function EventGuestBook({
                                 className="text-[12px] font-semibold text-zinc-500 hover:text-zinc-800"
                                 onClick={() => {
                                     if (smsQueue[smsIndex]) {
-                                        openNativeSmsIfPossible(smsQueue[smsIndex], eventTitle);
+                                        openNativeSmsIfPossible(smsQueue[smsIndex], shareCtx);
                                     }
                                 }}
                             >

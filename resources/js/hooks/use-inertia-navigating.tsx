@@ -131,6 +131,8 @@ export function InertiaNavigatingProvider({ children }: { children: ReactNode })
         let showTimer = 0;
         let active = false;
 
+        let safetyTimer = 0;
+
         const begin = (visit: VisitLike | null): void => {
             if (visitIsBackground(visit)) {
                 return;
@@ -141,28 +143,36 @@ export function InertiaNavigatingProvider({ children }: { children: ReactNode })
             active = true;
 
             window.clearTimeout(showTimer);
+            window.clearTimeout(safetyTimer);
             // Tiny delay avoids flicker on instant cache hits, but keeps kind correct.
             showTimer = window.setTimeout(() => {
                 if (active) {
                     setNavigating(true);
                 }
             }, 80);
+            // Hard cap — never leave the fullscreen click-blocker up if finish is missed.
+            safetyTimer = window.setTimeout(() => {
+                if (active) {
+                    clear();
+                }
+            }, 12000);
         };
 
         const clear = (): void => {
             active = false;
             window.clearTimeout(showTimer);
+            window.clearTimeout(safetyTimer);
             showTimer = 0;
+            safetyTimer = 0;
             setNavigating(false);
             setTo(null);
             // Drop leftover loader classes even if another lock (intro/modal) is still held.
             clearStaleDocumentScrollLocks();
         };
 
-        const offBefore = router.on('before', (event) => {
-            begin(readVisit(event as Event));
-        });
-
+        // Only arm the loader on `start`. Doing it on `before` left a stuck
+        // fullscreen overlay (pointer-events-none) when the visit was cancelled
+        // in before — finish never fires for those, so clicks died until refresh.
         const offStart = router.on('start', (event) => {
             begin(readVisit(event as Event));
         });
@@ -172,11 +182,10 @@ export function InertiaNavigatingProvider({ children }: { children: ReactNode })
         const offSuccess = router.on('success', clear);
         const offNetworkError = router.on('networkError', clear);
         const offHttpException = router.on('httpException', clear);
-
         return () => {
             active = false;
             window.clearTimeout(showTimer);
-            offBefore();
+            window.clearTimeout(safetyTimer);
             offStart();
             offFinish();
             offError();

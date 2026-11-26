@@ -11,6 +11,7 @@ export function EditorTopBar({
     onUndo,
     onRedo,
     onPublish,
+    onStopLive,
     onSave,
     onPreview,
     onBack,
@@ -32,6 +33,8 @@ export function EditorTopBar({
     onUndo: () => void;
     onRedo: () => void;
     onPublish: () => void;
+    /** Stop guest access without unpublishing / resetting billing. */
+    onStopLive?: () => void;
     /** Optional explicit Save (site editor). When omitted, only Publish is shown. */
     onSave?: () => void;
     onPreview?: () => void;
@@ -117,13 +120,23 @@ export function EditorTopBar({
                         {saving ? 'Saving…' : saveLabel}
                     </button>
                 ) : null}
+                {onStopLive ? (
+                    <button
+                        type="button"
+                        onClick={onStopLive}
+                        disabled={publishing}
+                        className="ml-0.5 inline-flex h-9 items-center rounded-full bg-white/75 px-3 text-[12px] font-semibold text-rose-700 shadow-sm ring-1 ring-rose-200/80 transition hover:bg-rose-50 disabled:opacity-50 sm:ml-1 sm:px-4"
+                    >
+                        Stop live
+                    </button>
+                ) : null}
                 <button
                     type="button"
                     onClick={onPublish}
                     disabled={publishing}
                     className={cn(
                         'ml-0.5 inline-flex h-9 items-center rounded-full px-3 text-[12px] font-semibold transition active:scale-[0.98] disabled:opacity-50 sm:ml-1 sm:px-4',
-                        publishLabel === 'View site'
+                        publishLabel === 'View site' || publishLabel === 'Go live'
                             ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-700/25 hover:bg-emerald-500'
                             : 'bg-zinc-900 text-white shadow-lg shadow-zinc-900/25 hover:bg-zinc-800',
                     )}

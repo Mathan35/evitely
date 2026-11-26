@@ -194,6 +194,23 @@ export type WeddingPage = {
         email: string;
         sms?: string;
     };
+    share_templates?: {
+        public?: string;
+        guest?: string;
+        default_public?: string;
+        default_guest?: string;
+        public_placeholders?: string[];
+        guest_placeholders?: string[];
+        preview?: {
+            title: string;
+            date: string;
+            time: string;
+            place: string;
+            url: string;
+            guest_name: string;
+            guest_url: string;
+        };
+    };
     calendar_url: string;
     /** Google Calendar template URL for the primary public event (opens in browser). */
     google_calendar_url?: string | null;
@@ -399,6 +416,7 @@ export type WeddingSummary = {
     wedding_date: string | null;
     city: string | null;
     status: string;
+    live_paused?: boolean;
     theme: string;
     event_type?: string | null;
     invitation_mode?: string;

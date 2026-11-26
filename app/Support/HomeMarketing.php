@@ -21,7 +21,7 @@ class HomeMarketing
      */
     public static function payload(): array
     {
-        return Cache::remember('home.marketing.payload.v6', 120, static function (): array {
+        return Cache::remember('home.marketing.payload.v7', 120, static function (): array {
             return [
                 'designs' => self::designStrip(),
                 'samples' => self::samples(),
@@ -359,6 +359,14 @@ class HomeMarketing
                 'a' => 'Yes. Invitation cards stay free forever. Guest websites include a '.(int) config('billing.trial_days', 30).'-day free trial when you publish (up to '.(int) config('billing.trial.guest_limit', 100).' guests). Paid site packs extend the live window and unlock extras. Sharing personal WhatsApp or SMS links from your phone stays free.',
             ],
             [
+                'q' => 'What are personal guest links?',
+                'a' => 'Each invitee gets their own URL. You see who opened, who replied, and can resend WhatsApp or SMS to that person — not a single shared link where everyone looks the same.',
+            ],
+            [
+                'q' => 'Can the invite be bilingual?',
+                'a' => 'Yes. Set a primary and secondary language in Preferences. Guests switch language on the live site without you designing two separate invites.',
+            ],
+            [
                 'q' => 'Card or website — which should I pick?',
                 'a' => 'Choose a cinematic card for a single elegant open. Choose a website when you need RSVP, maps, schedule, music, or a guest wall. Many hosts use both.',
             ],
@@ -368,11 +376,15 @@ class HomeMarketing
             ],
             [
                 'q' => 'What are message credits?',
-                'a' => 'Message credits pay for automated sharing: paste guest emails or phone numbers and Invidora sends the invite for you in bulk (email, SMS, or WhatsApp). One credit is roughly one send. Sharing the link yourself from your phone is always free — buy credits only if you want us to deliver for you.',
+                'a' => 'Message credits pay for automated sharing: paste guest emails or phone numbers and Invidora sends the invite for you in bulk (email, SMS, or WhatsApp), including auto-share when a scheduled site goes live. One credit is roughly one send. Sharing the link yourself from your phone is always free — buy credits only if you want us to deliver for you.',
             ],
             [
                 'q' => 'When should I publish?',
                 'a' => 'Publish when the invite is ready for guests. Publishing starts a '.(int) config('billing.trial_days', 30).'-day free site try — share with friends first, then extend with a day pack if you need more time. Schedule a future go-live after you pick a paid pack.',
+            ],
+            [
+                'q' => 'Do you support QR codes and seating?',
+                'a' => 'Yes. On Manage you can print a QR pack for tables and build seating charts so guests find their place on the day.',
             ],
         ];
     }

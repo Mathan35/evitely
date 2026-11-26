@@ -1,6 +1,6 @@
 import { Head } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
-import { CardCanvas } from '@/components/cards/card-canvas';
+import { ResponsiveCardCanvas } from '@/components/cards/responsive-card-canvas';
 import { InvitationIntroGate, buildInvitationIntroContent } from '@/components/invitation/invitation-intro';
 import { buildPreviewLiveFromForm } from '@/components/marketing/site-previews/preview-live';
 import { sectionNotesFromDetails } from '@/lib/site-section-visibility';
@@ -272,14 +272,16 @@ export function WeddingSiteView({
                 fullscreen={!framed}
                 className={framed ? 'min-h-full' : 'min-h-svh'}
             >
-                <div className="flex min-h-full items-center justify-center bg-[#1c1712] p-6 sm:p-10">
-                    <CardCanvas
-                        document={userCard.document}
-                        width={userCard.width || 1080}
-                        height={userCard.height || 1440}
-                        fitWidth={resolvedDevice === 'mobile' ? 320 : 420}
-                        musicUrl={wedding.music_enabled ? wedding.music_url : null}
-                    />
+                <div className="flex min-h-full w-full items-center justify-center bg-[#1c1712] px-4 py-6 sm:p-10">
+                    <div className="w-full max-w-[min(100%,28rem)]">
+                        <ResponsiveCardCanvas
+                            document={userCard.document}
+                            width={userCard.width || 1080}
+                            height={userCard.height || 1440}
+                            musicUrl={wedding.music_enabled ? wedding.music_url : null}
+                            frameClassName="rounded-[1.2rem]"
+                        />
+                    </div>
                 </div>
             </InvitationIntroGate>
         );

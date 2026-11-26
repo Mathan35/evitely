@@ -106,6 +106,10 @@ class SiteBillingService
 
         $canPremium = $paidActive || $awaiting || $legacy;
 
+        $trialUsage = $user
+            ? $this->accountTrialUsage($user, $wedding)
+            : ['available' => true, 'used_on' => null];
+
         return new SiteBillingState(
             status: $status,
             isCardOnly: $isCard,
@@ -114,7 +118,7 @@ class SiteBillingService
             canUsePremium: $isCard || $canPremium,
             canAutomate: $isSite && $canAutomate,
             canSchedulePublish: $canSchedule || ($legacy && $isSite && ! $wedding->isPublic()),
-            isPublicLive: $wedding->isPublic() && ! $expired,
+            isPublicLive: $wedding->isGuestAccessible(),
             isViewOnly: $expired || ($wedding->isPublic() && $status === 'expired'),
             isScheduled: $status === 'awaiting_go_live' && $wedding->scheduled_publish_status === 'pending',
             hasPaidPack: $hasPaidPack,
@@ -132,7 +136,80 @@ class SiteBillingService
             customEndsOn: $wedding->site_custom_ends_on?->toDateString(),
             features: $features,
             upgradeUrl: '/events/'.$wedding->id.'/billing',
+            trialAvailable: (bool) $trialUsage['available'],
+            trialUsedOn: $trialUsage['used_on'],
+            isLivePaused: $wedding->isLivePaused(),
         );
+    }
+
+    /**
+     * One free guest-site trial per account. Cards never consume it.
+     *
+     * @return array{available: bool, used_on: array{id: int, title: string, status: string}|null}
+     */
+    public function accountTrialUsage(\App\Models\User $user, ?Wedding $forWedding = null): array
+    {
+        if ($this->legacyAccountPro($user)) {
+            return ['available' => true, 'used_on' => null];
+        }
+
+        // This event already consumed / owns the trial slot.
+        if ($forWedding && filled($forWedding->site_trial_started_at)) {
+            return ['available' => true, 'used_on' => null];
+        }
+
+        $consumer = Wedding::query()
+            ->where('user_id', $user->id)
+            ->whereNotNull('site_trial_started_at')
+            ->where(function ($q): void {
+                $q->whereNull('invitation_mode')
+                    ->orWhere('invitation_mode', '!=', 'card');
+            })
+            ->when($forWedding, fn ($q) => $q->where('id', '!=', $forWedding->id))
+            ->orderByRaw("case when site_billing_status = 'trial' then 0 else 1 end")
+            ->orderByDesc('site_trial_started_at')
+            ->orderByDesc('id')
+            ->first(['id', 'title', 'site_billing_status', 'site_trial_started_at']);
+
+        if ($consumer === null) {
+            return ['available' => true, 'used_on' => null];
+        }
+
+        return [
+            'available' => false,
+            'used_on' => [
+                'id' => (int) $consumer->id,
+                'title' => $consumer->displayTitle(),
+                'status' => (string) ($consumer->site_billing_status ?: 'expired'),
+            ],
+        ];
+    }
+
+    public function assertCanStartTrial(Wedding $wedding): void
+    {
+        $user = $wedding->user;
+        if ($user === null || $this->isCardOnly($wedding) || $this->legacyAccountPro($user)) {
+            return;
+        }
+
+        if (filled($wedding->site_pack_paid_at) || filled($wedding->site_pack_sku)) {
+            return;
+        }
+
+        $usage = $this->accountTrialUsage($user, $wedding);
+        if ($usage['available']) {
+            return;
+        }
+
+        $title = $usage['used_on']['title'] ?? 'another event';
+        throw ValidationException::withMessages([
+            'publish' => 'Your free '.$this->trialDays().'-day guest-site try was already used on “'.$title.'”. Buy a site pack to publish this invitation.',
+        ]);
+    }
+
+    public function trialDays(): int
+    {
+        return max(1, (int) config('billing.trial_days', 30));
     }
 
     private function normalizeStatus(Wedding $wedding, string $status, bool $legacy): string
@@ -193,7 +270,9 @@ class SiteBillingService
             return;
         }
 
-        $days = max(1, (int) config('billing.trial_days', 30));
+        $this->assertCanStartTrial($wedding);
+
+        $days = $this->trialDays();
         $wedding->forceFill([
             'site_billing_status' => 'trial',
             'site_trial_started_at' => now(),
@@ -401,21 +480,23 @@ class SiteBillingService
             $wedding->refresh();
         }
 
-        $starts = now();
+        $starts = Carbon::now();
         $ends = null;
 
         if ($wedding->site_pack_sku === 'site_custom' && $wedding->site_custom_ends_on) {
             $starts = $wedding->site_custom_starts_on
                 ? Carbon::parse($wedding->site_custom_starts_on)->startOfDay()
-                : now();
+                : Carbon::now();
             if ($starts->isFuture()) {
-                $starts = now();
+                $starts = Carbon::now();
             }
             $ends = Carbon::parse($wedding->site_custom_ends_on)->endOfDay();
         } elseif ((int) $wedding->site_pack_days > 0) {
             $ends = $starts->copy()->addDays((int) $wedding->site_pack_days);
         } elseif ($this->legacyAccountPro($wedding->user)) {
-            $ends = $wedding->user?->plan_ends_at;
+            $ends = $wedding->user?->plan_ends_at
+                ? Carbon::parse($wedding->user->plan_ends_at)
+                : null;
         } else {
             $ends = $starts->copy()->addDays(30);
         }
@@ -425,6 +506,8 @@ class SiteBillingService
             'scheduled_publish_status' => 'published',
             'scheduled_publish_at' => $wedding->scheduled_publish_at ?? now(),
         ])->save();
+
+        app(\App\Services\ScheduledAutoShareService::class)->dispatchPending($wedding);
     }
 
     public function activatePaidWindow(Wedding $wedding, Carbon $starts, ?Carbon $ends): void
@@ -598,6 +681,24 @@ class SiteBillingService
             'stripe_ready' => $this->billing->stripeReady(),
             'razorpay_key' => $this->billing->razorpayReady() ? (string) config('razorpay.key') : null,
             'allow_local_activate' => $this->billing->allowLocalActivate(),
+            'guests' => $wedding->guests()
+                ->orderBy('first_name')
+                ->limit(500)
+                ->get(['id', 'first_name', 'last_name', 'email', 'phone', 'country_code'])
+                ->map(fn ($g) => [
+                    'id' => $g->id,
+                    'name' => trim($g->first_name.' '.($g->last_name ?? '')),
+                    'email' => $g->email,
+                    'phone' => $g->phone,
+                    'country_code' => $g->country_code,
+                    'has_phone' => filled($g->phone),
+                    'has_email' => filled($g->email),
+                ])
+                ->values()
+                ->all(),
+            'auto_share' => app(\App\Services\ScheduledAutoShareService::class)->pendingSummary($wedding),
+            'messaging' => app(\App\Services\TwilioMessagingService::class)->status(),
+            'share_templates' => \App\Support\ShareMessageFactory::editorState($wedding),
         ];
     }
 }

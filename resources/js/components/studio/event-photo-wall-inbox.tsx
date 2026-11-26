@@ -136,7 +136,7 @@ export function EventPhotoWallInbox({
                                             setSelected([]);
                                         }}
                                         className={cn(
-                                            'inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[12px] font-semibold',
+                                            'relative inline-flex h-9 items-center gap-1.5 overflow-hidden rounded-full px-3 text-[12px] font-semibold',
                                             filter === item.id
                                                 ? 'bg-zinc-950 text-white'
                                                 : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200/80',

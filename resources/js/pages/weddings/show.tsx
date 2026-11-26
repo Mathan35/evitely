@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     Check,
     Copy,
@@ -11,6 +11,7 @@ import {
     MessageCircle,
     Pencil,
     QrCode,
+    Share2,
     Sparkles,
     Users,
 } from 'lucide-react';
@@ -26,14 +27,16 @@ import { EventPhotoWallInbox } from '@/components/studio/event-photo-wall-inbox'
 import { EventPlanningChecklist } from '@/components/studio/event-planning-checklist';
 import { EventRsvpInbox } from '@/components/studio/event-rsvp-inbox';
 import { EventSeating } from '@/components/studio/event-seating';
+import { EventShareMessages } from '@/components/studio/event-share-messages';
 import { isPhotoWallEnabled, isRsvpRemindersEnabled } from '@/components/studio/preferences-panel';
+import { useSitePublishFlow } from '@/components/studio/site-publish-flow';
 import { staysFromAccommodations } from '@/lib/stays-from-accommodations';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { cn } from '@/lib/utils';
 import type { WeddingPage } from '@/types/wedding';
 
-type ManageTab = 'overview' | 'guests' | 'rsvps' | 'wishes' | 'photos' | 'seating';
+type ManageTab = 'overview' | 'share' | 'guests' | 'rsvps' | 'wishes' | 'photos' | 'seating';
 
 function formatDate(value: string | null | undefined): string | null {
     if (!value) {
@@ -61,7 +64,7 @@ function ManagePremiumGate({
     upgradeUrl: string;
 }) {
     return (
-        <div className="rounded-[1.35rem] border border-amber-200/80 bg-gradient-to-br from-amber-50 to-white p-5 sm:p-6">
+        <div className="rounded-[1.35rem] border border-amber-200/80 bg-gradient-to-br from-amber-50 mt-3 to-white p-5 sm:p-6">
             <p className="text-[11px] font-semibold tracking-[0.16em] text-amber-800/80 uppercase">Site plan</p>
             <h3 className="mt-2 font-serif text-xl tracking-tight text-zinc-950">{title}</h3>
             <p className="mt-2 text-[13px] leading-relaxed text-zinc-600">{description}</p>
@@ -76,10 +79,13 @@ function ManagePremiumGate({
 }
 
 export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
+    const page = usePage<{ growth?: { trial_days?: number } }>();
+    const trialDays = page.props.growth?.trial_days ?? 30;
     const owner = wedding.owner;
     const canvas = useRef<HTMLCanvasElement>(null);
     const [copied, setCopied] = useState(false);
-    const [confirmUnpublish, setConfirmUnpublish] = useState(false);
+    const [confirmStopLive, setConfirmStopLive] = useState(false);
+    const [publishing, setPublishing] = useState(false);
     const [tab, setTab] = useState<ManageTab>('overview');
     const published = wedding.status === 'published';
     const siteBilling =
@@ -88,10 +94,55 @@ export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
             can_use_premium?: boolean;
             upgrade_url?: string;
             features?: Record<string, boolean>;
+            is_live_paused?: boolean;
+            is_public_live?: boolean;
+            trial_available?: boolean;
+            trial_used_on?: { id: number; title: string; status: string } | null;
+            has_paid_pack?: boolean;
+            legacy_account_pro?: boolean;
+            can_schedule_publish?: boolean;
+            is_view_only?: boolean;
+            is_card_only?: boolean;
+            is_site?: boolean;
         } }).site_billing;
+    const isLivePaused = Boolean(siteBilling?.is_live_paused);
     const canUsePremium = Boolean(siteBilling?.can_use_premium);
     const features = siteBilling?.features ?? null;
     const billingUpgradeUrl = siteBilling?.upgrade_url || `/events/${wedding.id}/billing`;
+
+    const { beginSitePublish, sitePublishDialogs } = useSitePublishFlow({
+        weddingId: wedding.id,
+        invitationMode: wedding.invitation_mode,
+        siteBilling,
+        trialDays,
+        publishing,
+        onPublish: (paid) => {
+            setPublishing(true);
+            router.post(`/events/${wedding.id}/publish`, paid ? { paid: 1 } : {}, {
+                preserveScroll: true,
+                onFinish: () => setPublishing(false),
+            });
+        },
+    });
+
+    function requestPublish(): void {
+        if (published && isLivePaused) {
+            setPublishing(true);
+            router.post(`/events/${wedding.id}/publish`, {}, {
+                preserveScroll: true,
+                onFinish: () => setPublishing(false),
+            });
+            return;
+        }
+        if (beginSitePublish()) {
+            return;
+        }
+        setPublishing(true);
+        router.post(`/events/${wedding.id}/publish`, {}, {
+            preserveScroll: true,
+            onFinish: () => setPublishing(false),
+        });
+    }
     const seatingLocked = !canUsePremium && features?.seating === false;
     const vendorsLocked = !canUsePremium && features?.vendors === false;
     const analyticsLocked = !canUsePremium && features?.analytics_advanced === false;
@@ -124,6 +175,8 @@ export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
 
         if (key === 'rsvps' || key === 'rsvp') {
             setTab('rsvps');
+        } else if (key === 'share' || key === 'messages' || key === 'invite-message') {
+            setTab('share');
         } else if (key === 'guests' || key === 'guest') {
             setTab('guests');
         } else if (key === 'wishes' || key === 'guestbook' || key === 'wall') {
@@ -423,32 +476,46 @@ export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
                                     </Button>
                                 ) : null}
                                 {published ? (
-                                    <Button
-                                        variant="outline"
-                                        className="h-10 justify-center rounded-full border-rose-200 bg-white/90 px-3 text-[13px] text-rose-700 hover:bg-rose-50 hover:text-rose-800 sm:px-4"
-                                        onClick={() => setConfirmUnpublish(true)}
-                                    >
-                                        Unpublish
-                                    </Button>
+                                    isLivePaused ? (
+                                        <Button
+                                            className="h-10 justify-center rounded-full bg-emerald-600 px-3 text-[13px] text-white shadow-lg shadow-emerald-700/25 hover:bg-emerald-500 sm:px-4"
+                                            disabled={publishing}
+                                            onClick={requestPublish}
+                                        >
+                                            <Sparkles className="mr-1.5 size-3.5 shrink-0" />
+                                            Go live
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="outline"
+                                            className="h-10 justify-center rounded-full border-rose-200 bg-white/90 px-3 text-[13px] text-rose-700 hover:bg-rose-50 hover:text-rose-800 sm:px-4"
+                                            onClick={() => setConfirmStopLive(true)}
+                                        >
+                                            Stop live
+                                        </Button>
+                                    )
                                 ) : (
                                     <Button
                                         className="h-10 justify-center rounded-full bg-emerald-600 px-3 text-[13px] text-white shadow-lg shadow-emerald-700/25 hover:bg-emerald-500 sm:px-4"
-                                        onClick={() => router.post(`/events/${wedding.id}/publish`)}
+                                        disabled={publishing}
+                                        onClick={requestPublish}
                                     >
                                         <Sparkles className="mr-1.5 size-3.5 shrink-0" />
-                                        Publish
+                                        {publishing ? 'Publishing…' : 'Publish'}
                                     </Button>
                                 )}
                             </div>
                         </div>
                     </header>
 
+                    {sitePublishDialogs}
+
                     <ConfirmDialog
-                        open={confirmUnpublish}
-                        onOpenChange={setConfirmUnpublish}
-                        title="Unpublish this invitation?"
-                        description="Guests will no longer be able to open the public link until you publish again."
-                        confirmLabel="Unpublish"
+                        open={confirmStopLive}
+                        onOpenChange={setConfirmStopLive}
+                        title="Stop the live site?"
+                        description="Guests will not be able to open the public link until you go live again. Your trial or paid plan keeps running."
+                        confirmLabel="Stop live"
                         tone="danger"
                         onConfirm={() => router.delete(`/events/${wedding.id}/publish`)}
                     />
@@ -466,6 +533,19 @@ export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
                                         onClick: () => {
                                             setTab('overview');
                                             window.history.replaceState(null, '', window.location.pathname);
+                                        },
+                                    },
+                                    {
+                                        id: 'share' as const,
+                                        label: 'Share',
+                                        icon: Share2,
+                                        onClick: () => {
+                                            setTab('share');
+                                            window.history.replaceState(
+                                                null,
+                                                '',
+                                                `${window.location.pathname}?tab=share`,
+                                            );
                                         },
                                     },
                                     {
@@ -562,6 +642,12 @@ export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
                         </div>
                     </nav>
 
+                    {tab === 'share' ? (
+                        <div className="min-w-0 w-full">
+                            <EventShareMessages wedding={wedding} />
+                        </div>
+                    ) : null}
+
                     {tab === 'guests' ? (
                         <div className="min-w-0 w-full max-w-5xl">
                             <EventGuestBook
@@ -569,6 +655,16 @@ export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
                                 guests={owner?.guests ?? []}
                                 groups={owner?.groups ?? []}
                                 eventTitle={names}
+                                shareGuestTemplate={
+                                    wedding.share_templates?.guest
+                                    || wedding.details?.share_guest_template
+                                    || null
+                                }
+                                shareDate={formatDate(wedding.wedding_date || wedding.starts_on)}
+                                shareTime={wedding.wedding_time}
+                                sharePlace={[wedding.venue_name, wedding.city, wedding.country]
+                                    .filter(Boolean)
+                                    .join(', ')}
                                 messaging={owner?.messaging}
                             />
                         </div>
@@ -681,6 +777,21 @@ export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
                                                     <Mail className="size-3.5" />
                                                     Email
                                                 </a>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setTab('share');
+                                                        window.history.replaceState(
+                                                            null,
+                                                            '',
+                                                            `${window.location.pathname}?tab=share`,
+                                                        );
+                                                    }}
+                                                    className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-white/10 px-3 text-[12px] font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/15 sm:px-4 sm:text-[13px]"
+                                                >
+                                                    <Share2 className="size-3.5" />
+                                                    Edit messages
+                                                </button>
                                                 <button
                                                     type="button"
                                                     onClick={() => router.post(`/events/${wedding.id}/duplicate`)}

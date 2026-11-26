@@ -112,13 +112,14 @@ return [
             'price_label' => '₹0',
             'guest_limit' => (int) env('BILLING_TRIAL_GUEST_LIMIT', 100),
             'co_host_limit' => 1,
-            'event_limit' => 1,
+            // Drafts are unlimited; only one free guest-site trial publish per account.
+            'event_limit' => null,
             'monthly_credits' => 0,
             'automated_messaging' => false,
             'features' => [
-                '1 event per account',
+                'Unlimited drafts · one free guest-site trial',
                 'Card invitations free forever',
-                '30-day free guest site on publish',
+                '30-day free guest site on first publish',
                 'Hero layout, backgrounds & intro styles',
                 'Share personal WhatsApp / SMS links free from your phone',
                 'Up to 100 guests on free trial',

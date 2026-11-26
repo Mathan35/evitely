@@ -111,6 +111,8 @@ trait WeddingValidationRules
             'details.rsvp_soft_close' => ['nullable', 'string', 'max:8'],
             'details.rsvp_thank_you_enabled' => ['nullable', 'string', 'max:8'],
             'details.invite_delivery_mode' => ['nullable', 'string', 'in:manual,automated'],
+            'details.share_public_template' => ['nullable', 'string', 'max:800'],
+            'details.share_guest_template' => ['nullable', 'string', 'max:800'],
             'details.photo_wall_enabled' => ['nullable', 'string', 'max:8'],
             'details.site_passcode_enabled' => ['nullable', 'string', 'max:8'],
             'details.site_passcode' => ['nullable', 'string', 'max:32'],

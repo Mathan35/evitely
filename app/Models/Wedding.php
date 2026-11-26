@@ -57,7 +57,7 @@ use Illuminate\Support\Carbon;
     'site_pack_sku', 'site_pack_days', 'site_pack_paid_at', 'site_pack_starts_at', 'site_pack_ends_at',
     'site_custom_starts_on', 'site_custom_ends_on', 'site_credits_granted',
     'scheduled_publish_at', 'scheduled_publish_status', 'scheduled_publish_attempts',
-    'growth_share_count', 'first_shared_at',
+    'growth_share_count', 'first_shared_at', 'live_paused_at',
 ])]
 class Wedding extends Model
 {
@@ -88,6 +88,7 @@ class Wedding extends Model
             'scheduled_publish_attempts' => 'integer',
             'growth_share_count' => 'integer',
             'first_shared_at' => 'datetime',
+            'live_paused_at' => 'datetime',
         ];
     }
 
@@ -119,6 +120,19 @@ class Wedding extends Model
     public function guests(): HasMany
     {
         return $this->hasMany(WeddingGuest::class, 'event_id');
+    }
+
+    public function scheduledAutoShares(): HasMany
+    {
+        return $this->hasMany(ScheduledAutoShare::class, 'event_id');
+    }
+
+    public function pendingAutoShare(): HasOne
+    {
+        return $this->hasOne(ScheduledAutoShare::class, 'event_id')
+            ->where('status', 'pending')
+            ->where('enabled', true)
+            ->latestOfMany();
     }
 
     public function rsvps(): HasMany
@@ -298,5 +312,41 @@ class Wedding extends Model
     public function isPublic(): bool
     {
         return $this->status === WeddingStatus::Published;
+    }
+
+    /** Host marked the live invite as stopped — guests cannot open it until Go live. */
+    public function isLivePaused(): bool
+    {
+        return $this->isPublic() && $this->live_paused_at !== null;
+    }
+
+    /**
+     * Guest-facing access: published, not paused, and site billing still active.
+     */
+    public function isGuestAccessible(): bool
+    {
+        if (! $this->isPublic() || $this->isLivePaused()) {
+            return false;
+        }
+
+        if (($this->invitation_mode ?? 'link') === 'card') {
+            return true;
+        }
+
+        $status = (string) ($this->site_billing_status ?: 'draft_ready');
+
+        if ($status === 'expired' || $status === 'awaiting_go_live') {
+            return false;
+        }
+
+        if ($status === 'trial' && $this->site_trial_ends_at && $this->site_trial_ends_at->isPast()) {
+            return false;
+        }
+
+        if ($status === 'paid' && $this->site_pack_ends_at && $this->site_pack_ends_at->isPast()) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -35,6 +35,10 @@ readonly class SiteBillingState
         public ?string $customEndsOn,
         public array $features,
         public string $upgradeUrl,
+        public bool $trialAvailable = true,
+        /** @var array{id: int, title: string, status: string}|null */
+        public ?array $trialUsedOn = null,
+        public bool $isLivePaused = false,
     ) {}
 
     /**
@@ -69,6 +73,9 @@ readonly class SiteBillingState
             'features' => $this->features,
             'upgrade_url' => $this->upgradeUrl,
             'days_left' => $this->daysLeft(),
+            'trial_available' => $this->trialAvailable,
+            'trial_used_on' => $this->trialUsedOn,
+            'is_live_paused' => $this->isLivePaused,
         ];
     }
 

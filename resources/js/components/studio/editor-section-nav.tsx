@@ -36,7 +36,7 @@ export function EditorSectionNav({
                 className={cn(
                     'flex min-h-0 min-w-0 max-w-full flex-1',
                     // Mobile: scrollable dock (min-w-0 required so overflow-x can shrink inside flex)
-                    'touch-pan-x gap-0.5 overflow-x-auto overscroll-x-contain px-1 py-1.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+                    'touch-pan-x gap-0.5 overflow-x-auto overscroll-x-contain px-1 py-1.5 [-ms-overflow-style:none] [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden',
                     // Desktop: vertical scroll for long section lists
                     'md:flex-col md:touch-pan-y md:space-y-1 md:overflow-x-hidden md:overflow-y-auto md:overscroll-y-contain md:p-1.5',
                     'md:[scrollbar-gutter:stable] md:[scrollbar-width:thin] md:[scrollbar-color:rgb(212_212_216)_transparent]',

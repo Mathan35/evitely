@@ -43,6 +43,7 @@ class WeddingController extends Controller
                 'wedding_date' => $wedding->starts_on?->format('Y-m-d'),
                 'city' => $wedding->city,
                 'status' => $wedding->status->value,
+                'live_paused' => $wedding->isLivePaused(),
                 'theme' => $wedding->theme,
                 'event_type' => $wedding->eventType?->name,
                 'invitation_mode' => $wedding->invitation_mode,

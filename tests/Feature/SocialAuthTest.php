@@ -16,9 +16,6 @@ beforeEach(function (): void {
         'services.facebook.client_id' => 'facebook-client',
         'services.facebook.client_secret' => 'facebook-secret',
         'services.facebook.redirect' => 'http://localhost/auth/facebook/callback',
-        'services.apple.client_id' => 'apple-client',
-        'services.apple.client_secret' => 'apple-secret',
-        'services.apple.redirect' => 'http://localhost/auth/apple/callback',
     ]);
 });
 
@@ -39,6 +36,7 @@ function fakeSocialiteUser(string $id, string $email, string $name = 'Host User'
 function mockSocialite(string $provider, SocialiteUser $user): void
 {
     $driver = Mockery::mock(SocialiteProvider::class);
+    $driver->shouldReceive('redirectUrl')->andReturnSelf();
     $driver->shouldReceive('redirect')->andReturn(redirect('https://oauth.example/'.$provider));
     $driver->shouldReceive('user')->andReturn($user);
     $driver->shouldReceive('stateless')->andReturnSelf();
@@ -50,7 +48,7 @@ function mockSocialite(string $provider, SocialiteUser $user): void
 it('lists configured social providers', function (): void {
     $enabled = app(SocialAuthService::class)->enabledProviders();
 
-    expect($enabled)->toBe(['google', 'apple', 'facebook']);
+    expect($enabled)->toBe(['google', 'facebook']);
 });
 
 it('redirects guests to the oauth provider', function (): void {
@@ -126,10 +124,10 @@ it('blocks unconfigured providers with a clear error', function (): void {
 });
 
 it('allows free card creation forever after social signup', function (): void {
-    mockSocialite('apple', fakeSocialiteUser('a-1', 'apple@example.com', 'Apple Host'));
+    mockSocialite('facebook', fakeSocialiteUser('fb-77', 'social@example.com', 'Social Host'));
 
-    $this->get(route('social.callback', 'apple'))->assertRedirect();
+    $this->get(route('social.callback', 'facebook'))->assertRedirect();
 
-    $user = User::query()->where('email', 'apple@example.com')->firstOrFail();
+    $user = User::query()->where('email', 'social@example.com')->firstOrFail();
     expect(app(\App\Services\Billing\BillingService::class)->canCreateEvent($user, 'card'))->toBeTrue();
 });

@@ -1,5 +1,5 @@
 import { ChevronDown } from 'lucide-react';
-import { CardCanvas } from '@/components/cards/card-canvas';
+import { ResponsiveCardCanvas } from '@/components/cards/responsive-card-canvas';
 import { PreviewInvitationCard } from '@/components/marketing/site-previews/preview-invitation-card';
 import { cn } from '@/lib/utils';
 import type { GalleryDesign } from '@/types/gallery';
@@ -38,27 +38,19 @@ export function PreviewSiteCard({
     const hasUserCard = Boolean(userCard?.document);
     const cardW = userCard?.width || 1080;
     const cardH = userCard?.height || 1440;
-    // Match gallery InvitationCardFace art aspect (not a forced 3∶4 shell).
-    const cardAspect = `${cardW} / ${cardH}`;
 
     return (
         <section id={sectionId} data-preview-reveal className={cn('preview-reveal relative px-5 pt-12 pb-6 text-center', desktop && 'px-10 pt-16')}>
             <p className="text-[10px] tracking-[0.34em] text-[var(--w-accent)] uppercase">The Card</p>
             <h3 className="mt-3 font-serif text-4xl font-light tracking-tight">{title}</h3>
-            <div className="relative mx-auto mt-10 flex h-[17.5rem] w-[12.5rem] items-center justify-center">
+            <div className="relative mx-auto mt-10 flex w-full max-w-[13.5rem] items-center justify-center">
                 {hasUserCard && userCard?.document ? (
-                    <div
-                        className="mx-auto w-[11.5rem] overflow-hidden rounded-[1.2rem] border border-[var(--w-accent)]/25 bg-[var(--w-surface)] shadow-[0_16px_30px_-12px_rgba(0,0,0,0.35)]"
-                        style={{ aspectRatio: cardAspect }}
-                    >
-                        <CardCanvas
-                            document={userCard.document}
-                            width={cardW}
-                            height={cardH}
-                            fitWidth={184}
-                            className="!mx-0"
-                        />
-                    </div>
+                    <ResponsiveCardCanvas
+                        document={userCard.document}
+                        width={cardW}
+                        height={cardH}
+                        frameClassName="rounded-[1.2rem] border border-[var(--w-accent)]/25 bg-[var(--w-surface)] shadow-[0_16px_30px_-12px_rgba(0,0,0,0.35)]"
+                    />
                 ) : (
                     <PreviewInvitationCard card={invitationCard} fallbackSrc={fallbackSrc} alt="" compact />
                 )}
@@ -75,18 +67,12 @@ export function PreviewSiteCard({
                 <div className="invite-open-stage mt-8">
                     <div className="preview-envelope-flap mx-auto mb-[-8px] h-10 w-full max-w-sm origin-top rounded-t-[1.2rem] bg-[var(--w-accent)]/35" aria-hidden />
                     {hasUserCard && userCard?.document ? (
-                        <div
-                            className="invite-open-card mx-auto w-full max-w-sm overflow-hidden rounded-[1.4rem] border border-[var(--w-accent)]/25 bg-[var(--w-surface)]"
-                            style={{ aspectRatio: cardAspect }}
-                        >
-                            <CardCanvas
-                                document={userCard.document}
-                                width={cardW}
-                                height={cardH}
-                                fitWidth={384}
-                                className="!mx-0"
-                            />
-                        </div>
+                        <ResponsiveCardCanvas
+                            document={userCard.document}
+                            width={cardW}
+                            height={cardH}
+                            frameClassName="invite-open-card rounded-[1.4rem] border border-[var(--w-accent)]/25 bg-[var(--w-surface)] shadow-[0_16px_30px_-12px_rgba(0,0,0,0.35)] max-w-sm"
+                        />
                     ) : (
                         <div className="invite-open-card">
                             <PreviewInvitationCard

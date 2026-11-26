@@ -1,11 +1,12 @@
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { liveGalleryMediaStyle } from '@/components/marketing/site-previews/preview-live';
 import {
     resolveGalleryStyleId,
     type GalleryStyleId,
 } from '@/lib/gallery-section-styles';
-import { previewOverlayClass } from '@/lib/preview-shell';
+import { acquireDocumentScrollLock } from '@/lib/document-scroll-lock';
 import { cn } from '@/lib/utils';
 
 export type SiteGalleryPhoto = {
@@ -558,60 +559,148 @@ function GalleryLightbox({
 }) {
     const photo = photos[index];
     const [slideKey, setSlideKey] = useState(0);
+    const [host, setHost] = useState<HTMLElement | null>(null);
+    const anchorRef = useRef<HTMLSpanElement>(null);
 
     useEffect(() => {
         setSlideKey((value) => value + 1);
     }, [index, photo?.src]);
 
-    if (!photo) return null;
+    // Portal out of the gallery section — `relative` on the section made absolute
+    // overlays as tall as the whole photo grid on mobile.
+    useLayoutEffect(() => {
+        const anchor = anchorRef.current;
+        if (!anchor) {
+            return;
+        }
 
-    return (
-        <div className={previewOverlayClass(framed, 'site-gallery-lightbox z-50 flex flex-col bg-[#140f0c]/94')}>
-            <div className="flex items-center justify-between px-4 py-3 text-white">
-                <p key={`title-${slideKey}`} className="site-gallery-lightbox__meta font-serif text-lg font-light">
+        if (framed) {
+            const shell = anchor.closest(
+                '[data-editor-preview], .editor-live-preview, .site-live-preview',
+            ) as HTMLElement | null;
+            setHost(shell ?? document.body);
+            return;
+        }
+
+        setHost(document.body);
+    }, [framed]);
+
+    useEffect(() => {
+        if (!host || !photo) {
+            return;
+        }
+
+        const release = acquireDocumentScrollLock({
+            pin: !framed,
+            freezePreviewScrollers: true,
+        });
+
+        const onKey = (event: KeyboardEvent): void => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                onClose();
+                return;
+            }
+            if (photos.length < 2) {
+                return;
+            }
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                onChange((index + photos.length - 1) % photos.length);
+            } else if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                onChange((index + 1) % photos.length);
+            }
+        };
+
+        window.addEventListener('keydown', onKey);
+        return () => {
+            release();
+            window.removeEventListener('keydown', onKey);
+        };
+    }, [framed, host, index, onChange, onClose, photo, photos.length]);
+
+    if (!photo) {
+        return null;
+    }
+
+    const overlay = (
+        <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={photo.title || 'Gallery photo'}
+            className={cn(
+                'site-gallery-lightbox z-[80] flex flex-col bg-[#140f0c]/96',
+                framed ? 'absolute inset-0' : 'fixed inset-0',
+            )}
+        >
+            <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close gallery"
+                className={cn(
+                    'absolute z-[90] grid size-10 place-items-center rounded-full',
+                    'bg-black/60 text-white shadow-lg ring-1 ring-white/25 backdrop-blur-md',
+                    'transition hover:bg-black/75 active:scale-95',
+                    'top-[max(0.65rem,env(safe-area-inset-top))] right-[max(0.65rem,env(safe-area-inset-right))]',
+                )}
+            >
+                <X className="size-5" strokeWidth={2.25} />
+            </button>
+
+            <div className="pointer-events-none shrink-0 px-14 pt-[max(0.85rem,env(safe-area-inset-top))] pb-1.5 text-center text-white">
+                <p
+                    key={`title-${slideKey}`}
+                    className="site-gallery-lightbox__meta truncate font-serif text-[15px] font-light tracking-tight sm:text-lg"
+                >
                     {photo.title}
                 </p>
-                <button
-                    type="button"
-                    onClick={onClose}
-                    aria-label="Close gallery"
-                    className="grid h-9 w-9 place-items-center rounded-full bg-white/10 transition hover:bg-white/20"
-                >
-                    <X className="h-4 w-4" />
-                </button>
             </div>
-            <div className="relative min-h-0 flex-1">
+
+            <div className="relative flex min-h-0 flex-1 items-center justify-center px-3 py-2 sm:px-5">
                 <img
                     key={`img-${slideKey}`}
                     src={photo.src}
                     alt={photo.title}
-                    className="site-gallery-lightbox__image h-full w-full object-contain"
+                    className="site-gallery-lightbox__image max-h-[min(72dvh,100%)] max-w-full object-contain"
+                    draggable={false}
                 />
                 {photos.length > 1 ? (
                     <>
                         <button
                             type="button"
                             aria-label="Previous photo"
-                            className="absolute top-1/2 left-3 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-black/45 text-white transition hover:bg-black/60"
+                            className="absolute top-1/2 left-2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-black/50 text-white ring-1 ring-white/15 transition hover:bg-black/65 sm:left-3"
                             onClick={() => onChange((index + photos.length - 1) % photos.length)}
                         >
-                            <ChevronLeft className="h-5 w-5" />
+                            <ChevronLeft className="size-5" />
                         </button>
                         <button
                             type="button"
                             aria-label="Next photo"
-                            className="absolute top-1/2 right-3 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-black/45 text-white transition hover:bg-black/60"
+                            className="absolute top-1/2 right-2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-black/50 text-white ring-1 ring-white/15 transition hover:bg-black/65 sm:right-3"
                             onClick={() => onChange((index + 1) % photos.length)}
                         >
-                            <ChevronRight className="h-5 w-5" />
+                            <ChevronRight className="size-5" />
                         </button>
                     </>
                 ) : null}
             </div>
-            <p key={`note-${slideKey}`} className="site-gallery-lightbox__meta px-5 py-4 text-center text-[11px] tracking-[0.18em] text-white/70 uppercase">
+
+            <p
+                key={`note-${slideKey}`}
+                className="site-gallery-lightbox__meta shrink-0 px-5 pt-1 pb-[max(0.85rem,env(safe-area-inset-bottom))] text-center text-[11px] tracking-[0.18em] text-white/70 uppercase"
+            >
                 {photo.note || `${index + 1} / ${photos.length}`}
             </p>
         </div>
+    );
+
+    return (
+        <>
+            <span ref={anchorRef} className="hidden" aria-hidden />
+            {host ? createPortal(overlay, host) : null}
+        </>
     );
 }
 

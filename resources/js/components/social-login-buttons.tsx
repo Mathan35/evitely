@@ -2,7 +2,7 @@ import { usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
-type Provider = 'google' | 'apple' | 'facebook';
+type Provider = 'google' | 'facebook';
 
 const PROVIDERS: Array<{
     id: Provider;
@@ -18,15 +18,6 @@ const PROVIDERS: Array<{
                     fill="#EA4335"
                     d="M12 10.2v3.6h5.1c-.2 1.2-1.4 3.6-5.1 3.6-3.1 0-5.6-2.5-5.6-5.6S8.9 6.2 12 6.2c1.8 0 3 .7 3.7 1.4l2.5-2.4C16.7 3.7 14.6 2.8 12 2.8 6.9 2.8 2.8 6.9 2.8 12S6.9 21.2 12 21.2c5.3 0 8.8-3.7 8.8-8.9 0-.6 0-1-.1-1.5H12Z"
                 />
-            </svg>
-        ),
-    },
-    {
-        id: 'apple',
-        label: 'Apple',
-        icon: (
-            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden>
-                <path d="M16.7 12.6c0-2.2 1.8-3.2 1.9-3.3-1-.1.5-2.5-.1-3.5-.9-1.5-2.4-1.7-2.9-1.7-1.2-.1-2.4.7-3 .7s-1.6-.7-2.7-.7c-1.4 0-2.7.8-3.4 2.1-1.5 2.5-.4 6.3 1 8.3.7 1 1.5 2.1 2.6 2 1 0 1.4-.7 2.7-.7s1.6.7 2.7.6c1.1 0 1.8-1 2.5-2 .8-1.1 1.1-2.2 1.1-2.3-.1 0-2.1-.8-2.4-3.2ZM14.4 5.3c.6-.7 1-1.7.9-2.7-1 .1-2.1.7-2.7 1.5-.6.6-1.1 1.7-.9 2.6 1 .1 2.1-.5 2.7-1.4Z" />
             </svg>
         ),
     },
@@ -64,7 +55,6 @@ export function SocialLoginButtons({
 }) {
     const { socialProviders } = usePage<{ socialProviders?: string[] }>().props;
     const enabled = new Set(socialProviders ?? []);
-    // Always show the three product buttons; disabled ones still navigate and surface a clear server toast.
     const providers = PROVIDERS;
 
     return (
@@ -73,7 +63,7 @@ export function SocialLoginButtons({
                 <span className="absolute inset-x-0 top-1/2 border-t border-[#eee7dc]" />
                 <span className="relative bg-white px-3">or continue with</span>
             </p>
-            <div className="mt-3 grid grid-cols-3 gap-2">
+            <div className="mt-3 grid grid-cols-2 gap-2">
                 {providers.map((provider) => {
                     const isEnabled = enabled.size === 0 || enabled.has(provider.id);
 
@@ -88,7 +78,7 @@ export function SocialLoginButtons({
                             aria-label={`Continue with ${provider.label}`}
                         >
                             {provider.icon}
-                            <span className="hidden min-[380px]:inline">{provider.label}</span>
+                            <span>{provider.label}</span>
                         </a>
                     );
                 })}

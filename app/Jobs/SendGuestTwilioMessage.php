@@ -5,7 +5,7 @@ namespace App\Jobs;
 use App\Enums\InvitationDeliveryStatus;
 use App\Models\WeddingGuest;
 use App\Services\TwilioMessagingService;
-use App\Support\InviteHost;
+use App\Support\ShareMessageFactory;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -49,10 +49,7 @@ class SendGuestTwilioMessage implements ShouldQueue
         }
 
         $wedding = $guest->wedding;
-        $title = $wedding->displayTitle();
-        $url = InviteHost::guestUrl($wedding->slug, (string) $guest->guest_token);
-        $name = trim((string) $guest->first_name) ?: 'there';
-        $body = "Hi {$name}, you're invited to {$title}. Open your personal invite: {$url}";
+        $body = ShareMessageFactory::guestText($wedding, $guest);
 
         if ($channel === 'whatsapp') {
             $twilio->sendWhatsApp($to, $body);

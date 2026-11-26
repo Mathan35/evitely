@@ -61,12 +61,10 @@ class IntegrationController extends Controller
                 ],
                 'social' => [
                     'google' => $social->isConfigured('google'),
-                    'apple' => $social->isConfigured('apple'),
                     'facebook' => $social->isConfigured('facebook'),
                     'enabled' => $socialEnabled,
                     'callbacks' => [
                         'google' => url('/auth/google/callback'),
-                        'apple' => url('/auth/apple/callback'),
                         'facebook' => url('/auth/facebook/callback'),
                     ],
                 ],
@@ -91,14 +89,16 @@ class IntegrationController extends Controller
             'secret_groups' => [
                 [
                     'id' => 'social',
-                    'title' => 'Social login · Google / Apple / Facebook',
-                    'hint' => 'Paste OAuth credentials here to enable Continue with Google / Apple / Facebook. Callback URLs must match your provider consoles exactly.',
+                    'title' => 'Social login · Google / Facebook',
+                    'hint' => 'Paste OAuth credentials here to enable Continue with Google / Facebook. Callback URLs must match your provider consoles exactly.',
                     'callback_urls' => [
                         url('/auth/google/callback'),
-                        url('/auth/apple/callback'),
                         url('/auth/facebook/callback'),
                     ],
-                    'fields' => $byGroup['social'] ?? [],
+                    'fields' => array_values(array_filter(
+                        $byGroup['social'] ?? [],
+                        static fn (array $field): bool => ! str_starts_with((string) ($field['key'] ?? ''), 'apple.'),
+                    )),
                 ],
                 [
                     'id' => 'razorpay',

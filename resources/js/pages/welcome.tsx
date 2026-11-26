@@ -2,6 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { Check, Globe, LayoutGrid, Mail, Plus } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { CardPreview } from '@/components/marketing/gallery-previews';
+import { HomeHostEdge } from '@/components/marketing/home-host-edge';
 import { HomeSiteStrip, type HomeSiteDesign } from '@/components/marketing/home-site-strip';
 import { MarketingHeader } from '@/components/marketing/marketing-header';
 import { MarketingSeoHead, type MarketingSeoPayload } from '@/components/marketing/marketing-seo-head';
@@ -32,7 +33,7 @@ type OccasionHero = {
 const occasionHeroes: Record<Filter, OccasionHero> = {
     'All Events': {
         headline: 'Send Elegant Digital Cards or Build Full Event Websites',
-        sub: 'Free digital cards forever · guest websites free for 30 days. Craft RSVPs, share on WhatsApp, and go live in minutes.',
+        sub: 'Cards free forever · guest site free for 30 days. Personal links, bilingual pages, and WhatsApp share — publish when you are ready.',
         href: '/designs',
         moreHref: '/designs',
         galleryName: 'all event',
@@ -46,7 +47,7 @@ const occasionHeroes: Record<Filter, OccasionHero> = {
     },
     Weddings: {
         headline: 'Send Elegant Wedding Cards or Build Full Wedding Websites',
-        sub: 'Free wedding cards forever · guest site free for 30 days. RSVPs, maps, and WhatsApp share — publish and invite in minutes.',
+        sub: 'Cards free forever · guest site free for 30 days. Personal guest links, bilingual invites, maps, and WhatsApp — ready in minutes.',
         href: '/designs/wedding',
         moreHref: '/designs/wedding',
         galleryName: 'wedding',
@@ -251,6 +252,7 @@ export default function Welcome({
     const { auth } = usePage<{ auth: Auth }>().props;
     const signedIn = Boolean(auth?.user);
     const start = signedIn ? '/events?create=1' : canRegister ? register() : '/login';
+    const startHref = signedIn ? '/events?create=1' : canRegister ? '/register' : '/login';
     const occasion = occasionHeroes[filter];
     const designs = home?.designs ?? [];
     const samples = home?.samples ?? [];
@@ -264,7 +266,7 @@ export default function Welcome({
                 <Head title="Beautiful digital invitations">
                     <meta
                         name="description"
-                        content="Free digital invitation cards forever. Guest websites free for 30 days. RSVPs, WhatsApp share, and elegant designs — start in minutes."
+                        content="Free digital invitation cards forever. Guest websites free for 30 days. Personal guest links, bilingual pages, WhatsApp share, RSVPs — start in minutes."
                     />
                 </Head>
             )}
@@ -280,6 +282,9 @@ export default function Welcome({
                         <span key={`${filter}-rule`} className="occasion-rule mx-auto mt-5 block h-px w-24 bg-[#c6a36a]" />
                         <p key={`${filter}-sub`} className="occasion-sub mx-auto mt-5 max-w-2xl text-sm leading-6 text-[#5e554c] sm:text-base">
                             {occasion.sub}
+                        </p>
+                        <p className="mx-auto mt-4 max-w-xl text-[12px] leading-relaxed text-[#8a7d6e] sm:text-[13px]">
+                            Cards free forever · guest website free for 30 days on publish · personal WhatsApp share always free
                         </p>
                         <div className="mt-7 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Occasions">
                             {filters.map((item) => (
@@ -319,8 +324,8 @@ export default function Welcome({
                         <h2 className="mt-3 text-center font-serif text-4xl sm:text-5xl">Crafting Memories is Effortless</h2>
                         <ol className="mt-10 grid gap-4 lg:grid-cols-3">
                             <Step title="1. Choose Your Format" text={occasion.step} swapKey={filter} />
-                            <Step title="2. Make It Unique" text="Customize text, images, music, and colors so the invitation feels like the day." />
-                            <Step title="3. Invite & Track" text="Share personal links by email, WhatsApp, or SMS, then track opens and RSVPs as they arrive." />
+                            <Step title="2. Make It Unique" text="Customize text, images, music, and colors — add a second language if families need it." />
+                            <Step title="3. Invite & Track" text="Send each guest a personal link on WhatsApp or SMS, or let Invidora auto-share at go-live. Watch opens and RSVPs by name." />
                         </ol>
                     </section>
 
@@ -328,15 +333,20 @@ export default function Welcome({
 
                     {samples.length > 0 && <SampleInvites samples={samples} />}
 
+                    <HomeHostEdge startHref={startHref} />
+
                     <section id="planning" className="mx-auto max-w-6xl scroll-mt-24 px-5 pb-20">
-                        <p className="text-center text-xs tracking-[0.22em] text-[#8a7d6e] uppercase">Built for hosts</p>
-                        <h2 className="mt-3 text-center font-serif text-4xl sm:text-5xl">Everything you need to invite</h2>
+                        <p className="text-center text-xs tracking-[0.22em] text-[#8a7d6e] uppercase">Also in the studio</p>
+                        <h2 className="mt-3 text-center font-serif text-4xl sm:text-5xl">Design, day plan, guest delight</h2>
+                        <p className="mx-auto mt-3 max-w-xl text-center text-sm leading-6 text-[#5e554c]">
+                            The host-edge tools above settle nerves. These finish the invitation.
+                        </p>
                         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            <SuiteCard id="rsvp" href="/events?create=1" title="RSVP & Guest List" text="Invite guests with personal links, email invites, and a live RSVP inbox." visual={<Shot src="/images/home/ui-rsvp.jpg" alt="RSVP counts and guest list" />} />
                             <SuiteCard id="designs" href="/designs" title="Design Galleries" text="Browse occasion-ready website and card designs, then customize every detail." visual={<Shot src="/images/home/ui-timeline.jpg" alt="Design gallery previews" />} />
                             <SuiteCard id="timeline" href="/designs/weddings" title="Schedule & Venue" text="Publish ceremony, reception, and day-of timing with maps guests can open." visual={<Shot src="/images/home/ui-timeline.jpg" alt="Event timeline with map pins" />} />
+                            <SuiteCard id="rsvp" href="/events?create=1" title="RSVP inbox" text="Live replies with party size, meals, and notes — export CSV for catering." visual={<Shot src="/images/home/ui-rsvp.jpg" alt="RSVP counts and guest list" />} />
                             <SuiteCard id="wall" href="/events?create=1" title="Guest Wishes Wall" text="Collect messages on your invite; approve them before they go live." visual={<Shot src="/images/home/ui-wall.jpg" alt="Guest messages on the wall" />} />
-                            <SuiteCard id="registry" href="/designs" title="Gifts & Registry Links" text="Share gift preferences or registry links right on your event website." visual={<Shot src="/images/home/ui-registry.jpg" alt="Gift registry cards" />} />
+                            <SuiteCard id="registry" href="/designs" title="Gifts, UPI & registry" text="Share gift preferences, UPI, or registry links right on your event website." visual={<Shot src="/images/home/ui-registry.jpg" alt="Gift registry cards" />} />
                             <SuiteCard id="analytics" href="/analytics" title="Invite Analytics" text="See views, shares, and replies so you know who opened and who responded." visual={<Shot src="/images/home/ui-cohost.jpg" alt="Analytics overview" />} />
                         </div>
                     </section>
@@ -352,7 +362,11 @@ export default function Welcome({
                             />
                             <FormatCard
                                 title="Interactive Event Websites"
-                                points={['Featuring custom URLs', 'RSVP portals and mapping', 'Dynamic photo streams']}
+                                points={[
+                                    'Personal guest links & live RSVP',
+                                    'Bilingual pages · maps · schedule',
+                                    'Photo wall, music, QR & seating',
+                                ]}
                                 visual={<WebsitePreview />}
                             />
                         </div>

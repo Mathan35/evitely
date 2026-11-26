@@ -10,6 +10,7 @@ import {
     Wallet,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { ShareMessageTemplatesPanel } from '@/components/studio/share-message-templates-panel';
 import { StudioCard, StudioSurface } from '@/components/studio/studio-surface';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,6 +51,33 @@ type CreditPack = {
     checkout_ready: boolean;
 };
 
+type BillingGuest = {
+    id: number;
+    name: string;
+    email: string | null;
+    phone: string | null;
+    country_code: string | null;
+    has_phone: boolean;
+    has_email: boolean;
+};
+
+type AutoShareContact = {
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    country_code: string;
+};
+
+type AutoSharePending = {
+    id: number;
+    channel_mode: string;
+    reserved_credits: number;
+    scheduled_for: string | null;
+    guest_ids: number[];
+    recipient_count: number;
+} | null;
+
 type BillingPayload = {
     event_id: number;
     currency: string;
@@ -70,6 +98,24 @@ type BillingPayload = {
     razorpay_ready: boolean;
     stripe_ready: boolean;
     allow_local_activate: boolean;
+    guests?: BillingGuest[];
+    auto_share?: AutoSharePending;
+    messaging?: { whatsapp?: boolean; sms?: boolean; email?: boolean };
+    share_templates?: {
+        public?: string;
+        guest?: string;
+        default_public?: string;
+        default_guest?: string;
+        preview?: {
+            title: string;
+            date: string;
+            time: string;
+            place: string;
+            url: string;
+            guest_name: string;
+            guest_url: string;
+        };
+    };
     state: {
         status: string;
         can_schedule_publish: boolean;
@@ -82,6 +128,9 @@ type BillingPayload = {
         is_view_only: boolean;
         custom_starts_on: string | null;
         custom_ends_on: string | null;
+        trial_available?: boolean;
+        trial_used_on?: { id: number; title: string; status: string } | null;
+        is_live_paused?: boolean;
     };
 };
 
@@ -269,6 +318,27 @@ export default function EventBillingPage({ wedding, billing }: Props) {
     const [error, setError] = useState<string | null>(null);
     const [entered, setEntered] = useState(false);
     const payErrorRef = useRef<HTMLParagraphElement | null>(null);
+    const [autoShareEnabled, setAutoShareEnabled] = useState(() => Boolean(billing.auto_share));
+    const [autoShareChannel, setAutoShareChannel] = useState<'smart' | 'whatsapp' | 'sms' | 'email'>(
+        () => (billing.auto_share?.channel_mode as 'smart' | 'whatsapp' | 'sms' | 'email') || 'smart',
+    );
+    const [selectedGuestIds, setSelectedGuestIds] = useState<number[]>(
+        () => billing.auto_share?.guest_ids ?? [],
+    );
+    const [guestShareTemplate, setGuestShareTemplate] = useState(
+        () => billing.share_templates?.guest || '',
+    );
+    useEffect(() => {
+        setGuestShareTemplate(billing.share_templates?.guest || '');
+    }, [billing.share_templates?.guest]);
+    const [newContacts, setNewContacts] = useState<AutoShareContact[]>([]);
+    const [contactDraft, setContactDraft] = useState<AutoShareContact>({
+        first_name: '',
+        last_name: '',
+        email: '',
+        phone: '',
+        country_code: '+91',
+    });
 
     const state = billing.state;
     const isCustom = selected === 'site_custom';
@@ -276,13 +346,41 @@ export default function EventBillingPage({ wedding, billing }: Props) {
     const selectedPack = billing.site_packs.find((p) => p.id === selected) ?? null;
     const currencyLabel = currency === 'usd' ? 'USD' : 'INR';
     const currencySymbol = billing.currency_symbol || (currency === 'usd' ? '$' : '₹');
-    const gatewayLabel =
-        billing.gateway_label
-        || (billing.gateway === 'stripe' ? 'Stripe' : billing.gateway === 'razorpay' ? 'Razorpay' : 'Checkout');
+    // Never surface third-party processor names (Razorpay / Stripe) to hosts.
+    const gatewayLabel = 'Secure checkout';
     const comparisonRows = billing.feature_comparison?.length
         ? billing.feature_comparison
         : [];
     const selectedPrice = selectedPack ? packDisplayPrice(selectedPack, includeCredits) : null;
+    const billingGuests = billing.guests ?? [];
+
+    const autoShareCreditsNeeded = useMemo(() => {
+        if (!autoShareEnabled) {
+            return 0;
+        }
+        const selected = billingGuests.filter((g) => selectedGuestIds.includes(g.id));
+        const fromGuests = selected.filter((g) => {
+            if (autoShareChannel === 'email') {
+                return false;
+            }
+            if (autoShareChannel === 'whatsapp' || autoShareChannel === 'sms') {
+                return g.has_phone;
+            }
+            // smart: phone burns a credit; email-only is free
+            return g.has_phone;
+        }).length;
+        const fromNew = newContacts.filter((c) => {
+            const hasPhone = c.phone.trim().length > 0;
+            if (autoShareChannel === 'email') {
+                return false;
+            }
+            if (autoShareChannel === 'whatsapp' || autoShareChannel === 'sms') {
+                return hasPhone;
+            }
+            return hasPhone;
+        }).length;
+        return fromGuests + fromNew;
+    }, [autoShareEnabled, autoShareChannel, billingGuests, selectedGuestIds, newContacts]);
 
     useEffect(() => {
         const id = window.requestAnimationFrame(() => setEntered(true));
@@ -444,18 +542,71 @@ export default function EventBillingPage({ wedding, billing }: Props) {
             setError('Pick a publish date and time.');
             return;
         }
+        if (autoShareEnabled) {
+            const hasRecipients = selectedGuestIds.length > 0 || newContacts.length > 0;
+            if (!hasRecipients) {
+                setError('Add at least one guest or contact for auto-share, or turn it off.');
+                return;
+            }
+            if (autoShareCreditsNeeded > billing.message_credits) {
+                setError(
+                    `Auto-share needs ${autoShareCreditsNeeded} message credit(s); you have ${billing.message_credits}. Buy credits above or remove phone recipients.`,
+                );
+                return;
+            }
+        }
         setBusy(true);
         setError(null);
         try {
             await postJson(`/events/${wedding.id}/billing/schedule`, {
                 scheduled_publish_at: scheduleAt,
+                share_guest_template: guestShareTemplate,
+                auto_share: {
+                    enabled: autoShareEnabled,
+                    channel_mode: autoShareChannel,
+                    guest_ids: selectedGuestIds,
+                    new_contacts: newContacts,
+                },
             });
+            setNewContacts([]);
             router.reload({ only: ['billing'] });
         } catch (e) {
             setError(friendlyCheckoutError(e instanceof Error ? e.message : 'Could not schedule'));
         } finally {
             setBusy(false);
         }
+    }
+
+    function toggleGuest(id: number): void {
+        setSelectedGuestIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    }
+
+    function addContactDraft(): void {
+        const first = contactDraft.first_name.trim();
+        const email = contactDraft.email.trim();
+        const phone = contactDraft.phone.trim();
+        if (!first && !email && !phone) {
+            setError('Enter a name, email, or phone for the new contact.');
+            return;
+        }
+        setNewContacts((prev) => [
+            ...prev,
+            {
+                first_name: first || (email ? email.split('@')[0] : 'Guest'),
+                last_name: contactDraft.last_name.trim(),
+                email,
+                phone,
+                country_code: contactDraft.country_code.trim() || '+91',
+            },
+        ]);
+        setContactDraft({
+            first_name: '',
+            last_name: '',
+            email: '',
+            phone: '',
+            country_code: contactDraft.country_code || '+91',
+        });
+        setError(null);
     }
 
     async function buyCredits(packId: string) {
@@ -580,6 +731,24 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                         </div>
                     </div>
                 </section>
+
+                {state.trial_available === false && state.trial_used_on && !state.has_paid_pack ? (
+                    <StudioCard className="border-amber-200/80 bg-amber-50/90 p-4 dark:border-amber-400/20 dark:bg-amber-950/30">
+                        <p className="text-[13px] font-semibold text-amber-950 dark:text-amber-100">
+                            Free trial already used
+                        </p>
+                        <p className="mt-1 text-[13px] leading-relaxed text-amber-900/80 dark:text-amber-100/80">
+                            Your one free guest-site try is on “{state.trial_used_on.title}”. Buy a pack
+                            below to publish this invitation, or open that event to manage the trial site.
+                        </p>
+                        <Link
+                            href={`/events/${state.trial_used_on.id}`}
+                            className="mt-3 inline-flex text-[13px] font-semibold text-amber-950 underline underline-offset-2 dark:text-amber-100"
+                        >
+                            Open “{state.trial_used_on.title}”
+                        </Link>
+                    </StudioCard>
+                ) : null}
 
                 {comparisonRows.length > 0 ? (
                     <section className="overflow-hidden rounded-[1.5rem] border border-zinc-950/8 bg-white/90 shadow-[0_16px_48px_-36px_rgba(24,24,27,0.45)] dark:border-white/10 dark:bg-zinc-950/70">
@@ -1017,6 +1186,274 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                                             Your paid window begins at auto-publish — not at payment time.
                                         </p>
                                     </div>
+
+                                    <div className="border-t border-zinc-100 p-4 dark:border-white/10">
+                                        <label className="flex cursor-pointer items-start gap-3">
+                                            <input
+                                                type="checkbox"
+                                                className="mt-1 size-4 rounded border-zinc-300"
+                                                checked={autoShareEnabled}
+                                                onChange={(e) => setAutoShareEnabled(e.target.checked)}
+                                            />
+                                            <span>
+                                                <span className="block text-[14px] font-semibold text-zinc-950 dark:text-white">
+                                                    Auto-share when site goes live
+                                                </span>
+                                                <span className="mt-0.5 block text-[12px] leading-relaxed text-zinc-500">
+                                                    Reserve message credits now. WhatsApp/SMS/email invites send
+                                                    automatically at publish time.
+                                                </span>
+                                            </span>
+                                        </label>
+
+                                        {autoShareEnabled ? (
+                                            <div className="mt-4 grid gap-4">
+                                                <div className="grid gap-1.5">
+                                                    <p className="text-[11px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">
+                                                        Channel
+                                                    </p>
+                                                    <div
+                                                        role="group"
+                                                        aria-label="Auto-share channel"
+                                                        className="flex flex-wrap gap-1 rounded-full border border-zinc-200/90 bg-white/90 p-1 dark:border-white/10 dark:bg-zinc-950/70"
+                                                    >
+                                                        {(
+                                                            [
+                                                                ['smart', 'Smart'],
+                                                                ['whatsapp', 'WhatsApp'],
+                                                                ['sms', 'SMS'],
+                                                                ['email', 'Email'],
+                                                            ] as const
+                                                        ).map(([value, label]) => (
+                                                            <button
+                                                                key={value}
+                                                                type="button"
+                                                                onClick={() => setAutoShareChannel(value)}
+                                                                className={cn(
+                                                                    'rounded-full px-3 py-1.5 text-[12px] font-semibold transition',
+                                                                    autoShareChannel === value
+                                                                        ? 'bg-zinc-950 text-white dark:bg-white dark:text-zinc-950'
+                                                                        : 'text-zinc-500 hover:text-zinc-950 dark:hover:text-white',
+                                                                )}
+                                                            >
+                                                                {label}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                    <p className="text-[11px] text-zinc-500">
+                                                        Smart picks WhatsApp, then SMS, then email per guest.
+                                                    </p>
+                                                </div>
+
+                                                <div className="grid gap-1.5">
+                                                    <p className="text-[11px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">
+                                                        Guests on this event
+                                                    </p>
+                                                    {billingGuests.length === 0 ? (
+                                                        <p className="text-[12px] text-zinc-500">
+                                                            No guests yet — add contacts below.
+                                                        </p>
+                                                    ) : (
+                                                        <ul className="max-h-48 space-y-1 overflow-y-auto rounded-2xl border border-zinc-100 p-2 dark:border-white/10">
+                                                            {billingGuests.map((guest) => (
+                                                                <li key={guest.id}>
+                                                                    <label className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-zinc-50 dark:hover:bg-white/5">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={selectedGuestIds.includes(guest.id)}
+                                                                            onChange={() => toggleGuest(guest.id)}
+                                                                            className="size-4 rounded border-zinc-300"
+                                                                        />
+                                                                        <span className="min-w-0 flex-1">
+                                                                            <span className="block truncate text-[13px] font-medium text-zinc-900 dark:text-white">
+                                                                                {guest.name || 'Guest'}
+                                                                            </span>
+                                                                            <span className="block truncate text-[11px] text-zinc-500">
+                                                                                {[guest.email, guest.phone].filter(Boolean).join(' · ') || 'No contact'}
+                                                                            </span>
+                                                                        </span>
+                                                                    </label>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    )}
+                                                </div>
+
+                                                <div className="grid gap-2">
+                                                    <p className="text-[11px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">
+                                                        Add contacts
+                                                    </p>
+                                                    <div className="grid gap-2 sm:grid-cols-2">
+                                                        <Input
+                                                            placeholder="First name"
+                                                            value={contactDraft.first_name}
+                                                            onChange={(e) =>
+                                                                setContactDraft((d) => ({ ...d, first_name: e.target.value }))
+                                                            }
+                                                            className="h-10 rounded-xl"
+                                                        />
+                                                        <Input
+                                                            placeholder="Last name"
+                                                            value={contactDraft.last_name}
+                                                            onChange={(e) =>
+                                                                setContactDraft((d) => ({ ...d, last_name: e.target.value }))
+                                                            }
+                                                            className="h-10 rounded-xl"
+                                                        />
+                                                        <Input
+                                                            placeholder="Email"
+                                                            type="email"
+                                                            value={contactDraft.email}
+                                                            onChange={(e) =>
+                                                                setContactDraft((d) => ({ ...d, email: e.target.value }))
+                                                            }
+                                                            className="h-10 rounded-xl"
+                                                        />
+                                                        <div className="flex gap-2">
+                                                            <Input
+                                                                placeholder="+91"
+                                                                value={contactDraft.country_code}
+                                                                onChange={(e) =>
+                                                                    setContactDraft((d) => ({
+                                                                        ...d,
+                                                                        country_code: e.target.value,
+                                                                    }))
+                                                                }
+                                                                className="h-10 w-20 shrink-0 rounded-xl"
+                                                            />
+                                                            <Input
+                                                                placeholder="Phone"
+                                                                value={contactDraft.phone}
+                                                                onChange={(e) =>
+                                                                    setContactDraft((d) => ({ ...d, phone: e.target.value }))
+                                                                }
+                                                                className="h-10 min-w-0 flex-1 rounded-xl"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        className="h-9 w-fit rounded-full px-4"
+                                                        onClick={addContactDraft}
+                                                    >
+                                                        Add contact
+                                                    </Button>
+                                                    {newContacts.length > 0 ? (
+                                                        <ul className="space-y-1 text-[12px] text-zinc-600 dark:text-zinc-300">
+                                                            {newContacts.map((c, index) => (
+                                                                <li
+                                                                    key={`${c.email}-${c.phone}-${index}`}
+                                                                    className="flex items-center justify-between gap-2 rounded-xl bg-zinc-50 px-3 py-2 dark:bg-white/5"
+                                                                >
+                                                                    <span className="min-w-0 truncate">
+                                                                        {c.first_name}
+                                                                        {c.last_name ? ` ${c.last_name}` : ''}
+                                                                        {' · '}
+                                                                        {[c.email, c.phone].filter(Boolean).join(' · ')}
+                                                                    </span>
+                                                                    <button
+                                                                        type="button"
+                                                                        className="shrink-0 text-zinc-400 hover:text-zinc-900"
+                                                                        onClick={() =>
+                                                                            setNewContacts((prev) =>
+                                                                                prev.filter((_, i) => i !== index),
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <Minus className="size-3.5" />
+                                                                    </button>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    ) : null}
+                                                </div>
+
+                                                <p
+                                                    className={cn(
+                                                        'rounded-2xl px-3 py-2 text-[12px]',
+                                                        autoShareCreditsNeeded > billing.message_credits
+                                                            ? 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200'
+                                                            : 'bg-emerald-50 text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100',
+                                                    )}
+                                                >
+                                                    Reserves <strong>{autoShareCreditsNeeded}</strong> credit
+                                                    {autoShareCreditsNeeded === 1 ? '' : 's'} for WhatsApp/SMS
+                                                    (email is free). Wallet: {billing.message_credits}.
+                                                    {billing.auto_share
+                                                        ? ` Pending blast: ${billing.auto_share.recipient_count} recipient(s).`
+                                                        : ''}
+                                                </p>
+
+                                                <div className="min-w-0 space-y-2">
+                                                    <div className="px-0.5">
+                                                        <p className="text-[11px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">
+                                                            Invite message
+                                                        </p>
+                                                        <p className="mt-1 text-[14px] font-semibold text-zinc-950 dark:text-white">
+                                                            {autoShareChannel === 'email'
+                                                                ? 'Guest invite copy'
+                                                                : autoShareChannel === 'sms'
+                                                                  ? 'SMS invite message'
+                                                                  : autoShareChannel === 'whatsapp'
+                                                                    ? 'WhatsApp invite message'
+                                                                    : 'WhatsApp / SMS invite message'}
+                                                        </p>
+                                                        {autoShareChannel === 'email' ? (
+                                                            <p className="mt-1 text-[12px] leading-relaxed text-zinc-500">
+                                                                Email uses the invitation email layout. This copy still
+                                                                applies when Smart picks WhatsApp/SMS, and for guest-book
+                                                                shares.
+                                                            </p>
+                                                        ) : (
+                                                            <p className="mt-1 text-[12px] leading-relaxed text-zinc-500">
+                                                                Customize the blast text with placeholders and emojis.
+                                                                Saved when you save the schedule.
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    <ShareMessageTemplatesPanel
+                                                        mode="guest"
+                                                        compact
+                                                        publicTemplate=""
+                                                        guestTemplate={guestShareTemplate}
+                                                        defaultPublicTemplate={
+                                                            billing.share_templates?.default_public || ''
+                                                        }
+                                                        defaultGuestTemplate={
+                                                            billing.share_templates?.default_guest
+                                                            || "Hi {{guest_name}}, you're invited to {{title}}. Open your personal invite: {{guest_url}}"
+                                                        }
+                                                        previewVars={
+                                                            billing.share_templates?.preview || {
+                                                                title: wedding.title || 'Your celebration',
+                                                                date: '12 September 2026',
+                                                                time: '18:00',
+                                                                place: 'Venue',
+                                                                url: 'https://invite.example/your-event',
+                                                                guest_name: 'Amira',
+                                                                guest_url:
+                                                                    'https://invite.example/your-event/g/sample',
+                                                            }
+                                                        }
+                                                        guestLabel={
+                                                            autoShareChannel === 'sms'
+                                                                ? 'SMS message'
+                                                                : autoShareChannel === 'whatsapp'
+                                                                  ? 'WhatsApp message'
+                                                                  : 'Guest invite message'
+                                                        }
+                                                        guestHint={
+                                                            autoShareChannel === 'email'
+                                                                ? 'also used for WhatsApp / SMS'
+                                                                : 'sent at go-live'
+                                                        }
+                                                        onGuestTemplate={setGuestShareTemplate}
+                                                    />
+                                                </div>
+                                            </div>
+                                        ) : null}
+                                    </div>
                                 </StudioCard>
                             ) : null}
                         </section>
@@ -1116,7 +1553,7 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                                     </li>
                                     <li className="flex items-start gap-2 text-[12px] text-zinc-600 dark:text-zinc-300">
                                         <Check className="mt-0.5 size-3.5 shrink-0 text-emerald-600" />
-                                        Pay with {gatewayLabel} · {currency === 'usd' ? 'USD ($)' : 'INR (₹)'}
+                                        Pay securely · {currency === 'usd' ? 'USD ($)' : 'INR (₹)'}
                                     </li>
                                 </ul>
 
@@ -1137,12 +1574,10 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                                     onClick={() => void runCheckout()}
                                 >
                                     <Sparkles className="size-4" />
-                                    {busy
-                                        ? 'Opening checkout…'
-                                        : `Continue with ${gatewayLabel}`}
+                                    {busy ? 'Opening checkout…' : 'Continue to secure checkout'}
                                 </Button>
                                 <p className="text-center text-[11px] text-zinc-400">
-                                    Secure one-time {currencyLabel} payment via {gatewayLabel}
+                                    Secure one-time {currencyLabel} payment
                                 </p>
                             </div>
                         </div>

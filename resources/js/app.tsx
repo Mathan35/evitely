@@ -1,10 +1,10 @@
 import { createInertiaApp } from '@inertiajs/react';
 import { lazy, Suspense, type ComponentType, type ReactNode } from 'react';
-import { CookieConsentBanner } from '@/components/cookie-consent-banner';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
 import AuthGateLayout from '@/layouts/auth-gate-layout';
+import { clearStaleDocumentScrollLocks } from '@/lib/document-scroll-lock';
 import { installUiRipple } from '@/lib/ui-ripple';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Invidora';
@@ -21,6 +21,16 @@ function isAdminPath(): boolean {
     }
 
     return window.location.pathname === '/admin' || window.location.pathname.startsWith('/admin/');
+}
+
+function clearBootSkeleton(): void {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
+    document.documentElement.classList.remove('boot-skeleton-active', 'festive-loader-active');
+    document.getElementById('app-boot-skeleton')?.remove();
+    clearStaleDocumentScrollLocks();
 }
 
 function resolveLayout(name: string): ComponentType<{ children: ReactNode }> | ComponentType<{ children: ReactNode }>[] {
@@ -53,11 +63,13 @@ void createInertiaApp({
     layout: (name) => resolveLayout(name),
     strictMode: true,
     withApp(app) {
+        // Keep siblings of `{app}` free of usePage()/Inertia hooks — they sit
+        // outside the Inertia provider and crash SSR + client boot (boot skeleton
+        // then stays up and eats every click).
         return (
             <Suspense fallback={null}>
                 <TooltipProvider delayDuration={0}>
                     {app}
-                    {isAdminPath() ? null : <CookieConsentBanner />}
                     <Toaster />
                 </TooltipProvider>
             </Suspense>
@@ -68,7 +80,16 @@ void createInertiaApp({
         : {
               color: '#8d6b3e',
           },
+}).then(() => {
+    clearBootSkeleton();
+}).catch(() => {
+    clearBootSkeleton();
 });
+
+// Failsafe: never leave the fullscreen boot sheet blocking taps forever.
+if (typeof window !== 'undefined') {
+    window.setTimeout(clearBootSkeleton, 12000);
+}
 
 const onAdmin = isAdminPath();
 
@@ -84,7 +105,6 @@ if (! onAdmin) {
             });
         });
     }
-} else if (typeof document !== 'undefined') {
-    document.documentElement.classList.remove('boot-skeleton-active', 'festive-loader-active');
-    document.getElementById('app-boot-skeleton')?.remove();
+} else {
+    clearBootSkeleton();
 }

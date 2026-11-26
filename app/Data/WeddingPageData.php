@@ -253,6 +253,7 @@ class WeddingPageData
             'share_url' => $shareUrl,
             'share_message' => $message,
             'share_links' => ShareMessageFactory::links($message, $shareUrl),
+            'share_templates' => ShareMessageFactory::editorState($wedding),
             'growth' => app(\App\Services\Growth\GrowthService::class)->shareState($wedding),
             'create_cta_url' => (function () use ($wedding): string {
                 $code = $wedding->user

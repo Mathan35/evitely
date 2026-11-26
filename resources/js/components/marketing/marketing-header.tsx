@@ -47,12 +47,12 @@ const templateLinks = [
 ] as const;
 
 const featureLinks = [
-    ['/#rsvp', 'RSVP & guest list'],
-    ['/#designs', 'Design galleries'],
-    ['/#timeline', 'Schedule & venue'],
-    ['/#wall', 'Guest wishes wall'],
-    ['/#registry', 'Gifts & registry'],
-    ['/#analytics', 'Invite analytics'],
+    ['/#host-edge', 'Why hosts choose us'],
+    ['/#personal-links', 'Personal guest links'],
+    ['/#bilingual', 'Bilingual invites'],
+    ['/#share-clarity', 'WhatsApp & auto-share'],
+    ['/#day-of', 'QR & seating'],
+    ['/#planning', 'Studio extras'],
 ] as const;
 
 export function MarketingHeader({
@@ -173,11 +173,11 @@ export function MarketingHeader({
                                                 </a>
                                             ))}
                                             <a
-                                                href="/#planning"
+                                                href="/#host-edge"
                                                 onClick={() => setMobileOpen(false)}
                                                 className="block rounded-2xl px-3.5 py-2.5 text-sm text-zinc-700 transition hover:bg-white/80 dark:text-zinc-200 dark:hover:bg-white/5"
                                             >
-                                                Planning
+                                                For hosts
                                             </a>
                                             <a
                                                 href="/#pricing"
@@ -262,11 +262,11 @@ export function MarketingHeader({
                             links={featureLinks}
                         />
                         <a
-                            href="/#planning"
+                            href="/#host-edge"
                             className="rounded-full px-3 py-1.5 font-medium text-zinc-600 transition hover:bg-zinc-950/5 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white"
                             onClick={() => setMenu(null)}
                         >
-                            Planning
+                            For hosts
                         </a>
                         <a
                             href="/#pricing"

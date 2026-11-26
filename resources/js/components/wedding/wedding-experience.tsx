@@ -577,7 +577,8 @@ export function WeddingExperience({
                         <SiteGallerySection
                             photos={styledGalleryPhotos}
                             styleId={resolveGalleryStyleId(galleryStyle)}
-                            desktop
+                            desktop={!preview}
+                            framed={preview}
                         />
                     ) : (
                         <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3">

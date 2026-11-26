@@ -33,7 +33,7 @@ class PublicWeddingController extends Controller
     {
         $wedding = $this->resolve($slug);
 
-        if (! $wedding instanceof Wedding) {
+        if ($wedding instanceof RedirectResponse || $wedding instanceof Response) {
             return $wedding;
         }
 
@@ -64,7 +64,7 @@ class PublicWeddingController extends Controller
     {
         $wedding = $this->resolve($slug);
 
-        if (! $wedding instanceof Wedding) {
+        if ($wedding instanceof RedirectResponse || $wedding instanceof Response) {
             return $wedding;
         }
 
@@ -83,7 +83,7 @@ class PublicWeddingController extends Controller
     {
         $wedding = $this->resolve($slug);
 
-        if (! $wedding instanceof Wedding) {
+        if ($wedding instanceof RedirectResponse || $wedding instanceof Response) {
             return $wedding;
         }
 
@@ -121,8 +121,12 @@ class PublicWeddingController extends Controller
     {
         $wedding = $this->resolve($slug);
 
-        if (! $wedding instanceof Wedding) {
+        if ($wedding instanceof RedirectResponse) {
             return $wedding;
+        }
+
+        if ($wedding instanceof Response) {
+            abort(404);
         }
 
         if (! $passcodes->enabled($wedding)) {
@@ -239,18 +243,23 @@ class PublicWeddingController extends Controller
         ]);
     }
 
-    private function resolve(string $slug): Wedding|RedirectResponse
+    private function resolve(string $slug): Wedding|RedirectResponse|Response
     {
         $wedding = Wedding::query()->where('slug', $slug)->first();
 
         if ($wedding instanceof Wedding) {
-            if ($wedding->isPublic()) {
+            if ($wedding->isGuestAccessible()) {
                 return $wedding;
             }
 
-            // Owners can open draft invite/card URLs while logged in (preview from the studio).
+            // Owners can open draft / paused invite URLs while logged in (preview from the studio).
             if (request()->user() && Gate::allows('view', $wedding)) {
                 return $wedding;
+            }
+
+            // Guests hitting a stopped-live invite get a branded notice, not a broken 404.
+            if ($wedding->isLivePaused()) {
+                return $this->pausedResponse($wedding);
             }
 
             abort(404);
@@ -258,7 +267,7 @@ class PublicWeddingController extends Controller
 
         $redirect = WeddingSlugRedirect::query()->with('wedding')->where('slug', $slug)->first();
 
-        if ($redirect?->wedding && $redirect->wedding->isPublic()) {
+        if ($redirect?->wedding && $redirect->wedding->isGuestAccessible()) {
             $token = request()->route('token');
 
             if (is_string($token) && $token !== '') {
@@ -271,13 +280,56 @@ class PublicWeddingController extends Controller
             return redirect()->to(InviteHost::publicUrl($redirect->wedding->slug), 301);
         }
 
+        if ($redirect?->wedding?->isLivePaused()) {
+            return $this->pausedResponse($redirect->wedding);
+        }
+
         abort(404);
+    }
+
+    private function pausedResponse(Wedding $wedding): Response
+    {
+        $wedding->loadMissing(['hosts', 'setting']);
+
+        $hosts = collect([
+            $wedding->displayGroom(),
+            $wedding->displayBride(),
+        ])->filter()->values()->all();
+
+        if ($hosts === []) {
+            $hosts = $wedding->hosts->pluck('name')->filter()->values()->all();
+        }
+
+        $theme = app(WeddingThemeService::class)->resolve((string) ($wedding->theme ?: 'classic'));
+        $details = is_array($wedding->setting?->details) ? $wedding->setting->details : [];
+        $siteBg = trim((string) ($details['site_bg'] ?? ''));
+
+        $dateLabel = null;
+        if ($wedding->starts_on) {
+            $dateLabel = $wedding->starts_on->timezone($wedding->timezone ?: config('app.timezone'))
+                ->format('l, F j, Y');
+        }
+
+        return Inertia::render('public/paused', [
+            'slug' => $wedding->slug,
+            'title' => $wedding->displayTitle(),
+            'hosts' => $hosts,
+            'dateLabel' => $dateLabel,
+            'city' => $wedding->city,
+            'venueName' => $wedding->venue_name,
+            'theme' => [
+                'paper' => $siteBg !== '' ? $siteBg : ($theme['backgroundColor'] ?? '#1a1612'),
+                'ink' => $theme['textColor'] ?? '#f4efe6',
+                'seal' => $theme['primaryColor'] ?? '#c4a574',
+                'accent' => $theme['secondaryColor'] ?? '#8a7355',
+            ],
+        ]);
     }
 
     private function published(string $slug): Wedding
     {
         $wedding = Wedding::query()->where('slug', $slug)->first();
-        abort_unless($wedding?->isPublic(), 404);
+        abort_unless($wedding?->isGuestAccessible(), 404);
 
         return $wedding;
     }
