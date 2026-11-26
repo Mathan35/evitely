@@ -1,7 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { useMemo } from 'react';
 import '../../../css/editor-fonts.css';
-import { CardCanvas } from '@/components/cards/card-canvas';
+import { ResponsiveCardCanvas } from '@/components/cards/responsive-card-canvas';
 import { InvitationIntroGate, buildInvitationIntroContent } from '@/components/invitation/invitation-intro';
 import { PlatformBrandBadge, shouldHidePlatformBrand } from '@/components/platform-brand-badge';
 import { resolveIntroStyleId } from '@/lib/invitation-intro-styles';
