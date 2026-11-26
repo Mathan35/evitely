@@ -13,14 +13,23 @@ php -v
 composer2 --version || composer --version
 
 echo "==> Install PHP deps"
-# Hostinger often disables proc_open; skip scripts then discover packages separately.
+# Hostinger often disables proc_open; Apple Sign In also needs ext-sodium (enable in hPanel).
 COMPOSER_BIN="composer"
 if command -v composer2 >/dev/null 2>&1; then
   COMPOSER_BIN="composer2"
 fi
-if ! $COMPOSER_BIN install --no-dev --optimize-autoloader --no-interaction; then
+
+COMPOSER_FLAGS=(install --no-dev --optimize-autoloader --no-interaction)
+# Allow install when sodium isn't enabled yet (Apple OAuth). Prefer enabling sodium in hPanel.
+if ! php -m 2>/dev/null | grep -qi '^sodium$'; then
+  echo "WARN: PHP ext-sodium missing — enable it in hPanel → PHP Config → Extensions."
+  echo "      Continuing with --ignore-platform-req=ext-sodium for now."
+  COMPOSER_FLAGS+=(--ignore-platform-req=ext-sodium)
+fi
+
+if ! $COMPOSER_BIN "${COMPOSER_FLAGS[@]}"; then
   echo "Composer scripts failed (often missing proc_open). Retrying with --no-scripts..."
-  $COMPOSER_BIN install --no-dev --optimize-autoloader --no-interaction --no-scripts
+  $COMPOSER_BIN "${COMPOSER_FLAGS[@]}" --no-scripts
   php artisan package:discover --ansi || true
 fi
 

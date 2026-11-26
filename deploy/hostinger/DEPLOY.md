@@ -3,7 +3,9 @@
 ## A) hPanel (once)
 
 1. **Websites → invidora.com → Manage**
-2. **Advanced → PHP Configuration** → **PHP 8.3** (or 8.2+)
+2. **Advanced → PHP Configuration** → **PHP 8.4** (or 8.3+)
+   - Under **Extensions**, enable **sodium** (required for Apple Sign In / `lcobucci/jwt`)
+   - Also ensure **proc_open** is not in disabled functions (Composer scripts)
 3. **Databases → MySQL Databases**
    - Create database + user (Hostinger adds a prefix, e.g. `u123456789_invidora`)
    - Save: database name, username, password
