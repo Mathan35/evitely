@@ -4,6 +4,7 @@ namespace App\Services\Billing;
 
 use App\Models\User;
 use App\Models\Wedding;
+use App\Services\Growth\CouponService;
 use App\Services\WeddingPublishingService;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
@@ -310,6 +311,8 @@ class SiteBillingService
             $this->billing->grantCredits($user, $credits);
         }
 
+        $this->redeemCheckoutCoupon($user, $wedding, $options);
+
         $mode = ($options['go_live_mode'] ?? 'now') === 'schedule' ? 'schedule' : 'now';
         $scheduleAt = $options['scheduled_publish_at'] ?? null;
 
@@ -362,6 +365,8 @@ class SiteBillingService
         if ($credits > 0) {
             $this->billing->grantCredits($user, $credits);
         }
+
+        $this->redeemCheckoutCoupon($user, $wedding, $options);
 
         if ($start->isFuture()) {
             $this->putAwaitingGoLive($wedding, $start->copy()->startOfDay());
@@ -631,6 +636,8 @@ class SiteBillingService
             'gateway' => $gateway,
             'gateway_label' => $currencyHelper->gatewayLabel($gateway),
             'message_credits' => $this->billing->messageCredits($user),
+            'coupons' => app(CouponService::class)->availableForUser($user),
+            'has_site_coupon' => app(CouponService::class)->availableForUser($user) !== [],
             'site_packs' => collect($this->catalog->sitePacks())->map(function (array $row, string $key) use ($currency): array {
                 $withCredits = $this->catalog->sitePackOffer($row, $currency, true);
                 $bare = $this->catalog->sitePackOffer($row, $currency, false);
@@ -700,5 +707,18 @@ class SiteBillingService
             'messaging' => app(\App\Services\TwilioMessagingService::class)->status(),
             'share_templates' => \App\Support\ShareMessageFactory::editorState($wedding),
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $options
+     */
+    private function redeemCheckoutCoupon(User $user, Wedding $wedding, array $options): void
+    {
+        $couponId = isset($options['coupon_id']) ? (int) $options['coupon_id'] : 0;
+        if ($couponId < 1) {
+            return;
+        }
+
+        app(CouponService::class)->redeem($user, $couponId, $wedding);
     }
 }

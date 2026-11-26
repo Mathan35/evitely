@@ -62,6 +62,8 @@ class StripeSiteCheckoutService
                 'include_credits' => $includeCredits,
                 'go_live_mode' => ($options['go_live_mode'] ?? 'now') === 'schedule' ? 'schedule' : 'now',
                 'scheduled_publish_at' => $options['scheduled_publish_at'] ?? null,
+                'coupon_id' => $options['coupon_id'] ?? null,
+                'coupon_discount_minor' => $options['coupon_discount_minor'] ?? 0,
             ],
         ]);
 
@@ -93,6 +95,8 @@ class StripeSiteCheckoutService
                 'ends_on' => $quote['ends_on'],
                 'go_live_mode' => ($options['go_live_mode'] ?? 'schedule') === 'now' ? 'now' : 'schedule',
                 'scheduled_publish_at' => $quote['starts_on'].' 00:00:00',
+                'coupon_id' => $options['coupon_id'] ?? null,
+                'coupon_discount_minor' => $options['coupon_discount_minor'] ?? 0,
             ],
         ]);
 
@@ -222,6 +226,8 @@ class StripeSiteCheckoutService
             'go_live_mode' => (string) ($meta['go_live_mode'] ?? 'now'),
             'scheduled_publish_at' => $meta['scheduled_publish_at'] ?? null,
             'currency' => strtolower((string) $payment->currency) === 'usd' ? 'usd' : 'inr',
+            'coupon_id' => $meta['coupon_id'] ?? null,
+            'coupon_discount_minor' => $meta['coupon_discount_minor'] ?? 0,
         ];
 
         if ($payment->kind === 'site_pack') {

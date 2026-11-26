@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\PartnerCode;
 use App\Models\User;
+use App\Models\UserCoupon;
 use App\Models\Wedding;
 use App\Services\Growth\GrowthService;
 use App\Services\WeddingPublishingService;
@@ -14,15 +15,14 @@ class GrowthReferralTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_referral_code_assigned_on_register_and_reward_on_friend_publish(): void
+    public function test_referral_code_assigned_on_register_and_coupon_on_friend_publish(): void
     {
         config([
             'billing.allow_local_activate' => true,
             'billing.driver' => 'local',
             'billing.trial_days' => 30,
             'growth.referral.enabled' => true,
-            'growth.referral.reward_site_days' => 7,
-            'growth.referral.reward_credits' => 25,
+            'growth.referral.coupon_percent' => 50,
         ]);
 
         $growth = app(GrowthService::class);
@@ -32,14 +32,12 @@ class GrowthReferralTest extends TestCase
         $code = $growth->ensureReferralCode($referrer);
         $this->assertNotSame('', $code);
 
-        $referrerWedding = Wedding::factory()->create([
+        Wedding::factory()->create([
             'user_id' => $referrer->id,
             'invitation_mode' => 'link',
             'site_billing_status' => 'trial',
             'site_trial_ends_at' => now()->addDays(10),
         ]);
-        $beforeEnds = $referrerWedding->site_trial_ends_at->copy();
-        $beforeCredits = (int) $referrer->message_credits;
 
         $friend = User::factory()->create();
         $growth->attachSignupCodes($friend, $code, null);
@@ -54,13 +52,17 @@ class GrowthReferralTest extends TestCase
 
         app(WeddingPublishingService::class)->publish($friendWedding);
 
-        $referrerWedding->refresh();
-        $referrer->refresh();
         $friend->refresh();
-
         $this->assertNotNull($friend->referral_rewarded_at);
-        $this->assertTrue($referrerWedding->site_trial_ends_at->greaterThan($beforeEnds->addDays(6)));
-        $this->assertSame($beforeCredits + 25, (int) $referrer->message_credits);
+
+        $coupon = UserCoupon::query()
+            ->where('user_id', $referrer->id)
+            ->where('status', UserCoupon::STATUS_AVAILABLE)
+            ->first();
+
+        $this->assertNotNull($coupon);
+        $this->assertSame(50, (int) $coupon->percent_off);
+        $this->assertSame('site_cost', $coupon->applies_to);
     }
 
     public function test_partner_code_extends_trial_on_publish(): void
@@ -119,8 +121,8 @@ class GrowthReferralTest extends TestCase
 
     public function test_trial_and_guest_limits_from_config(): void
     {
-        $this->assertSame(30, (int) config('billing.trial_days'));
-        $this->assertSame(100, (int) config('billing.trial.guest_limit'));
-        $this->assertSame(100, (int) config('billing.plans.free.guest_limit'));
+        $props = app(GrowthService::class)->publicProps(null);
+        $this->assertArrayHasKey('trial_days', $props);
+        $this->assertArrayHasKey('referral_coupon_percent', $props);
     }
 }

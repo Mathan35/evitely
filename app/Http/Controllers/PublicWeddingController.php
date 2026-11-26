@@ -196,6 +196,19 @@ class PublicWeddingController extends Controller
         $wedding->loadMissing('user');
         if ($wedding->user) {
             $wedding->user->notify(new \App\Notifications\WishReceived($entry));
+            app(\App\Services\Notifications\AppNotificationService::class)->push(
+                $wedding->user,
+                \App\Models\AppNotification::TYPE_WISH,
+                'wish:'.$wedding->id.':'.$entry->id,
+                $entry->name.' left a wish',
+                'Pending approval · '.$wedding->displayTitle(),
+                [
+                    'href' => route('weddings.show', $wedding).'#wishes',
+                    'actor_name' => $entry->name,
+                    'event_id' => $wedding->id,
+                ],
+                increment: false,
+            );
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Thank you. Your note will appear after the couple approves it.']);

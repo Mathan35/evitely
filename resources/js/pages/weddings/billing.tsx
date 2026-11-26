@@ -78,6 +78,14 @@ type AutoSharePending = {
     recipient_count: number;
 } | null;
 
+type SiteCoupon = {
+    id: number;
+    code: string;
+    percent_off: number;
+    label: string;
+    status: string;
+};
+
 type BillingPayload = {
     event_id: number;
     currency: string;
@@ -85,6 +93,8 @@ type BillingPayload = {
     gateway: string;
     gateway_label?: string;
     message_credits: number;
+    coupons?: SiteCoupon[];
+    has_site_coupon?: boolean;
     site_packs: SitePack[];
     site_custom: {
         min_days: number;
@@ -226,16 +236,34 @@ function ComparisonValue({ value, tone }: { value: boolean | string; tone: 'free
     );
 }
 
-function packDisplayPrice(pack: SitePack, includeCredits: boolean): { label: string; amount: number } {
-    if (includeCredits) {
-        return {
-            label: pack.price_label_with_credits || pack.price_label,
-            amount: pack.amount_minor_with_credits ?? pack.amount_minor,
-        };
+function formatMinor(amount: number, currency: string, symbol: string): string {
+    if (currency === 'usd') {
+        return `${symbol}${ (amount / 100).toLocaleString(undefined, { minimumFractionDigits: amount % 100 === 0 ? 0 : 2, maximumFractionDigits: 2 }) }`;
     }
+    return `${symbol}${Math.round(amount / 100).toLocaleString()}`;
+}
+
+function packDisplayPrice(
+    pack: SitePack,
+    includeCredits: boolean,
+    opts?: { couponPercent?: number; currency?: string; symbol?: string },
+): { label: string; amount: number; was: string | null } {
+    const bare = pack.amount_minor_bare ?? pack.amount_minor;
+    const withCredits = pack.amount_minor_with_credits ?? pack.amount_minor;
+    const creditsPortion = Math.max(0, withCredits - bare);
+    let siteAmount = bare;
+    let was: string | null = null;
+    const percent = opts?.couponPercent ?? 0;
+    if (percent > 0) {
+        const discounted = Math.round(bare * (100 - percent) / 100);
+        was = formatMinor(includeCredits ? withCredits : bare, opts?.currency || 'inr', opts?.symbol || '₹');
+        siteAmount = discounted;
+    }
+    const amount = includeCredits ? siteAmount + creditsPortion : siteAmount;
     return {
-        label: pack.price_label_bare || pack.price_label,
-        amount: pack.amount_minor_bare ?? pack.amount_minor,
+        label: formatMinor(amount, opts?.currency || 'inr', opts?.symbol || '₹'),
+        amount,
+        was,
     };
 }
 
@@ -308,6 +336,8 @@ export default function EventBillingPage({ wedding, billing }: Props) {
     const [currency] = useState(billing.currency || 'inr');
     const [selected, setSelected] = useState<string>('site_30');
     const [includeCredits, setIncludeCredits] = useState(false);
+    const availableCoupon = billing.coupons?.[0] ?? null;
+    const [useCoupon, setUseCoupon] = useState(() => Boolean(billing.has_site_coupon));
     const [goLiveMode, setGoLiveMode] = useState<'now' | 'schedule'>(intentSchedule ? 'schedule' : 'now');
     const [scheduleAt, setScheduleAt] = useState('');
     const [startsOn, setStartsOn] = useState('');
@@ -351,7 +381,13 @@ export default function EventBillingPage({ wedding, billing }: Props) {
     const comparisonRows = billing.feature_comparison?.length
         ? billing.feature_comparison
         : [];
-    const selectedPrice = selectedPack ? packDisplayPrice(selectedPack, includeCredits) : null;
+    const selectedPrice = selectedPack
+        ? packDisplayPrice(selectedPack, includeCredits, {
+              couponPercent: useCoupon && availableCoupon ? availableCoupon.percent_off : 0,
+              currency,
+              symbol: currencySymbol,
+          })
+        : null;
     const billingGuests = billing.guests ?? [];
 
     const autoShareCreditsNeeded = useMemo(() => {
@@ -485,6 +521,7 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                     go_live_mode: goLiveMode,
                     currency,
                     include_credits: includeCredits,
+                    use_coupon: useCoupon && Boolean(availableCoupon),
                 });
                 await finishCheckout(data);
             } else {
@@ -500,6 +537,7 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                     scheduled_publish_at: goLiveMode === 'schedule' ? scheduleAt || null : null,
                     currency,
                     include_credits: includeCredits,
+                    use_coupon: useCoupon && Boolean(availableCoupon),
                 });
                 await finishCheckout(data);
             }
@@ -808,6 +846,43 @@ export default function EventBillingPage({ wedding, billing }: Props) {
 
                 <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
                     <div className="space-y-6">
+                        {availableCoupon ? (
+                            <section className="overflow-hidden rounded-[1.35rem] border border-violet-200/80 bg-gradient-to-br from-violet-50 via-white to-emerald-50 p-4 sm:p-5 dark:border-violet-500/20 dark:from-violet-950/40 dark:via-zinc-950 dark:to-emerald-950/30">
+                                <div className="flex flex-wrap items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <p className="text-[11px] font-semibold tracking-[0.16em] text-violet-700/80 uppercase dark:text-violet-300/80">
+                                            Referral coupon
+                                        </p>
+                                        <h2 className="mt-1 font-serif text-xl tracking-tight text-zinc-950 dark:text-white">
+                                            {availableCoupon.percent_off}% off site cost
+                                        </h2>
+                                        <p className="mt-1.5 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-300">
+                                            Code <span className="font-semibold tracking-wide">{availableCoupon.code}</span> —
+                                            applies to the site pack price only. Message credits stay full price.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setUseCoupon((v) => !v)}
+                                        className={cn(
+                                            'inline-flex h-10 items-center rounded-full px-4 text-[13px] font-semibold transition',
+                                            useCoupon
+                                                ? 'bg-violet-700 text-white shadow-md shadow-violet-700/20'
+                                                : 'bg-white text-zinc-700 ring-1 ring-zinc-950/10 dark:bg-zinc-900 dark:text-zinc-200',
+                                        )}
+                                    >
+                                        {useCoupon ? 'Using coupon' : 'Use coupon'}
+                                    </button>
+                                </div>
+                                {useCoupon && selectedPrice?.was ? (
+                                    <p className="mt-3 text-[12px] text-violet-800/80 dark:text-violet-200/80">
+                                        Checkout price updates to {selectedPrice.label}{' '}
+                                        <span className="text-zinc-400 line-through">{selectedPrice.was}</span>
+                                    </p>
+                                ) : null}
+                            </section>
+                        ) : null}
+
                         {/* Credits bundle toggle */}
                         <section>
                             <div className="mb-3 px-1">
@@ -952,7 +1027,11 @@ export default function EventBillingPage({ wedding, billing }: Props) {
 
                                     const { pack } = option;
                                     const active = selected === pack.id;
-                                    const display = packDisplayPrice(pack, includeCredits);
+                                    const display = packDisplayPrice(pack, includeCredits, {
+                                        couponPercent: useCoupon && availableCoupon ? availableCoupon.percent_off : 0,
+                                        currency,
+                                        symbol: currencySymbol,
+                                    });
                                     const perDay =
                                         pack.days > 0
                                             ? Math.round(display.amount / pack.days) / 100

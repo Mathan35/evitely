@@ -10,11 +10,34 @@
 /* Product-wide press ripple (buttons, links, button-like controls).
    Prefer [data-ui-ripple-host] over .ui-ripple-host — React className
    re-renders wipe imperative classes and orphan the absolute layer onto
-   a positioned ancestor (e.g. search+filter rows). */
-[data-ui-ripple-host],
-.ui-ripple-host {
+   a positioned ancestor (e.g. search+filter rows).
+   Never demote Tailwind .fixed / .sticky — that teleports FABs
+   (celebrate, music) into document flow and looks like a “hidden” button. */
+[data-ui-ripple-host]:not(.fixed):not(.sticky),
+.ui-ripple-host:not(.fixed):not(.sticky) {
     position: relative;
     isolation: isolate;
+}
+
+[data-ui-ripple-host].fixed,
+[data-ui-ripple-host].sticky,
+.fixed[data-ui-ripple-host],
+.sticky[data-ui-ripple-host] {
+    isolation: isolate;
+}
+
+/* Live celebrate FAB must stay viewport-fixed even if a host sets relative. */
+[data-preview-celebrate='live'],
+[data-preview-celebrate].fixed {
+    position: fixed !important;
+    z-index: 55;
+    pointer-events: auto;
+}
+
+[data-preview-celebrate='framed'] {
+    position: absolute !important;
+    z-index: 55;
+    pointer-events: auto;
 }
 
 .ui-ripple-layer {
@@ -2519,6 +2542,127 @@ html.dark #app-boot-skeleton {
             opacity: 1;
             transform: none;
             filter: none;
+        }
+    }
+
+    @keyframes notification-bell-pop {
+        0% {
+            transform: scale(1) rotate(0deg);
+        }
+        35% {
+            transform: scale(1.12) rotate(-8deg);
+        }
+        70% {
+            transform: scale(1.06) rotate(6deg);
+        }
+        100% {
+            transform: scale(1) rotate(0deg);
+        }
+    }
+
+    @keyframes notify-panel-in {
+        from {
+            opacity: 0;
+            transform: translateY(-6px) scale(0.97);
+            filter: blur(2px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+    }
+
+    @keyframes notify-row-in {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes notify-row-out {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+            max-height: 4.75rem;
+            margin-bottom: 0;
+        }
+        to {
+            opacity: 0;
+            transform: translateX(14px);
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+    }
+
+    @keyframes notify-empty-in {
+        from {
+            opacity: 0;
+            transform: translateY(6px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes notify-badge-out {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: scale(0.6);
+        }
+    }
+
+    .notify-panel[data-state='open'] {
+        animation: notify-panel-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .notify-row-enter {
+        animation: notify-row-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+        animation-delay: calc(var(--notify-i, 0) * 42ms);
+    }
+
+    .notify-row-exit {
+        animation: notify-row-out 320ms cubic-bezier(0.4, 0, 0.2, 1) both;
+        animation-delay: calc(var(--notify-i, 0) * 38ms);
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .notify-row-reading .notify-row-tint {
+        background-color: transparent !important;
+        box-shadow: none;
+        transition:
+            background-color 420ms ease,
+            box-shadow 420ms ease,
+            opacity 420ms ease;
+    }
+
+    .notify-empty-enter {
+        animation: notify-empty-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .notify-badge-exit {
+        animation: notify-badge-out 280ms ease forwards;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .notify-panel[data-state='open'],
+        .notify-row-enter,
+        .notify-row-exit,
+        .notify-empty-enter,
+        .notify-badge-exit {
+            animation: none !important;
         }
     }
 

@@ -33,6 +33,7 @@ import { useSitePublishFlow } from '@/components/studio/site-publish-flow';
 import { staysFromAccommodations } from '@/lib/stays-from-accommodations';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { copyToClipboard } from '@/lib/clipboard';
 import { cn } from '@/lib/utils';
 import type { WeddingPage } from '@/types/wedding';
 
@@ -343,13 +344,11 @@ export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
     }
 
     async function copyLink(): Promise<void> {
-        try {
-            await navigator.clipboard.writeText(wedding.share_url);
-        } catch {
-            /* ignore */
+        const ok = await copyToClipboard(wedding.share_url);
+        if (ok) {
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1800);
         }
-        setCopied(true);
-        window.setTimeout(() => setCopied(false), 1800);
         router.post(`/invite/${wedding.slug}/share`, { channel: 'copy' }, { preserveScroll: true, preserveState: true });
     }
 

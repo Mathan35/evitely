@@ -7,6 +7,7 @@ use App\Services\Auth\SocialAuthService;
 use App\Services\Billing\BillingService;
 use App\Services\Growth\GrowthService;
 use App\Services\HostAlertsService;
+use App\Services\Notifications\AppNotificationService;
 use App\Services\PlatformReadinessService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -79,6 +80,9 @@ class HandleInertiaRequests extends Middleware
             'hostAlerts' => $user
                 ? app(HostAlertsService::class)->forUser($user)
                 : ['total' => 0, 'rsvps' => 0, 'wishes' => 0, 'photos' => 0, 'items' => []],
+            'notifications' => $user
+                ? app(AppNotificationService::class)->snapshot($user, 8)
+                : ['unread' => 0, 'recent' => [], 'cursor' => null],
             'billing' => $billing,
             'flash' => array_merge(
                 (array) ($shared['flash'] ?? []),

@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { ExternalLink, Redo2, Undo2 } from 'lucide-react';
+import { NotificationsBell } from '@/components/studio/notifications-bell';
 import { cn } from '@/lib/utils';
 
 export function EditorTopBar({
@@ -84,6 +85,7 @@ export function EditorTopBar({
             </div>
 
             <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
+                <NotificationsBell className="mr-0.5 size-9 border-zinc-950/8 bg-white/80 sm:mr-1" />
                 <IconButton label="Undo" onClick={onUndo} disabled={!canUndo}>
                     <Undo2 className="h-3.5 w-3.5" />
                 </IconButton>

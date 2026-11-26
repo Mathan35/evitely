@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { createPortal } from 'react-dom';
 import { usePreviewLive } from '@/components/marketing/site-previews/preview-live';
 import { useInvitationCopy } from '@/hooks/use-invitation-copy';
 import { cn } from '@/lib/utils';
@@ -58,7 +59,6 @@ function viewportProfile() {
         burstA: isMobile ? 70 : isTablet ? 95 : 120,
         burstB: isMobile ? 55 : isTablet ? 75 : 95,
         burstC: isMobile ? 40 : isTablet ? 55 : 70,
-        // Softer launch — still covers the screen, but drifts smoothly
         speedMin: diagonal * (isMobile ? 0.008 : 0.01),
         speedMax: diagonal * (isMobile ? 0.018 : 0.022),
         sizeMin: isMobile ? 5 : 6,
@@ -66,8 +66,22 @@ function viewportProfile() {
     };
 }
 
+function celebrateEndpoint(slug: string): string {
+    if (typeof window === 'undefined') {
+        return `/invite/${slug}/celebrate`;
+    }
+    const path = window.location.pathname;
+    if (path.startsWith('/invite/')) {
+        return `/invite/${slug}/celebrate`;
+    }
+    // Subdomain live sites mount celebrate at the domain root.
+    return '/celebrate';
+}
+
 /**
  * Bottom-left celebrate control — fires a full-screen party-cracker confetti burst.
+ * Portaled out of overflow/transform shells so live-site clicks always hit.
+ * Transparent FAB — same look as before (no bg pill).
  */
 export function PreviewCelebrateBurst({
     className,
@@ -84,9 +98,52 @@ export function PreviewCelebrateBurst({
 
     const buttonRef = useRef<HTMLButtonElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const anchorRef = useRef<HTMLSpanElement>(null);
     const piecesRef = useRef<Piece[]>([]);
     const rafRef = useRef<number | null>(null);
     const [pulse, setPulse] = useState(false);
+    const [host, setHost] = useState<HTMLElement | null>(null);
+    const [framed, setFramed] = useState(false);
+
+    useLayoutEffect(() => {
+        if (typeof document === 'undefined') {
+            return;
+        }
+        const anchor = anchorRef.current;
+        const shell = anchor?.closest(
+            '[data-editor-preview], .editor-live-preview, .site-live-preview',
+        ) as HTMLElement | null;
+        const isFramed = Boolean(shell);
+        setFramed(isFramed);
+
+        // Live sites portal into a dedicated body root so StrictMode remounts
+        // replace one node instead of stacking orphan celebrate FABs.
+        let portalHost: HTMLElement;
+        if (isFramed && shell) {
+            portalHost = shell;
+            const computed = window.getComputedStyle(shell);
+            if (computed.position === 'static') {
+                shell.style.position = 'relative';
+            }
+        } else {
+            let root = document.getElementById('celebrate-fab-root');
+            if (!root) {
+                root = document.createElement('div');
+                root.id = 'celebrate-fab-root';
+                root.setAttribute('data-celebrate-root', '');
+                document.body.appendChild(root);
+            }
+            // Drop any stale FAB nodes left from a previous mount/HMR.
+            root.replaceChildren();
+            portalHost = root;
+        }
+
+        setHost(portalHost);
+
+        return () => {
+            setHost(null);
+        };
+    }, []);
 
     const resize = useCallback(() => {
         const canvas = canvasRef.current;
@@ -144,7 +201,6 @@ export function PreviewCelebrateBurst({
                 }
 
                 ctx.save();
-                // Ease-out fade for a softer finish
                 const fade = life * life * (3 - 2 * life);
                 ctx.globalAlpha = Math.max(0, Math.min(1, fade * 1.05));
                 ctx.translate(p.x, p.y);
@@ -229,7 +285,29 @@ export function PreviewCelebrateBurst({
         [loop],
     );
 
+    const notifyHost = useCallback(() => {
+        const slug = live?.inviteSlug;
+        if (!slug || typeof window === 'undefined') {
+            return;
+        }
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const guestName = typeof live?.guestName === 'string' ? live.guestName.trim() : '';
+        void fetch(celebrateEndpoint(slug), {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                ...(token ? { 'X-CSRF-TOKEN': token } : {}),
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ name: guestName || undefined }),
+        }).catch(() => undefined);
+    }, [live?.guestName, live?.inviteSlug]);
+
     const celebrate = useCallback(() => {
+        notifyHost();
+
         if (reducedMotion()) {
             setPulse(true);
             window.setTimeout(() => setPulse(false), 400);
@@ -250,7 +328,6 @@ export function PreviewCelebrateBurst({
         setPulse(true);
         window.setTimeout(() => setPulse(false), 560);
 
-        // Staggered soft waves — covers the screen without a harsh snap
         spawnBurst(x, y, profile.burstA, 118, -Math.PI / 2.55, profile);
         window.setTimeout(() => spawnBurst(x + 6, y - 6, profile.burstB, 140, -Math.PI / 2.15, profile), 140);
         window.setTimeout(() => spawnBurst(x + 14, y - 12, profile.burstC, 160, -Math.PI / 2.7, profile), 280);
@@ -258,32 +335,38 @@ export function PreviewCelebrateBurst({
             () => spawnBurst(x + 10, y - 8, Math.round(profile.burstC * 0.55), 175, -Math.PI / 2.35, profile),
             420,
         );
-    }, [resize, spawnBurst]);
+    }, [notifyHost, resize, spawnBurst]);
 
     if (!show) {
-        return null;
+        return <span ref={anchorRef} className="hidden" aria-hidden />;
     }
 
-    return (
+    const overlay = (
         <>
             <canvas
                 ref={canvasRef}
                 aria-hidden
-                className="pointer-events-none fixed inset-0 z-[60]"
+                className={cn(
+                    'pointer-events-none inset-0 z-[56]',
+                    framed ? 'absolute' : 'fixed',
+                )}
             />
             <button
                 ref={buttonRef}
                 type="button"
-                data-preview-celebrate
+                data-preview-celebrate={framed ? 'framed' : 'live'}
+                data-ripple="off"
                 onClick={celebrate}
                 style={style}
                 aria-label={ui.celebrate}
                 title={ui.celebrate}
                 className={cn(
-                    'group fixed left-4 bottom-4 z-50 flex h-14 w-14 items-center justify-center',
-                    'rounded-full overflow-hidden bg-transparent transition duration-300',
+                    'group pointer-events-auto flex h-14 w-14 items-center justify-center',
+                    framed ? 'absolute' : 'fixed',
+                    'left-4 z-[55] rounded-full bg-transparent transition duration-300',
+                    'bottom-[max(1rem,env(safe-area-inset-bottom))]',
                     'outline-none focus-visible:ring-2 focus-visible:ring-[#c9963a]/40 focus-visible:ring-offset-2',
-                    'hover:scale-105 active:scale-95 md:left-5 md:bottom-5',
+                    'hover:scale-105 active:scale-95 md:left-5',
                     'celebrate-fab',
                     pulse && 'celebrate-fab-fire',
                     className,
@@ -299,6 +382,13 @@ export function PreviewCelebrateBurst({
                     )}
                 />
             </button>
+        </>
+    );
+
+    return (
+        <>
+            <span ref={anchorRef} className="hidden" aria-hidden />
+            {host ? createPortal(overlay, host) : null}
         </>
     );
 }

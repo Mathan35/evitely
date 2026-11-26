@@ -136,13 +136,15 @@ class GrowthService
     }
 
     /**
-     * @return array{trial_days: int, guest_limit: int, referral_code: string|null, referral_url: string|null, partner_enabled: bool}
+     * @return array<string, mixed>
      */
     public function publicProps(?User $user = null): array
     {
         $trialDays = (int) config('billing.trial_days', 30);
         $guestLimit = (int) config('billing.trial.guest_limit', 100);
         $code = $user && $this->tablesReady() ? $this->ensureReferralCode($user) : null;
+        $couponPercent = max(1, min(90, (int) config('growth.referral.coupon_percent', 50)));
+        $coupons = app(CouponService::class)->availableForUser($user);
 
         return [
             'trial_days' => $trialDays,
@@ -150,11 +152,14 @@ class GrowthService
             'share_goal' => (int) config('growth.share_goal', 3),
             'defer_paywall_until_share' => (bool) config('growth.defer_paywall_until_share', true),
             'referral_enabled' => (bool) config('growth.referral.enabled', true),
-            'referral_reward_days' => (int) config('growth.referral.reward_site_days', 7),
-            'referral_reward_credits' => (int) config('growth.referral.reward_credits', 25),
+            'referral_coupon_percent' => $couponPercent,
+            'referral_reward_days' => 0,
+            'referral_reward_credits' => 0,
             'referral_code' => $code ?: null,
             'referral_url' => $code ? url('/register?ref='.$code) : url('/register'),
             'partner_enabled' => (bool) config('growth.partner.enabled', true),
+            'coupons' => $coupons,
+            'has_site_coupon' => $coupons !== [],
         ];
     }
 
@@ -225,36 +230,25 @@ class GrowthService
             return;
         }
 
-        $days = max(0, (int) config('growth.referral.reward_site_days', 7));
-        $credits = max(0, (int) config('growth.referral.reward_credits', 25));
-
-        DB::transaction(function () use ($friend, $referrer, $wedding, $days, $credits): void {
-            $target = Wedding::query()
-                ->where('user_id', $referrer->id)
-                ->whereIn('site_billing_status', ['trial', 'paid'])
-                ->latest('id')
-                ->first();
-
-            if ($target && $days > 0) {
-                $this->extendSiteWindow($target, $days);
-            }
-
-            if ($credits > 0) {
-                $referrer->forceFill([
-                    'message_credits' => (int) $referrer->message_credits + $credits,
-                ])->save();
-            }
+        DB::transaction(function () use ($friend, $referrer, $wedding): void {
+            $coupon = app(CouponService::class)->issueReferralSiteCoupon($referrer, $friend);
 
             $friend->forceFill(['referral_rewarded_at' => now()])->save();
 
             GrowthReward::query()->create([
                 'user_id' => $referrer->id,
-                'type' => 'referral_publish',
-                'site_days' => $days,
-                'credits' => $credits,
+                'type' => 'referral_coupon',
+                'site_days' => 0,
+                'credits' => 0,
                 'source_user_id' => $friend->id,
-                'event_id' => $target?->id ?? $wedding->id,
-                'meta' => ['friend_user_id' => $friend->id],
+                'event_id' => $wedding->id,
+                'meta' => [
+                    'friend_user_id' => $friend->id,
+                    'coupon_id' => $coupon?->id,
+                    'coupon_code' => $coupon?->code,
+                    'percent_off' => $coupon?->percent_off,
+                    'applies_to' => 'site_cost',
+                ],
             ]);
         });
     }

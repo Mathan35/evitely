@@ -10,6 +10,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { copyToClipboard } from '@/lib/clipboard';
 import { buildShareLinks } from '@/lib/share-links';
 
 type GrowthState = {
@@ -80,14 +81,13 @@ export function PostPublishGrowthDialog({
     }
 
     async function copyLink(): Promise<void> {
-        try {
-            await navigator.clipboard.writeText(shareUrl);
-            setCopied(true);
-            trackShare();
-            window.setTimeout(() => setCopied(false), 2000);
-        } catch {
-            trackShare();
+        const ok = await copyToClipboard(shareUrl);
+        trackShare();
+        if (!ok) {
+            return;
         }
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 2000);
     }
 
     const steps = [

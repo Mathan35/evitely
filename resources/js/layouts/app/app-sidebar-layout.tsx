@@ -11,6 +11,7 @@ import {
 } from '@/components/studio/studio-nav';
 import { UserInfo } from '@/components/user-info';
 import { UserMenuContent } from '@/components/user-menu-content';
+import { NotificationsBell } from '@/components/studio/notifications-bell';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import {
@@ -126,7 +127,8 @@ export default function AppSidebarLayout({
 
                     <StudioNavLinks showIcons className="ml-1 hidden min-w-0 lg:flex xl:ml-2" />
 
-                    <div className="ml-auto flex shrink-0 items-center gap-2">
+                    <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+                        {user ? <NotificationsBell /> : null}
                         <ThemeToggle />
                         <StudioSettingsIconLink />
                         <Link

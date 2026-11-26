@@ -8,8 +8,10 @@ use App\Models\EventRsvp;
 use App\Models\Wedding;
 use App\Models\WeddingGuest;
 use App\Models\WeddingRsvp;
+use App\Models\AppNotification;
 use App\Notifications\RsvpReceived;
 use App\Notifications\RsvpThankYou;
+use App\Services\Notifications\AppNotificationService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
@@ -79,6 +81,21 @@ class RsvpService
         }
 
         $wedding->user->notify(new RsvpReceived($rsvp));
+
+        app(AppNotificationService::class)->push(
+            $wedding->user,
+            AppNotification::TYPE_RSVP,
+            'rsvp:'.$wedding->id.':'.strtolower((string) $rsvp->email),
+            $rsvp->guest_name.' RSVP’d',
+            str_replace('_', ' ', (string) $rsvp->status->value).' · '.$wedding->displayTitle(),
+            [
+                'href' => route('weddings.show', $wedding).'#rsvps',
+                'actor_name' => $rsvp->guest_name,
+                'event_id' => $wedding->id,
+                'status' => $rsvp->status->value,
+            ],
+            increment: false,
+        );
 
         $wedding->loadMissing('setting');
         $details = is_array($wedding->setting?->details) ? $wedding->setting->details : [];

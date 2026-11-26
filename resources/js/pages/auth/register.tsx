@@ -34,7 +34,7 @@ export default function Register({ passwordRules, referral_code = '', partner_co
                             <p className="rounded-2xl bg-emerald-50 px-3 py-2 text-[12px] text-emerald-900 ring-1 ring-emerald-200/80">
                                 {partner_code
                                     ? `Partner code ${partner_code} applied — extra free site days when you publish.`
-                                    : `Referral ${referral_code} applied — your friend earns a reward when you publish.`}
+                                    : `Referral ${referral_code} applied — your friend earns a 50% site coupon when you publish.`}
                             </p>
                         )}
                         <div className="grid gap-6">

@@ -7,14 +7,16 @@ return [
     | Referral rewards
     |--------------------------------------------------------------------------
     |
-    | Friend signs up with your code, then publishes → you get bonus site days
-    | on your latest active event + message credits.
+    | Friend signs up with your code, then publishes → you get a coupon for
+    | percent-off the *site pack cost only* (message credits stay full price).
     |
     */
     'referral' => [
         'enabled' => (bool) env('GROWTH_REFERRAL_ENABLED', true),
-        'reward_site_days' => (int) env('GROWTH_REFERRAL_SITE_DAYS', 7),
-        'reward_credits' => (int) env('GROWTH_REFERRAL_CREDITS', 25),
+        'coupon_percent' => (int) env('GROWTH_REFERRAL_COUPON_PERCENT', 50),
+        // Legacy keys kept for older env files; unused by the coupon reward path.
+        'reward_site_days' => (int) env('GROWTH_REFERRAL_SITE_DAYS', 0),
+        'reward_credits' => (int) env('GROWTH_REFERRAL_CREDITS', 0),
     ],
 
     /*

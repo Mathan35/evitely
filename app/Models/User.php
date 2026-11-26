@@ -115,4 +115,20 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     {
         return $this->hasMany(GalleryFavorite::class);
     }
+
+    /**
+     * @return HasMany<UserCoupon, $this>
+     */
+    public function coupons(): HasMany
+    {
+        return $this->hasMany(UserCoupon::class);
+    }
+
+    /**
+     * @return HasMany<AppNotification, $this>
+     */
+    public function appNotifications(): HasMany
+    {
+        return $this->hasMany(AppNotification::class);
+    }
 }

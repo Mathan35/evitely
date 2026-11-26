@@ -26,6 +26,21 @@ declare module '@inertiajs/core' {
                     at?: string | null;
                 }[];
             };
+            notifications?: {
+                unread: number;
+                recent: {
+                    id: number;
+                    type: string;
+                    title: string;
+                    body?: string | null;
+                    count: number;
+                    href?: string | null;
+                    actor_name?: string | null;
+                    read: boolean;
+                    last_occurred_at?: string | null;
+                }[];
+                cursor?: string | null;
+            };
             canResetPassword: boolean;
             canRegister: boolean;
             sidebarOpen: boolean;

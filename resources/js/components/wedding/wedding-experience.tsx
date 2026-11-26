@@ -5,11 +5,13 @@ import { CountdownTimer } from '@/components/marketing/site-previews/countdown-t
 import { CoreSiteSections } from '@/components/marketing/site-previews/core-site-sections';
 import { GuestPhotoWall } from '@/components/wedding/guest-photo-wall';
 import { isPhotoWallEnabled } from '@/components/studio/preferences-panel';
+import { PreviewCelebrateBurst } from '@/components/marketing/site-previews/preview-celebrate-burst';
 import { PreviewLiveProvider } from '@/components/marketing/site-previews/preview-live';
 import { SiteGallerySection } from '@/components/marketing/site-previews/site-gallery-section';
 import { SiteHeroSection } from '@/components/marketing/site-previews/site-hero-section';
 import { SiteLanguageMenu } from '@/components/marketing/site-previews/preview-locale-switch';
 import { SiteShareChannelsRow } from '@/components/marketing/site-previews/site-share-channels';
+import { isCelebrateEnabled } from '@/components/studio/preferences-panel';
 import { useCountdown } from '@/hooks/use-countdown';
 import { copyToClipboard } from '@/lib/clipboard';
 import { coreExtrasFromDetails } from '@/lib/core-site-sections';
@@ -129,12 +131,16 @@ export function WeddingExperience({
             })),
         [wedding.photos],
     );
+    const celebrateEnabled = isCelebrateEnabled(
+        wedding.details as Record<string, string> | null | undefined,
+    );
     const classicLive = useMemo(
         () => ({
             locale,
             timerStyle: timerStyle || undefined,
             galleryStyle: galleryStyle || undefined,
             heroStyle: heroStyle || undefined,
+            celebrateEnabled,
             inviteSlug: !preview && interactive ? wedding.slug : null,
             inviteRootDomain: wedding.invite_root_domain,
             guestName: wedding.guest?.name ?? null,
@@ -143,6 +149,7 @@ export function WeddingExperience({
             sections: wedding.sections,
         }),
         [
+            celebrateEnabled,
             coreExtras,
             galleryStyle,
             heroStyle,
@@ -823,6 +830,17 @@ export function WeddingExperience({
                     {copy.rsvp}
                 </a>
             )}
+
+            {!preview ? (
+                <PreviewCelebrateBurst
+                    enabled={celebrateEnabled}
+                    className={
+                        show('rsvp') && interactive
+                            ? 'bottom-[max(5.5rem,calc(env(safe-area-inset-bottom)+4.75rem))] sm:bottom-[max(1rem,env(safe-area-inset-bottom))]'
+                            : undefined
+                    }
+                />
+            ) : null}
         </article>
         </PreviewLiveProvider>
     );

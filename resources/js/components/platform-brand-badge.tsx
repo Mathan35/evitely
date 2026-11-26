@@ -18,10 +18,15 @@ export function PlatformBrandBadge({
     }
 
     return (
-        <div className={cn('pointer-events-none fixed inset-x-0 bottom-0 z-[25] flex justify-center pb-3', className)}>
+        <div
+            className={cn(
+                'pointer-events-none fixed inset-x-0 bottom-0 z-[25] flex justify-center px-16 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-20',
+                className,
+            )}
+        >
             <Link
                 href={href}
-                className="pointer-events-auto inline-flex max-w-[min(100%-1.5rem,22rem)] items-center gap-1.5 rounded-full bg-zinc-950/85 px-3.5 py-2 text-[11px] font-medium text-white shadow-lg shadow-zinc-950/25 ring-1 ring-white/15 backdrop-blur transition hover:bg-zinc-900"
+                className="pointer-events-auto inline-flex max-w-[min(100%-1.5rem,20rem)] items-center gap-1.5 rounded-full bg-zinc-950/85 px-3.5 py-2 text-[11px] font-medium text-white shadow-lg shadow-zinc-950/25 ring-1 ring-white/15 backdrop-blur transition hover:bg-zinc-900"
             >
                 <BrandMarkIcon tone="light" className="h-3.5 w-3.5 shrink-0" />
                 <span className="leading-tight">

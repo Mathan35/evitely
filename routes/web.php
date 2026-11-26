@@ -117,6 +117,9 @@ $inviteRoutes = function (callable $name): void {
     Route::post('share', [PublicWeddingController::class, 'share'])
         ->middleware('throttle:30,1')
         ->name($name('share'));
+    Route::post('celebrate', \App\Http\Controllers\PublicCelebrateController::class)
+        ->middleware('throttle:60,1')
+        ->name($name('celebrate'));
     Route::get('calendar.ics', [PublicWeddingController::class, 'calendar'])->name($name('calendar'));
     Route::get('events/{event}/calendar.ics', [PublicWeddingController::class, 'eventCalendar'])->name($name('event-calendar'));
 };
@@ -150,6 +153,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
     Route::get('guests', [StudioDirectoryController::class, 'guests'])->name('guests.index');
     Route::get('analytics', [StudioDirectoryController::class, 'analytics'])->name('analytics');
+
+    Route::get('notifications', [\App\Http\Controllers\AppNotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/feed', [\App\Http\Controllers\AppNotificationController::class, 'feed'])
+        ->middleware('throttle:120,1')
+        ->name('notifications.feed');
+    Route::post('notifications/read-all', [\App\Http\Controllers\AppNotificationController::class, 'markAllRead'])
+        ->middleware('throttle:30,1')
+        ->name('notifications.read-all');
+    Route::post('notifications/clear', [\App\Http\Controllers\AppNotificationController::class, 'clear'])
+        ->middleware('throttle:30,1')
+        ->name('notifications.clear');
+    Route::post('notifications/{notification}/read', [\App\Http\Controllers\AppNotificationController::class, 'markRead'])
+        ->middleware('throttle:60,1')
+        ->name('notifications.read');
 
     Route::get('events/{wedding}/preview', [WeddingPreviewController::class, 'show'])->name('weddings.preview');
     Route::post('events/{wedding}/publish', [WeddingPublicationController::class, 'store'])->name('weddings.publish');

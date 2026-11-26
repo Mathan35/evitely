@@ -10,6 +10,7 @@ use App\Services\Billing\PlanCatalog;
 use App\Services\Billing\RazorpayService;
 use App\Services\Billing\SiteBillingService;
 use App\Services\Billing\StripeSiteCheckoutService;
+use App\Services\Growth\CouponService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -147,6 +148,7 @@ class EventBillingController extends Controller
             'scheduled_publish_at' => ['nullable', 'date'],
             'currency' => ['nullable', 'in:inr,usd'],
             'include_credits' => ['nullable', 'boolean'],
+            'use_coupon' => ['nullable', 'boolean'],
         ]);
 
         $pack = $catalog->sitePack($data['sku']);
@@ -160,13 +162,26 @@ class EventBillingController extends Controller
         $includeCredits = array_key_exists('include_credits', $data)
             ? (bool) $data['include_credits']
             : false;
+        $useCoupon = (bool) ($data['use_coupon'] ?? false);
+        $bare = $catalog->sitePackOffer($pack, $currency, false);
+        $withCredits = $catalog->sitePackOffer($pack, $currency, true);
+        $priced = app(CouponService::class)->priceWithOptionalCoupon(
+            $user,
+            (int) $bare['amount_minor'],
+            (int) $withCredits['amount_minor'],
+            $includeCredits,
+            $useCoupon,
+            $currency,
+        );
         $offer = $catalog->sitePackOffer($pack, $currency, $includeCredits);
         $options = [
             'go_live_mode' => $data['go_live_mode'] ?? 'now',
             'scheduled_publish_at' => $data['scheduled_publish_at'] ?? null,
             'include_credits' => $includeCredits,
             'credits' => $offer['credits'],
-            'amount_minor' => $offer['amount_minor'],
+            'amount_minor' => $priced['amount_minor'],
+            'coupon_id' => $priced['coupon']['id'] ?? null,
+            'coupon_discount_minor' => $priced['discount_minor'],
         ];
 
         if ($billing->allowLocalActivate() && ! $billing->razorpayReady() && ! $billing->stripeReady()) {
@@ -182,6 +197,7 @@ class EventBillingController extends Controller
                 'ok' => true,
                 'local' => true,
                 'message' => 'Site pack activated.',
+                'coupon_applied' => (bool) ($priced['coupon'] ?? null),
             ]);
         }
 
@@ -226,6 +242,7 @@ class EventBillingController extends Controller
             'go_live_mode' => ['nullable', 'in:now,schedule'],
             'currency' => ['nullable', 'in:inr,usd'],
             'include_credits' => ['nullable', 'boolean'],
+            'use_coupon' => ['nullable', 'boolean'],
         ]);
 
         $user = $request->user();
@@ -233,11 +250,27 @@ class EventBillingController extends Controller
         $includeCredits = array_key_exists('include_credits', $data)
             ? (bool) $data['include_credits']
             : false;
-        $quote = $pricer->quote($data['starts_on'], $data['ends_on'], $currency, $includeCredits);
+        $useCoupon = (bool) ($data['use_coupon'] ?? false);
+        $bareQuote = $pricer->quote($data['starts_on'], $data['ends_on'], $currency, false);
+        $withCreditsQuote = $pricer->quote($data['starts_on'], $data['ends_on'], $currency, true);
+        $quote = $includeCredits ? $withCreditsQuote : $bareQuote;
+        $priced = app(CouponService::class)->priceWithOptionalCoupon(
+            $user,
+            (int) $bareQuote['amount_minor'],
+            (int) $withCreditsQuote['amount_minor'],
+            $includeCredits,
+            $useCoupon,
+            $currency,
+        );
+        $quote['amount_minor'] = $priced['amount_minor'];
+        $quote['price_label'] = $priced['price_label'];
         $options = [
             'go_live_mode' => $data['go_live_mode'] ?? 'schedule',
             'currency' => $currency,
             'include_credits' => $includeCredits,
+            'amount_minor' => $priced['amount_minor'],
+            'coupon_id' => $priced['coupon']['id'] ?? null,
+            'coupon_discount_minor' => $priced['discount_minor'],
         ];
 
         if ($billing->allowLocalActivate() && ! $billing->razorpayReady() && ! $billing->stripeReady()) {
@@ -250,7 +283,12 @@ class EventBillingController extends Controller
                 $options,
             );
 
-            return response()->json(['ok' => true, 'local' => true, 'message' => 'Custom pack activated.']);
+            return response()->json([
+                'ok' => true,
+                'local' => true,
+                'message' => 'Custom pack activated.',
+                'coupon_applied' => (bool) ($priced['coupon'] ?? null),
+            ]);
         }
 
         $gateway = $currencyHelper->gatewayForCurrency($currency);

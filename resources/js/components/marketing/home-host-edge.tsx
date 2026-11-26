@@ -29,7 +29,7 @@ const BEATS: HostEdgeBeat[] = [
         id: 'bilingual',
         eyebrow: 'One invite, two languages',
         title: 'Bilingual guest sites',
-        text: 'English + Hindi — or any pair. Guests switch language on the live page without a second design.',
+        text: 'English + Spanish — or any pair you need. Guests switch language on the live page without a second design.',
         href: '/events?create=1',
         icon: Languages,
         visual: <BilingualVisual />,
@@ -138,9 +138,9 @@ function HostEdgeCard({ beat }: { beat: HostEdgeBeat }) {
 
 function PersonalLinksVisual() {
     const rows = [
-        { name: 'Amira Khan', state: 'Opened · RSVP yes', tone: 'ok' as const },
-        { name: 'Rahul Mehta', state: 'Sent · waiting', tone: 'wait' as const },
-        { name: 'Priya Nair', state: 'Opened · maybe', tone: 'mid' as const },
+        { name: 'Maya Chen', state: 'Opened · RSVP yes', tone: 'ok' as const },
+        { name: 'Jordan Lee', state: 'Sent · waiting', tone: 'wait' as const },
+        { name: 'Sofia Rossi', state: 'Opened · maybe', tone: 'mid' as const },
     ];
 
     return (
@@ -186,13 +186,13 @@ function BilingualVisual() {
                     English
                 </span>
                 <span className="flex-1 rounded-xl px-3 py-1.5 text-center text-[11px] font-semibold text-[#5e554c]">
-                    हिन्दी
+                    Español
                 </span>
             </div>
             <div className="space-y-2 p-4">
-                <p className="font-serif text-lg leading-tight text-[#241c16]">Priya & Arun</p>
+                <p className="font-serif text-lg leading-tight text-[#241c16]">Elena & Marcus</p>
                 <p className="text-[12px] leading-relaxed text-[#5e554c]">
-                    Together with their families · 12 Sep · Chennai
+                    Together with their families · 12 Sep · Lisbon
                 </p>
                 <div className="h-8 rounded-full bg-[#241c16]/90 text-center text-[11px] leading-8 font-semibold text-white">
                     RSVP
