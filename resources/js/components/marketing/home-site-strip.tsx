@@ -257,32 +257,53 @@ export function HomeSiteStrip({ designs }: { designs: HomeSiteDesign[] }) {
     const updateArrows = () => {
         const node = scrollerRef.current;
         if (!node) return;
-        const max = node.scrollWidth - node.clientWidth;
-        setCanPrev(node.scrollLeft > 8);
-        setCanNext(node.scrollLeft < max - 8);
+        const max = Math.max(0, node.scrollWidth - node.clientWidth);
+        // Sub-pixel / snap residue — treat near edges as ends.
+        setCanPrev(node.scrollLeft > 4);
+        setCanNext(max > 4 && node.scrollLeft < max - 4);
     };
 
     useEffect(() => {
         const node = scrollerRef.current;
         if (!node) return;
+
         updateArrows();
-        node.addEventListener('scroll', updateArrows, { passive: true });
+        const onScroll = () => updateArrows();
+        node.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('resize', updateArrows);
+
+        // Tile images / fonts change scrollWidth after first paint — keep arrows honest.
+        const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => updateArrows()) : null;
+        ro?.observe(node);
+        for (const child of Array.from(node.children)) {
+            if (child instanceof HTMLElement) {
+                ro?.observe(child);
+            }
+        }
+
+        const raf = window.requestAnimationFrame(() => updateArrows());
+        const settle = window.setTimeout(updateArrows, 400);
+
         return () => {
-            node.removeEventListener('scroll', updateArrows);
+            node.removeEventListener('scroll', onScroll);
             window.removeEventListener('resize', updateArrows);
+            ro?.disconnect();
+            window.cancelAnimationFrame(raf);
+            window.clearTimeout(settle);
         };
     }, [designs.length]);
 
     const scrollByDir = (dir: -1 | 1) => {
         const node = scrollerRef.current;
         if (!node) return;
-        const amount = Math.max(220, Math.round(node.clientWidth * 0.72)) * dir;
+        const amount = Math.max(240, Math.round(node.clientWidth * 0.78)) * dir;
         node.scrollBy({ left: amount, behavior: 'smooth' });
+        // Smooth scroll doesn't always fire enough scroll events on some browsers.
+        window.setTimeout(updateArrows, 320);
     };
 
     const arrowClass =
-        'pointer-events-auto absolute top-[5.75rem] z-10 grid size-9 place-items-center rounded-full border border-[#e7dcc8] bg-white/95 text-[#241c16] shadow-[0_8px_20px_-10px_rgba(43,36,28,0.55)] backdrop-blur-sm transition enabled:hover:border-[#c6a36a] enabled:hover:text-[#c6a36a] disabled:cursor-not-allowed disabled:opacity-30 sm:top-[6.5rem] sm:size-10';
+        'pointer-events-auto absolute top-[5.75rem] z-20 grid size-9 place-items-center rounded-full border border-[#e7dcc8] bg-white/95 text-[#241c16] shadow-[0_8px_20px_-10px_rgba(43,36,28,0.55)] backdrop-blur-sm transition enabled:hover:border-[#c6a36a] enabled:hover:text-[#c6a36a] disabled:pointer-events-none disabled:opacity-30 sm:top-[6.5rem] sm:size-10';
 
     return (
         <section className="border-y border-[#e7dcc8]/80 bg-[#faf6ef]/70 py-16 sm:py-20" aria-labelledby="design-strip-heading">
@@ -296,19 +317,9 @@ export function HomeSiteStrip({ designs }: { designs: HomeSiteDesign[] }) {
                 </p>
 
                 <div className="relative mt-10">
-                    <button
-                        type="button"
-                        aria-label="Previous designs"
-                        disabled={!canPrev}
-                        onClick={() => scrollByDir(-1)}
-                        className={cn(arrowClass, 'left-0 -translate-x-1/2')}
-                    >
-                        <ChevronLeft className="size-4 sm:size-5" />
-                    </button>
-
                     <div
                         ref={scrollerRef}
-                        className="flex min-w-0 snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
+                        className="flex min-w-0 snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-10 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 sm:px-12 [&::-webkit-scrollbar]:hidden"
                     >
                         {designs.map((design) => (
                             <HomeSiteTile
@@ -332,12 +343,24 @@ export function HomeSiteStrip({ designs }: { designs: HomeSiteDesign[] }) {
                         </Link>
                     </div>
 
+                    {/* Arrows after the scroller so they always paint above tiles. */}
                     <button
                         type="button"
+                        data-ripple="off"
+                        aria-label="Previous designs"
+                        disabled={!canPrev}
+                        onClick={() => scrollByDir(-1)}
+                        className={cn(arrowClass, 'left-1 sm:left-2')}
+                    >
+                        <ChevronLeft className="size-4 sm:size-5" />
+                    </button>
+                    <button
+                        type="button"
+                        data-ripple="off"
                         aria-label="Next designs"
                         disabled={!canNext}
                         onClick={() => scrollByDir(1)}
-                        className={cn(arrowClass, 'right-0 translate-x-1/2')}
+                        className={cn(arrowClass, 'right-1 sm:right-2')}
                     >
                         <ChevronRight className="size-4 sm:size-5" />
                     </button>

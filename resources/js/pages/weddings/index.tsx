@@ -112,7 +112,6 @@ export default function WeddingIndex({
         } | null;
         flash?: { trial_event_limit?: boolean };
     }>();
-    const pageUrl = page.url;
     const canCreateEvent = page.props.billing?.can_create_event !== false;
     const freeEventLimit = page.props.billing?.event_limit ?? 1;
     const upgradeUrl = page.props.billing?.upgrade_url || '/settings/billing';
@@ -120,10 +119,19 @@ export default function WeddingIndex({
     const [mode, setMode] = useState<ModeFilter>('all');
     const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
     const [layout, setLayout] = useState<LayoutView>('grid');
-    const [createOpen, setCreateOpen] = useState(() => pageUrl.includes('create=1') && canCreateEvent);
-    const [limitOpen, setLimitOpen] = useState(
-        () => Boolean(page.props.flash?.trial_event_limit) || (pageUrl.includes('create=1') && !canCreateEvent),
-    );
+    const [createOpen, setCreateOpen] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return new URLSearchParams(window.location.search).get('create') === '1' && canCreateEvent;
+        }
+        return page.url.includes('create=1') && canCreateEvent;
+    });
+    const [limitOpen, setLimitOpen] = useState(() => {
+        const wantsCreate =
+            typeof window !== 'undefined'
+                ? new URLSearchParams(window.location.search).get('create') === '1'
+                : page.url.includes('create=1');
+        return Boolean(page.props.flash?.trial_event_limit) || (wantsCreate && !canCreateEvent);
+    });
     const [createQuery, setCreateQuery] = useState('');
     const [panelReady, setPanelReady] = useState(true);
     const [panelKey, setPanelKey] = useState('all-grid');
@@ -178,11 +186,18 @@ export default function WeddingIndex({
             if (!needle) {
                 return true;
             }
-            return (
-                type.name.toLowerCase().includes(needle) ||
-                type.slug.toLowerCase().includes(needle) ||
-                type.category.toLowerCase().includes(needle)
-            );
+            const categoryLabel = (categoryLabels[type.category] ?? type.category).toLowerCase();
+            const haystack = [
+                type.name,
+                type.slug,
+                type.category,
+                categoryLabel,
+                type.profile ?? '',
+                type.designs_label ?? '',
+            ]
+                .join(' ')
+                .toLowerCase();
+            return haystack.includes(needle);
         });
 
         const order = Object.keys(categoryLabels);
@@ -210,6 +225,24 @@ export default function WeddingIndex({
         }
     }, [createOpen]);
 
+    function syncCreateQueryParam(open: boolean): void {
+        if (typeof window === 'undefined') {
+            return;
+        }
+        const url = new URL(window.location.href);
+        const hasCreate = url.searchParams.get('create') === '1';
+        if (open && !hasCreate) {
+            url.searchParams.set('create', '1');
+            window.history.replaceState(window.history.state, '', `${url.pathname}?${url.searchParams.toString()}`);
+            return;
+        }
+        if (!open && hasCreate) {
+            url.searchParams.delete('create');
+            const next = url.searchParams.toString();
+            window.history.replaceState(window.history.state, '', next ? `${url.pathname}?${next}` : url.pathname);
+        }
+    }
+
     function requestCreate(): void {
         if (!canCreateEvent) {
             setLimitOpen(true);
@@ -223,15 +256,9 @@ export default function WeddingIndex({
             setLimitOpen(true);
             return;
         }
+        // Local state first — avoid Inertia remount fighting the close animation.
         setCreateOpen(open);
-        const hasCreate = pageUrl.includes('create=1');
-        if (open && !hasCreate) {
-            router.get('/events', { create: 1 }, { preserveState: true, preserveScroll: true, replace: true });
-            return;
-        }
-        if (!open && hasCreate) {
-            router.get('/events', {}, { preserveState: true, preserveScroll: true, replace: true });
-        }
+        syncCreateQueryParam(open);
     }
 
     function transitionTo(nextMode: ModeFilter, nextLayout: LayoutView): void {
@@ -490,22 +517,29 @@ function CreateInvitationDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="flex max-h-[85dvh] max-w-2xl flex-col gap-0 overflow-hidden rounded-3xl border-zinc-200 p-0 sm:max-w-2xl">
-                <DialogHeader className="border-b border-zinc-950/8 px-6 py-5 text-left dark:border-white/10">
+                <DialogHeader className="shrink-0 space-y-0 border-b border-zinc-950/8 px-6 py-5 pr-14 text-left dark:border-white/10">
                     <p className="text-[10px] font-semibold tracking-[0.18em] text-emerald-700 uppercase">
                         ~3 minutes to a shareable invite
                     </p>
-                    <DialogTitle className="font-serif text-3xl tracking-tight">
+                    <DialogTitle className="mt-1 font-serif text-3xl tracking-tight">
                         Create Invitation
                     </DialogTitle>
-                    <DialogDescription className="text-sm text-zinc-500">
+                    <DialogDescription className="mt-1.5 text-sm text-zinc-500">
                         Pick an occasion → choose a design → customize → publish &amp; share. Cards stay free forever.
                     </DialogDescription>
                     <div className="relative mt-4">
-                        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-zinc-400" />
+                        <Search className="pointer-events-none absolute top-1/2 left-3 z-[1] size-4 -translate-y-1/2 text-zinc-400" />
                         <input
+                            type="search"
                             value={query}
                             onChange={(event) => onQueryChange(event.target.value)}
+                            onKeyDown={(event) => event.stopPropagation()}
+                            onPointerDown={(event) => event.stopPropagation()}
                             placeholder="Search events…"
+                            autoComplete="off"
+                            autoCorrect="off"
+                            spellCheck={false}
+                            aria-label="Search events"
                             className="h-11 w-full rounded-full border border-zinc-950/10 bg-zinc-50/80 pr-4 pl-10 text-sm outline-none ring-emerald-500/30 focus:ring-2 dark:border-white/10 dark:bg-zinc-900/60"
                         />
                     </div>

@@ -11,18 +11,20 @@
    Prefer [data-ui-ripple-host] over .ui-ripple-host — React className
    re-renders wipe imperative classes and orphan the absolute layer onto
    a positioned ancestor (e.g. search+filter rows).
-   Never demote Tailwind .fixed / .sticky — that teleports FABs
-   (celebrate, music) into document flow and looks like a “hidden” button. */
-[data-ui-ripple-host]:not(.fixed):not(.sticky),
-.ui-ripple-host:not(.fixed):not(.sticky) {
+   Never demote Tailwind .fixed / .sticky / .absolute — that teleports FABs
+   and dialog close (X) into document flow (looks broken / untappable). */
+[data-ui-ripple-host]:not(.fixed):not(.sticky):not(.absolute),
+.ui-ripple-host:not(.fixed):not(.sticky):not(.absolute) {
     position: relative;
     isolation: isolate;
 }
 
 [data-ui-ripple-host].fixed,
 [data-ui-ripple-host].sticky,
+[data-ui-ripple-host].absolute,
 .fixed[data-ui-ripple-host],
-.sticky[data-ui-ripple-host] {
+.sticky[data-ui-ripple-host],
+.absolute[data-ui-ripple-host] {
     isolation: isolate;
 }
 
