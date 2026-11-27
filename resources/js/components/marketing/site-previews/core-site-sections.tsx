@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { ChevronDown, ExternalLink, Play, Sparkles } from 'lucide-react';
+import { Check, ChevronDown, ExternalLink, Heart, Play, Sparkles } from 'lucide-react';
 import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { usePreviewLive } from '@/components/marketing/site-previews/preview-live';
 import { SiteSectionChrome } from '@/components/marketing/site-previews/site-section-chrome';
@@ -421,14 +421,26 @@ function WishesBlock({ data, desktop }: { data: CoreSiteExtrasContent; desktop?:
             </div>
 
             {showForm ? (
-                <div className="mx-auto mt-10 max-w-md">
+                <div className="mx-auto mt-10 max-w-lg">
                     {sent ? (
-                        <p className="rounded-2xl border border-[var(--w-accent)]/20 bg-[var(--w-surface)] px-4 py-4 text-center text-sm text-[var(--w-muted)]">
-                            Thank you — your wish was sent and will appear after the hosts approve it.
-                        </p>
+                        <div
+                            className="site-wish-compose site-wish-compose--sent px-6 py-8 text-center"
+                            role="status"
+                            aria-live="polite"
+                        >
+                            <span className="site-wish-compose__icon site-wish-compose__icon--ok" aria-hidden>
+                                <Check className="size-5" strokeWidth={2.25} />
+                            </span>
+                            <p className="mt-4 font-serif text-[1.45rem] font-light tracking-tight text-[var(--w-ink)]">
+                                Wish received
+                            </p>
+                            <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-[var(--w-muted)]">
+                                Thank you — it will appear here after the hosts approve it.
+                            </p>
+                        </div>
                     ) : (
                         <form
-                            className="space-y-3 rounded-2xl border border-[var(--w-accent)]/15 bg-[var(--w-surface)] px-4 py-4"
+                            className="site-wish-compose"
                             noValidate
                             onSubmit={(event: FormEvent) => {
                                 event.preventDefault();
@@ -440,6 +452,10 @@ function WishesBlock({ data, desktop }: { data: CoreSiteExtrasContent; desktop?:
                                 }
                                 if (!message) {
                                     setLocalError('Please write a short wish.');
+                                    return;
+                                }
+                                if (message.length > 500) {
+                                    setLocalError('Keep your wish under 500 characters.');
                                     return;
                                 }
                                 setLocalError(null);
@@ -464,42 +480,94 @@ function WishesBlock({ data, desktop }: { data: CoreSiteExtrasContent; desktop?:
                                 );
                             }}
                         >
-                            <p className="text-center text-[11px] font-semibold tracking-[0.16em] text-[var(--w-accent)] uppercase">
-                                Leave a wish
-                            </p>
-                            <input
-                                value={form.data.name}
-                                onChange={(event) => {
-                                    form.setData('name', event.target.value);
-                                    if (localError) setLocalError(null);
-                                }}
-                                placeholder="Your name"
-                                className="site-rsvp-input h-11 w-full rounded-xl border border-[var(--w-accent)]/20 bg-white/80 px-3 text-sm text-[var(--w-ink)] outline-none"
-                                aria-invalid={localError?.includes('name') ? true : undefined}
-                            />
-                            <textarea
-                                value={form.data.message}
-                                onChange={(event) => {
-                                    form.setData('message', event.target.value);
-                                    if (localError) setLocalError(null);
-                                }}
-                                rows={3}
-                                placeholder="A short wish for the hosts"
-                                className="site-rsvp-input w-full rounded-xl border border-[var(--w-accent)]/20 bg-white/80 px-3 py-2.5 text-sm text-[var(--w-ink)] outline-none"
-                                aria-invalid={localError?.includes('wish') ? true : undefined}
-                            />
-                            {localError || form.errors.name || form.errors.message ? (
-                                <p className="text-[12px] text-rose-600" role="alert">
-                                    {localError || form.errors.name || form.errors.message}
+                            <div className="site-wish-compose__wash" aria-hidden />
+                            <header className="relative z-[1] flex flex-col items-center px-6 pt-7 pb-2 text-center">
+                                <span className="site-wish-compose__icon" aria-hidden>
+                                    <Heart className="size-4" strokeWidth={1.75} />
+                                </span>
+                                <p className="mt-3 text-[10px] font-semibold tracking-[0.28em] text-[var(--w-accent)] uppercase">
+                                    From you
                                 </p>
-                            ) : null}
-                            <button
-                                type="submit"
-                                disabled={form.processing}
-                                className="inline-flex h-11 w-full items-center justify-center rounded-full bg-[var(--w-accent)] px-4 text-sm font-semibold text-white transition hover:brightness-105 disabled:opacity-60"
-                            >
-                                {form.processing ? 'Sending…' : 'Send wish'}
-                            </button>
+                                <h3 className="mt-1.5 font-serif text-[1.65rem] leading-none font-light tracking-tight text-[var(--w-ink)]">
+                                    Leave a wish
+                                </h3>
+                                <span className="site-wish-compose__rule mt-4" aria-hidden />
+                                <p className="mt-3 max-w-[16rem] text-[12.5px] leading-relaxed text-[var(--w-muted)]">
+                                    A short blessing or note — the hosts will treasure every word.
+                                </p>
+                            </header>
+
+                            <div className="relative z-[1] space-y-3.5 px-5 pb-5 pt-4 sm:px-6">
+                                <label className="site-wish-field">
+                                    <span className="site-wish-field__label">Your name</span>
+                                    <input
+                                        value={form.data.name}
+                                        onChange={(event) => {
+                                            form.setData('name', event.target.value);
+                                            if (localError) setLocalError(null);
+                                        }}
+                                        placeholder="How should we credit you?"
+                                        autoComplete="name"
+                                        className={cn(
+                                            'site-wish-field__input',
+                                            localError?.includes('name') && 'is-invalid',
+                                        )}
+                                        aria-invalid={localError?.includes('name') ? true : undefined}
+                                    />
+                                </label>
+
+                                <label className="site-wish-field">
+                                    <span className="site-wish-field__label">Your wish</span>
+                                    <textarea
+                                        value={form.data.message}
+                                        onChange={(event) => {
+                                            form.setData('message', event.target.value.slice(0, 500));
+                                            if (localError) setLocalError(null);
+                                        }}
+                                        rows={4}
+                                        maxLength={500}
+                                        placeholder="Write something warm…"
+                                        className={cn(
+                                            'site-wish-field__input site-wish-field__input--area',
+                                            localError?.includes('wish') && 'is-invalid',
+                                        )}
+                                        aria-invalid={localError?.includes('wish') ? true : undefined}
+                                    />
+                                    <span className="site-wish-field__meta">
+                                        <span>
+                                            {localError || form.errors.name || form.errors.message ? (
+                                                <span className="text-rose-600" role="alert">
+                                                    {localError || form.errors.name || form.errors.message}
+                                                </span>
+                                            ) : (
+                                                'Shown after approval'
+                                            )}
+                                        </span>
+                                        <span
+                                            className={cn(
+                                                form.data.message.length > 450 && 'text-[var(--w-accent)]',
+                                            )}
+                                        >
+                                            {form.data.message.length}/500
+                                        </span>
+                                    </span>
+                                </label>
+
+                                <button
+                                    type="submit"
+                                    disabled={form.processing}
+                                    className="site-wish-compose__submit"
+                                >
+                                    {form.processing ? (
+                                        'Sending…'
+                                    ) : (
+                                        <>
+                                            <Sparkles className="size-3.5 opacity-90" strokeWidth={2} />
+                                            Send wish
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         </form>
                     )}
                 </div>

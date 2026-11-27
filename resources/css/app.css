@@ -692,6 +692,30 @@ html.dark #app-boot-skeleton {
     }
 }
 
+/* After wax-seal open — soft hero entrance for the live guest site. */
+@keyframes invite-site-reveal {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.992);
+        filter: blur(4px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+        filter: none;
+    }
+}
+
+.invite-site-reveal {
+    animation: invite-site-reveal 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .invite-site-reveal {
+        animation: none;
+    }
+}
+
 @keyframes invite-fade {
     from {
         opacity: 0;
@@ -6559,6 +6583,246 @@ html.dark #app-boot-skeleton {
 .site-core-wish {
     padding: 1rem 1.05rem;
     animation: site-core-wish-float 5.5s ease-in-out infinite;
+}
+
+/* ── Leave a wish compose (guest guestbook) ───────────────────────── */
+
+.site-wish-compose {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: 1.65rem;
+    border: 1px solid color-mix(in oklab, var(--w-ink) 8%, transparent);
+    background:
+        linear-gradient(
+            165deg,
+            color-mix(in oklab, var(--w-surface, #fff) 88%, var(--w-accent)) 0%,
+            var(--w-surface, #fff) 42%,
+            color-mix(in oklab, var(--w-surface, #fff) 96%, var(--w-ink)) 100%
+        );
+    box-shadow:
+        0 1px 0 color-mix(in oklab, #fff 55%, transparent) inset,
+        0 18px 40px -28px color-mix(in oklab, var(--w-ink) 28%, transparent);
+}
+
+.site-wish-compose__wash {
+    pointer-events: none;
+    position: absolute;
+    inset: -20% -10% auto;
+    height: 55%;
+    background:
+        radial-gradient(
+            ellipse 70% 80% at 50% 0%,
+            color-mix(in oklab, var(--w-accent) 22%, transparent),
+            transparent 70%
+        );
+    opacity: 0.9;
+}
+
+.site-wish-compose__icon {
+    display: grid;
+    place-items: center;
+    width: 2.55rem;
+    height: 2.55rem;
+    border-radius: 999px;
+    color: var(--w-accent);
+    background: color-mix(in oklab, var(--w-accent) 12%, transparent);
+    box-shadow:
+        0 0 0 1px color-mix(in oklab, var(--w-accent) 22%, transparent),
+        0 8px 18px -12px color-mix(in oklab, var(--w-accent) 45%, transparent);
+}
+
+.site-wish-compose__icon--ok {
+    color: #047857;
+    background: color-mix(in oklab, #10b981 16%, transparent);
+    box-shadow:
+        0 0 0 1px color-mix(in oklab, #10b981 28%, transparent),
+        0 8px 18px -12px color-mix(in oklab, #047857 40%, transparent);
+    animation: site-wish-compose-pop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.site-wish-compose--sent {
+    animation: site-wish-compose-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.site-wish-compose__rule {
+    display: block;
+    width: 2.75rem;
+    height: 1px;
+    background: color-mix(in oklab, var(--w-accent) 55%, transparent);
+    position: relative;
+}
+
+.site-wish-compose__rule::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 1px;
+    background: var(--w-accent);
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.site-wish-field {
+    display: block;
+}
+
+.site-wish-field__label {
+    display: block;
+    margin-bottom: 0.4rem;
+    padding-inline: 0.15rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, var(--w-ink) 55%, transparent);
+}
+
+.site-wish-field__input {
+    width: 100%;
+    min-height: 2.85rem;
+    border-radius: 1rem;
+    border: 1px solid color-mix(in oklab, var(--w-ink) 10%, transparent);
+    background: color-mix(in oklab, #fff 82%, var(--w-surface, #fff));
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    color: var(--w-ink);
+    outline: none;
+    box-shadow: 0 1px 0 color-mix(in oklab, #fff 70%, transparent) inset;
+    transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease,
+        background-color 180ms ease,
+        transform 180ms ease;
+}
+
+.site-wish-field__input--area {
+    min-height: 7.25rem;
+    resize: none;
+    font-family: ui-serif, Georgia, 'Times New Roman', serif;
+    font-size: 1rem;
+    font-weight: 300;
+    line-height: 1.65;
+}
+
+.site-wish-field__input::placeholder {
+    color: color-mix(in oklab, var(--w-ink) 38%, transparent);
+}
+
+.site-wish-field__input:hover {
+    border-color: color-mix(in oklab, var(--w-accent) 28%, transparent);
+}
+
+.site-wish-field__input:focus {
+    border-color: color-mix(in oklab, var(--w-accent) 55%, transparent);
+    background: #fff;
+    box-shadow:
+        0 0 0 3px color-mix(in oklab, var(--w-accent) 16%, transparent),
+        0 1px 0 color-mix(in oklab, #fff 70%, transparent) inset;
+}
+
+.site-wish-field__input.is-invalid {
+    border-color: #e2a0a0;
+    box-shadow: 0 0 0 3px color-mix(in oklab, #e2a0a0 22%, transparent);
+}
+
+.site-wish-field__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.45rem;
+    padding-inline: 0.15rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+    color: color-mix(in oklab, var(--w-ink) 45%, transparent);
+}
+
+.site-wish-compose__submit {
+    display: inline-flex;
+    width: 100%;
+    min-height: 2.95rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    margin-top: 0.35rem;
+    border-radius: 999px;
+    border: 0;
+    background:
+        linear-gradient(
+            135deg,
+            color-mix(in oklab, var(--w-accent) 88%, #fff) 0%,
+            var(--w-accent) 48%,
+            color-mix(in oklab, var(--w-accent) 82%, #000) 100%
+        );
+    color: var(--w-btn, #fff);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    box-shadow:
+        0 1px 0 color-mix(in oklab, #fff 28%, transparent) inset,
+        0 12px 24px -14px color-mix(in oklab, var(--w-accent) 70%, transparent);
+    transition:
+        transform 180ms ease,
+        filter 180ms ease,
+        box-shadow 180ms ease,
+        opacity 180ms ease;
+}
+
+.site-wish-compose__submit:hover:not(:disabled) {
+    filter: brightness(1.04);
+    transform: translateY(-1px);
+    box-shadow:
+        0 1px 0 color-mix(in oklab, #fff 28%, transparent) inset,
+        0 16px 28px -14px color-mix(in oklab, var(--w-accent) 75%, transparent);
+}
+
+.site-wish-compose__submit:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.site-wish-compose__submit:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+@keyframes site-wish-compose-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.985);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes site-wish-compose-pop {
+    0% {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+    70% {
+        transform: scale(1.06);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-wish-compose--sent,
+    .site-wish-compose__icon--ok {
+        animation: none !important;
+    }
+
+    .site-wish-compose__submit:hover:not(:disabled) {
+        transform: none;
+    }
 }
 
 @keyframes site-core-wish-float {

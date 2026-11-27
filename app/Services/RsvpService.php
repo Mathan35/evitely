@@ -99,11 +99,9 @@ class RsvpService
 
         $wedding->loadMissing('setting');
         $details = is_array($wedding->setting?->details) ? $wedding->setting->details : [];
-        $thankYouOn = in_array(
-            strtolower(trim((string) ($details['rsvp_thank_you_enabled'] ?? ''))),
-            ['1', 'true', 'yes', 'on'],
-            true,
-        );
+        // Default ON — hosts opt out with rsvp_thank_you_enabled=0.
+        $rawThankYou = strtolower(trim((string) ($details['rsvp_thank_you_enabled'] ?? '1')));
+        $thankYouOn = ! in_array($rawThankYou, ['0', 'false', 'no', 'off'], true);
         if ($thankYouOn && $email !== '') {
             $rsvp->setRelation('wedding', $wedding);
             Notification::route('mail', $email)->notify(new RsvpThankYou($rsvp));

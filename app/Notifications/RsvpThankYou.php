@@ -29,12 +29,23 @@ class RsvpThankYou extends Notification implements ShouldQueue
         $title = $wedding->displayTitle();
         $status = str_replace('_', ' ', $this->rsvp->status->value);
 
+        $wedding->loadMissing('setting');
+        $details = is_array($wedding->setting?->details) ? $wedding->setting->details : [];
+        $custom = trim((string) ($details['rsvp_thank_you_message'] ?? ''));
+        $body = $custom !== ''
+            ? strtr($custom, [
+                '{{guest_name}}' => (string) $this->rsvp->guest_name,
+                '{{title}}' => $title,
+                '{{status}}' => $status,
+            ])
+            : 'Thank you for replying to '.$title.'. We recorded your response as “'.$status.'”.';
+
         return $this->withPreferredMailer(
             (new MailMessage)
                 ->subject('Thank you — we have your RSVP for '.$title)
                 ->greeting('Hi '.$this->rsvp->guest_name.',')
-                ->line('Thank you for replying to '.$title.'. We recorded your response as “'.$status.'”.')
-                ->line('You can reopen the invitation anytime with the link below.')
+                ->line($body)
+                ->line('You can reopen your personal invitation anytime with the link below.')
                 ->action('Open invitation', InviteHost::publicUrl($wedding->slug)),
         );
     }

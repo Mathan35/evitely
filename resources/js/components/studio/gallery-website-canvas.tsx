@@ -159,6 +159,7 @@ export function GalleryWebsiteCanvas({
     previewLocales = null,
     previewLocale = null,
     onPreviewLocaleChange = null,
+    onIntroOpened = null,
 }: {
     slug?: string | null;
     design: GalleryDesign;
@@ -202,6 +203,8 @@ export function GalleryWebsiteCanvas({
     previewLocales?: PreviewLocaleOption[] | null;
     previewLocale?: string | null;
     onPreviewLocaleChange?: ((code: string) => void) | null;
+    /** Live guest open — music reveal after seal. */
+    onIntroOpened?: (() => void) | null;
 }) {
     const rootRef = useRef<HTMLDivElement>(null);
     const previewDevice = toPreviewDevice(device);
@@ -383,7 +386,8 @@ export function GalleryWebsiteCanvas({
             preparingMs={introPreparingMs}
             autoOpenMs={introAutoOpenMs}
             persistSession={introPersistSession}
-            className={framed ? 'flex h-full min-h-0 flex-col' : 'relative'}
+            onOpened={onIntroOpened ?? undefined}
+            className={framed ? 'flex h-full min-h-0 flex-col' : 'relative min-h-svh'}
             fullscreen={!framed}
         >
             {body}

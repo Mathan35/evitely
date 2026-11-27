@@ -991,6 +991,7 @@ export function CardExportPanel({
     onDownload,
     onShare,
     onPrint,
+    onPrintReady,
 }: {
     status: 'idle' | 'saving' | 'saved';
     exporting?: 'png' | 'jpg' | 'pdf' | 'share' | null;
@@ -999,6 +1000,7 @@ export function CardExportPanel({
     onDownload: (kind: 'png' | 'jpg') => void;
     onShare: () => void;
     onPrint: () => void;
+    onPrintReady?: () => void;
 }) {
     const [confirmGenerate, setConfirmGenerate] = useState(false);
     const busy = exporting != null;
@@ -1006,7 +1008,7 @@ export function CardExportPanel({
     return (
         <div className="mt-4 grid gap-3">
             <EditorNotice>
-                PNG, JPG, and PDF download the card exactly as you see it — art, text, and QR included.
+                PNG, JPG, and PDF match the editor. Print-ready PDF upsamples to ≈300 DPI with 3mm bleed for shops.
             </EditorNotice>
             <Button type="button" className="h-11 rounded-full" onClick={onSave} disabled={busy}>
                 {status === 'saving' ? 'Saving…' : status === 'saved' ? 'Saved' : 'Save card'}
@@ -1046,6 +1048,17 @@ export function CardExportPanel({
                     {exporting === 'share' ? 'Sharing…' : 'Share'}
                 </Button>
             </div>
+            {onPrintReady ? (
+                <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 rounded-full border-emerald-200 bg-emerald-50/80 text-emerald-950 hover:bg-emerald-50"
+                    onClick={onPrintReady}
+                    disabled={busy}
+                >
+                    {exporting === 'pdf' ? 'Preparing print PDF…' : 'Print-ready PDF (300 DPI)'}
+                </Button>
+            ) : null}
 
             <ConfirmDialog
                 open={confirmGenerate}

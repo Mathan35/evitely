@@ -432,18 +432,117 @@ export function jpegBytesToPdf(jpeg: Uint8Array, width: number, height: number):
     return new Blob([concatBytes(parts)], { type: 'application/pdf' });
 }
 
+export type CardPdfExportOptions = {
+    /** Upsample raster toward ~300 DPI print quality and pad MediaBox for bleed. */
+    printReady?: boolean;
+    /** Bleed in millimetres on each side (print shops). Default 3mm when printReady. */
+    bleedMm?: number;
+};
+
 /** Rasterize the live card and return a downloadable PDF blob. */
 export async function cardDocumentToPdfBlob(
     document: CardDocument,
     width: number,
     height: number,
+    options: CardPdfExportOptions = {},
 ): Promise<Blob> {
-    const dataUrl = await cardDocumentToDataUrl(document, width, height, 'jpg');
+    const printReady = Boolean(options.printReady);
+    // Screen canvases are ~96–150 CSS px/in; 3× ≈ 288–450 DPI for print.
+    const scale = printReady ? 3 : 1;
+    const rasterW = Math.max(1, Math.round(width * scale));
+    const rasterH = Math.max(1, Math.round(height * scale));
+    const dataUrl = await cardDocumentToDataUrl(document, rasterW, rasterH, 'jpg');
     const { mime, bytes } = dataUrlToBytes(dataUrl);
     if (!mime.includes('jpeg') && !mime.includes('jpg')) {
         throw new Error('PDF export expects a JPEG raster of the card.');
     }
-    return jpegBytesToPdf(bytes, width, height);
+
+    if (!printReady) {
+        return jpegBytesToPdf(bytes, rasterW, rasterH);
+    }
+
+    const bleedMm = options.bleedMm ?? 3;
+    const bleedPt = (bleedMm / 25.4) * 72;
+    // Page size in PDF points from pixel aspect at 300 DPI.
+    const pageW = (rasterW / 300) * 72 + bleedPt * 2;
+    const pageH = (rasterH / 300) * 72 + bleedPt * 2;
+
+    return jpegBytesToPdfWithBleed(bytes, rasterW, rasterH, pageW, pageH, bleedPt);
+}
+
+/**
+ * Print-ready PDF: JPEG centered on a MediaBox with bleed margins (points).
+ */
+export function jpegBytesToPdfWithBleed(
+    jpeg: Uint8Array,
+    imgW: number,
+    imgH: number,
+    pageW: number,
+    pageH: number,
+    bleedPt: number,
+): Blob {
+    const w = Math.max(1, Math.round(imgW));
+    const h = Math.max(1, Math.round(imgH));
+    const pw = Math.max(w, pageW);
+    const ph = Math.max(h, pageH);
+    const drawW = pw - bleedPt * 2;
+    const drawH = ph - bleedPt * 2;
+    const contentStream = `q\n${drawW} 0 0 ${drawH} ${bleedPt} ${bleedPt} cm\n/Im0 Do\nQ\n`;
+    const contentBytes = pdfText(contentStream);
+
+    const objects: Uint8Array[] = [];
+    const pushObject = (body: Uint8Array): number => {
+        objects.push(body);
+        return objects.length;
+    };
+
+    pushObject(pdfText('<< /Type /Catalog /Pages 2 0 R >>'));
+    pushObject(pdfText('<< /Type /Pages /Kids [3 0 R] /Count 1 >>'));
+    pushObject(
+        pdfText(
+            `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw.toFixed(2)} ${ph.toFixed(2)}] /BleedBox [0 0 ${pw.toFixed(2)} ${ph.toFixed(2)}] /TrimBox [${bleedPt.toFixed(2)} ${bleedPt.toFixed(2)} ${(pw - bleedPt).toFixed(2)} ${(ph - bleedPt).toFixed(2)}] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>`,
+        ),
+    );
+    pushObject(
+        concatBytes([
+            pdfText(`<< /Length ${contentBytes.length} >>\nstream\n`),
+            contentBytes,
+            pdfText('endstream'),
+        ]),
+    );
+    pushObject(
+        concatBytes([
+            pdfText(
+                `<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`,
+            ),
+            jpeg,
+            pdfText('\nendstream'),
+        ]),
+    );
+
+    const header = pdfText('%PDF-1.4\n');
+    const parts: Uint8Array[] = [header];
+    const offsets: number[] = [0];
+    let cursor = header.length;
+
+    for (let i = 0; i < objects.length; i += 1) {
+        const objectHeader = pdfText(`${i + 1} 0 obj\n`);
+        const objectEnd = pdfText('\nendobj\n');
+        offsets.push(cursor);
+        parts.push(objectHeader, objects[i], objectEnd);
+        cursor += objectHeader.length + objects[i].length + objectEnd.length;
+    }
+
+    const xrefStart = cursor;
+    let xref = `xref\n0 ${objects.length + 1}\n`;
+    xref += '0000000000 65535 f \n';
+    for (let i = 1; i <= objects.length; i += 1) {
+        xref += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
+    }
+    xref += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF\n`;
+    parts.push(pdfText(xref));
+
+    return new Blob([concatBytes(parts)], { type: 'application/pdf' });
 }
 
 export async function dataUrlToFile(dataUrl: string, filename: string): Promise<File> {

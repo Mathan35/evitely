@@ -21,14 +21,89 @@ class HomeMarketing
      */
     public static function payload(): array
     {
-        return Cache::remember('home.marketing.payload.v7', 120, static function (): array {
+        return Cache::remember('home.marketing.payload.v8', 120, static function (): array {
             return [
                 'designs' => self::designStrip(),
                 'samples' => self::samples(),
+                'flagships' => self::flagships(),
                 'pricing' => self::pricing(),
                 'faqs' => self::faqs(),
             ];
         });
+    }
+
+    /**
+     * Curated “open a real invite” demos for marketing trust.
+     *
+     * @return list<array{id: string, title: string, blurb: string, occasion: string, href: string, image: string}>
+     */
+    public static function flagships(): array
+    {
+        $fromLive = collect(self::samples())
+            ->take(3)
+            ->values()
+            ->map(function (array $sample, int $i): array {
+                $eyebrow = (string) ($sample['eyebrow'] ?? 'Live invite');
+
+                return [
+                    'id' => 'live-'.$i,
+                    'title' => (string) ($sample['title'] ?? 'Live celebration'),
+                    'blurb' => (string) ($sample['text'] ?? 'Open the guest site — mobile-perfect.'),
+                    'occasion' => Str::after($eyebrow, 'Live ') ?: 'Celebration',
+                    'href' => (string) ($sample['href'] ?? '/designs'),
+                    'image' => (string) ($sample['image'] ?? '/images/home/ui-timeline.jpg'),
+                ];
+            })
+            ->all();
+
+        if (count($fromLive) >= 3) {
+            return $fromLive;
+        }
+
+        $catalog = [
+            [
+                'id' => 'flag-black-tie',
+                'title' => 'Black Tie & candlelight',
+                'blurb' => 'Formal night wedding — seal intro, countdown, RSVP.',
+                'occasion' => 'Wedding',
+                'href' => '/designs/wedding',
+                'image' => '/images/home/ui-timeline.jpg',
+            ],
+            [
+                'id' => 'flag-mehendi',
+                'title' => 'Mehendi to reception',
+                'blurb' => 'Multi-day Indian itinerary on one guest link.',
+                'occasion' => 'Wedding',
+                'href' => '/designs/wedding',
+                'image' => '/images/home/ui-share.jpg',
+            ],
+            [
+                'id' => 'flag-garden',
+                'title' => 'Garden brunch vows',
+                'blurb' => 'Soft daylight site with photo wall and music.',
+                'occasion' => 'Wedding',
+                'href' => '/designs/wedding',
+                'image' => '/images/home/ui-timeline.jpg',
+            ],
+            [
+                'id' => 'flag-midnight',
+                'title' => 'Midnight birthday',
+                'blurb' => 'Neon party site guests actually forward.',
+                'occasion' => 'Birthday',
+                'href' => '/designs/birthday',
+                'image' => '/images/home/ui-share.jpg',
+            ],
+            [
+                'id' => 'flag-naming',
+                'title' => 'Baby naming morning',
+                'blurb' => 'Warm family site with wishes wall.',
+                'occasion' => 'Baby shower',
+                'href' => '/designs/baby-shower',
+                'image' => '/images/home/ui-timeline.jpg',
+            ],
+        ];
+
+        return array_values(array_merge($fromLive, array_slice($catalog, 0, 5 - count($fromLive))));
     }
 
     /**

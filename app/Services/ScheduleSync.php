@@ -117,6 +117,55 @@ class ScheduleSync
     }
 
     /**
+     * Replace schedule with a multi-day ceremony pack (Indian wedding presets, etc.).
+     *
+     * @param  list<array{title: string, time?: string, event_date?: string|null, event_type?: string, sort_order?: int}>  $rows
+     */
+    public function applyCeremonyPack(Wedding $wedding, array $rows, bool $replace = true): void
+    {
+        if ($rows === []) {
+            return;
+        }
+
+        DB::transaction(function () use ($wedding, $rows, $replace): void {
+            if ($replace) {
+                $wedding->events()->delete();
+            }
+
+            $mirror = [];
+            foreach (array_values($rows) as $index => $row) {
+                $title = trim((string) ($row['title'] ?? ''));
+                if ($title === '') {
+                    continue;
+                }
+
+                $timeDisplay = trim((string) ($row['time'] ?? ''));
+                $wedding->events()->create([
+                    'title' => mb_substr($title, 0, 120),
+                    'event_type' => (string) ($row['event_type'] ?? 'moment'),
+                    'event_date' => $row['event_date'] ?? $wedding->starts_on,
+                    'start_time' => ScheduleClock::toStorage($timeDisplay !== '' ? $timeDisplay : null),
+                    'timezone' => $wedding->timezone ?: 'Asia/Kolkata',
+                    'venue_name' => $wedding->venue_name,
+                    'venue_address' => $wedding->venue_address,
+                    'city' => $wedding->city,
+                    'state' => $wedding->state,
+                    'country' => $wedding->country,
+                    'sort_order' => (int) ($row['sort_order'] ?? ($index + 1)),
+                    'is_public' => true,
+                ]);
+
+                $mirror[] = [
+                    'time' => $timeDisplay !== '' ? $timeDisplay : '',
+                    'title' => mb_substr($title, 0, 120),
+                ];
+            }
+
+            $this->mirrorScheduleJson($wedding, $mirror);
+        });
+    }
+
+    /**
      * @return list<array{time: string, title: string}>
      */
     public function projectItinerary(Wedding $wedding): array

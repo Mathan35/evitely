@@ -1,5 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { INVITE_MUSIC_REVEAL_EVENT } from '@/lib/invite-music-reveal';
 import { CountdownComplete } from '@/components/marketing/site-previews/countdown-complete';
 import { CountdownTimer } from '@/components/marketing/site-previews/countdown-timer';
 import { CoreSiteSections } from '@/components/marketing/site-previews/core-site-sections';
@@ -166,6 +167,18 @@ export function WeddingExperience({
     );
     const [musicOn, setMusicOn] = useState(false);
     const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        const onReveal = () => {
+            const audio = document.getElementById('wedding-music') as HTMLAudioElement | null;
+            if (!audio?.src) {
+                return;
+            }
+            void audio.play().then(() => setMusicOn(true)).catch(() => undefined);
+        };
+        window.addEventListener(INVITE_MUSIC_REVEAL_EVENT, onReveal);
+        return () => window.removeEventListener(INVITE_MUSIC_REVEAL_EVENT, onReveal);
+    }, []);
     const countdown = useCountdown(
         wedding.wedding_date,
         wedding.wedding_time,

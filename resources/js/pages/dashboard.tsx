@@ -80,6 +80,48 @@ export default function Dashboard({
         <>
             <Head title="Dashboard" />
             <StudioSurface>
+                {stats.weddings === 0 ? (
+                    <section className="relative overflow-hidden rounded-[1.75rem] border border-zinc-950/8 bg-gradient-to-br from-zinc-950 via-zinc-900 to-emerald-950 p-7 text-white shadow-2xl sm:p-9">
+                        <div
+                            aria-hidden
+                            className="pointer-events-none absolute -right-10 -top-16 size-56 rounded-full bg-emerald-400/20 blur-3xl"
+                        />
+                        <StudioEyebrow>
+                            <span className="text-white/55">First invitation</span>
+                        </StudioEyebrow>
+                        <h1 className="mt-2 max-w-xl font-serif text-[clamp(2rem,5vw,3.25rem)] leading-[1.05] tracking-tight">
+                            Design → personalize → publish → share
+                        </h1>
+                        <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/70">
+                            Pick a gallery design, fill names and date, preview on mobile, then go live.
+                            Cards stay free — guest sites start with a trial when you publish.
+                        </p>
+                        <ol className="mt-6 grid gap-2 sm:grid-cols-4">
+                            {['Choose design', 'Add details', 'Preview', 'Share kit'].map((step, i) => (
+                                <li
+                                    key={step}
+                                    className="rounded-2xl bg-white/8 px-3 py-3 text-[12px] font-medium ring-1 ring-white/10"
+                                >
+                                    <span className="text-white/45">{i + 1}.</span> {step}
+                                </li>
+                            ))}
+                        </ol>
+                        <div className="mt-7 flex flex-wrap gap-2">
+                            <Button
+                                type="button"
+                                className="h-11 rounded-full bg-white px-5 text-zinc-950 hover:bg-zinc-100"
+                                onClick={() => openCreateInvitation()}
+                            >
+                                <Plus className="mr-1.5 size-4" />
+                                Start your invitation
+                            </Button>
+                            <Button asChild variant="outline" className="h-11 rounded-full border-white/20 bg-transparent text-white hover:bg-white/10">
+                                <Link href="/designs">Browse designs</Link>
+                            </Button>
+                        </div>
+                    </section>
+                ) : null}
+
                 <header className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500">
                     <div className="flex flex-wrap items-end justify-between gap-5">
                         <div className="max-w-xl">

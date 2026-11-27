@@ -91,6 +91,7 @@ class HandleInertiaRequests extends Middleware
                     'trial_event_limit' => (bool) $request->session()->get('trial_event_limit', false),
                     'toast' => $request->session()->get('toast'),
                     'publish_growth' => $request->session()->get('publish_growth'),
+                    'rsvp_thank_you' => $request->session()->get('rsvp_thank_you'),
                     'support_sent' => (bool) $request->session()->get('support_sent', false),
                 ],
             ),

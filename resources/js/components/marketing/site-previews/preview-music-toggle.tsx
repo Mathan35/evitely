@@ -1,5 +1,6 @@
 import { Music2, Volume2, VolumeX } from 'lucide-react';
-import type { CSSProperties } from 'react';
+import { useEffect, type CSSProperties } from 'react';
+import { INVITE_MUSIC_REVEAL_EVENT } from '@/lib/invite-music-reveal';
 import { cn } from '@/lib/utils';
 
 /** Floating music control — matches the soft “PLAYING” pill + speaker from the reference. */
@@ -15,6 +16,16 @@ export function PreviewMusicToggle({
     style?: CSSProperties;
 }) {
     const playing = !muted;
+
+    useEffect(() => {
+        const onReveal = () => {
+            if (muted) {
+                onToggle();
+            }
+        };
+        window.addEventListener(INVITE_MUSIC_REVEAL_EVENT, onReveal);
+        return () => window.removeEventListener(INVITE_MUSIC_REVEAL_EVENT, onReveal);
+    }, [muted, onToggle]);
 
     return (
         <div

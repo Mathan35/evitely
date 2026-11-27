@@ -153,11 +153,19 @@ class PublicWeddingController extends Controller
     {
         $wedding = $this->published($slug);
         $this->assertPasscodeUnlocked($wedding, $passcodes);
-        $rsvps->store($wedding, $request->validated());
+        $payload = $request->validated();
+        $rsvp = $rsvps->store($wedding, $payload);
 
+        $thankYou = [
+            'guest_name' => $rsvp->guest_name,
+            'status' => $rsvp->status->value,
+            'title' => $wedding->displayTitle(),
+            'message' => $this->rsvpThankYouCopy($wedding, $rsvp->guest_name, $rsvp->status->value),
+        ];
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Your reply has been saved.']);
+        Inertia::flash('rsvp_thank_you', $thankYou);
 
-        return back();
+        return back()->with('rsvp_thank_you', $thankYou);
     }
 
     public function guestRsvp(StoreRsvpRequest $request, string $slug, string $token, RsvpService $rsvps, InvitationPasscode $passcodes): RedirectResponse
@@ -171,11 +179,37 @@ class PublicWeddingController extends Controller
             ->first();
 
         abort_if($guest === null, 404);
-        $rsvps->store($wedding, $request->validated(), $guest);
+        $rsvp = $rsvps->store($wedding, $request->validated(), $guest);
+        $name = $rsvp->guest_name ?: $guest->fullName();
+        $thankYou = [
+            'guest_name' => $name,
+            'status' => $rsvp->status->value,
+            'title' => $wedding->displayTitle(),
+            'message' => $this->rsvpThankYouCopy($wedding, $name, $rsvp->status->value),
+        ];
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Your reply has been saved.']);
+        Inertia::flash('rsvp_thank_you', $thankYou);
 
-        return back();
+        return back()->with('rsvp_thank_you', $thankYou);
+    }
+
+    private function rsvpThankYouCopy(Wedding $wedding, string $guestName, string $status): string
+    {
+        $wedding->loadMissing('setting');
+        $details = is_array($wedding->setting?->details) ? $wedding->setting->details : [];
+        $custom = trim((string) ($details['rsvp_thank_you_message'] ?? ''));
+        if ($custom !== '') {
+            return strtr($custom, [
+                '{{guest_name}}' => $guestName,
+                '{{title}}' => $wedding->displayTitle(),
+                '{{status}}' => str_replace('_', ' ', $status),
+            ]);
+        }
+
+        $label = str_replace('_', ' ', $status);
+
+        return "Thank you, {$guestName}. We've recorded your reply as “{$label}” for {$wedding->displayTitle()}.";
     }
 
     public function guestbook(StoreGuestbookRequest $request, string $slug, ImageUploadService $images, InvitationPasscode $passcodes): RedirectResponse
@@ -275,6 +309,12 @@ class PublicWeddingController extends Controller
                 return $this->pausedResponse($wedding);
             }
 
+            // Pack expired / post-event thank-you — premium close, not a 404.
+            $postEvent = app(\App\Services\Premium\PostEventExperienceService::class);
+            if ($postEvent->shouldShowEnded($wedding)) {
+                return Inertia::render('public/celebration-ended', $postEvent->payload($wedding));
+            }
+
             abort(404);
         }
 
@@ -295,6 +335,13 @@ class PublicWeddingController extends Controller
 
         if ($redirect?->wedding?->isLivePaused()) {
             return $this->pausedResponse($redirect->wedding);
+        }
+
+        if ($redirect?->wedding) {
+            $postEvent = app(\App\Services\Premium\PostEventExperienceService::class);
+            if ($postEvent->shouldShowEnded($redirect->wedding)) {
+                return Inertia::render('public/celebration-ended', $postEvent->payload($redirect->wedding));
+            }
         }
 
         abort(404);

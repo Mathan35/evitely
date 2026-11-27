@@ -11,10 +11,12 @@ import { coreExtrasFromDetails } from '@/lib/core-site-sections';
 import { staysFromAccommodations, travelNotesFromRelational } from '@/lib/stays-from-accommodations';
 import { GalleryWebsiteCanvas } from '@/components/studio/gallery-website-canvas';
 import { PlatformBrandBadge, shouldHidePlatformBrand } from '@/components/platform-brand-badge';
+import { NamedGuestRibbon } from '@/components/wedding/named-guest-ribbon';
 import { WeddingExperience } from '@/components/wedding/wedding-experience';
 import type { EditorDevice } from '@/components/studio/editor-modules';
 import { useViewportPreviewDevice } from '@/hooks/use-viewport-preview-device';
 import { resolveIntroStyleId } from '@/lib/invitation-intro-styles';
+import { revealInviteMusic } from '@/lib/invite-music-reveal';
 import { resolveSiteBackgroundOverride } from '@/lib/site-backgrounds';
 import { buildTemplatePreviewModel } from '@/lib/template-preview-model';
 import {
@@ -270,8 +272,10 @@ export function WeddingSiteView({
                 autoOpen={Boolean(preview && framed)}
                 persistSession={Boolean(preview)}
                 fullscreen={!framed}
+                onOpened={preview ? undefined : () => revealInviteMusic()}
                 className={framed ? 'min-h-full' : 'min-h-svh'}
             >
+                {!preview ? <NamedGuestRibbon guestName={wedding.guest?.name} /> : null}
                 <div className="flex min-h-full w-full items-center justify-center bg-[#1c1712] px-4 py-6 sm:p-10">
                     <div className="w-full max-w-[min(100%,28rem)]">
                         <ResponsiveCardCanvas
@@ -311,6 +315,7 @@ export function WeddingSiteView({
                         <meta name="twitter:description" content={wedding.seo.description} />
                     </Head>
                 ) : null}
+                {!preview ? <NamedGuestRibbon guestName={wedding.guest?.name} /> : null}
                 <GalleryWebsiteCanvas
                     slug={gallerySlug}
                     design={galleryDesign}
@@ -335,6 +340,7 @@ export function WeddingSiteView({
                     introStyle={introStyle}
                     introAutoOpen={Boolean(preview && framed)}
                     introPersistSession={Boolean(preview)}
+                    onIntroOpened={preview ? undefined : () => revealInviteMusic()}
                     previewLocales={localeOptions}
                     previewLocale={activeLocale}
                     onPreviewLocaleChange={handleLocaleChange}
@@ -361,8 +367,10 @@ export function WeddingSiteView({
             autoOpen={Boolean(preview && framed)}
             persistSession={Boolean(preview)}
             fullscreen={!framed}
+            onOpened={preview ? undefined : () => revealInviteMusic()}
             className={framed ? 'min-h-full' : 'min-h-svh'}
         >
+            {!preview ? <NamedGuestRibbon guestName={wedding.guest?.name} /> : null}
             <div
                 className={cn(
                     'transition-opacity duration-200 ease-out',

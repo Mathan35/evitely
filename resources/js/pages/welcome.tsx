@@ -231,9 +231,19 @@ type HomePrice = {
 
 type HomeFaq = { q: string; a: string };
 
+type HomeFlagship = {
+    id: string;
+    title: string;
+    blurb: string;
+    occasion: string;
+    href: string;
+    image: string;
+};
+
 type HomePayload = {
     designs: HomeDesign[];
     samples: HomeSample[];
+    flagships?: HomeFlagship[];
     pricing: HomePrice[];
     faqs: HomeFaq[];
 };
@@ -257,9 +267,10 @@ export default function Welcome({
     const occasion = occasionHeroes[filter];
     const designs = home?.designs ?? [];
     const samples = home?.samples ?? [];
+    const flagships = home?.flagships ?? [];
     const pricing = home?.pricing ?? [];
     const faqs = home?.faqs ?? [];
-    const sampleInviteHref = samples[0]?.href ?? '/designs/wedding';
+    const sampleInviteHref = samples[0]?.href ?? flagships[0]?.href ?? '/designs/wedding';
 
     return (
         <>
@@ -335,6 +346,51 @@ export default function Welcome({
                     <HomeAppInstall />
 
                     {samples.length > 0 && <SampleInvites samples={samples} />}
+
+                    {flagships.length > 0 ? (
+                        <section className="mx-auto max-w-6xl px-5 pb-16">
+                            <p className="text-center text-xs tracking-[0.22em] text-[#8a7d6e] uppercase">
+                                Flagship demos
+                            </p>
+                            <h2 className="mt-3 text-center font-serif text-4xl sm:text-5xl">
+                                Open a real guest invite
+                            </h2>
+                            <p className="mx-auto mt-3 max-w-xl text-center text-sm leading-6 text-[#5e554c]">
+                                Mobile-perfect samples — the same polish your guests will feel.
+                            </p>
+                            <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                {flagships.slice(0, 5).map((item) => (
+                                    <li key={item.id}>
+                                        <Link
+                                            href={item.href}
+                                            className="group flex h-full flex-col overflow-hidden rounded-[1.5rem] bg-white shadow-sm ring-1 ring-[#241c16]/8 transition hover:-translate-y-0.5 hover:shadow-md"
+                                        >
+                                            <div className="aspect-[16/10] overflow-hidden bg-[#f3eee6]">
+                                                <img
+                                                    src={item.image}
+                                                    alt=""
+                                                    className="size-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                                                    loading="lazy"
+                                                />
+                                            </div>
+                                            <div className="flex flex-1 flex-col p-4">
+                                                <p className="text-[10px] font-semibold tracking-[0.16em] text-[#8a7d6e] uppercase">
+                                                    {item.occasion}
+                                                </p>
+                                                <h3 className="mt-1 font-serif text-xl text-[#241c16]">{item.title}</h3>
+                                                <p className="mt-1.5 flex-1 text-[13px] leading-relaxed text-[#5e554c]">
+                                                    {item.blurb}
+                                                </p>
+                                                <span className="mt-3 text-[12px] font-semibold text-[#241c16] underline-offset-2 group-hover:underline">
+                                                    Open demo →
+                                                </span>
+                                            </div>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    ) : null}
 
                     <HomeHostEdge startHref={startHref} />
 

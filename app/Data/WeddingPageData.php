@@ -254,6 +254,17 @@ class WeddingPageData
             'share_message' => $message,
             'share_links' => ShareMessageFactory::links($message, $shareUrl),
             'share_templates' => ShareMessageFactory::editorState($wedding),
+            'share_kit' => $owner
+                ? app(\App\Services\Premium\ShareKitService::class)->forWedding($wedding, $guest)
+                : null,
+            'itinerary_presets' => $owner
+                ? collect(\App\Support\IndianWeddingItinerary::presets())->map(fn (array $p): array => [
+                    'id' => $p['id'],
+                    'name' => $p['name'],
+                    'description' => $p['description'],
+                    'moments' => count($p['moments']),
+                ])->values()->all()
+                : [],
             'growth' => app(\App\Services\Growth\GrowthService::class)->shareState($wedding),
             'create_cta_url' => (function () use ($wedding): string {
                 $code = $wedding->user

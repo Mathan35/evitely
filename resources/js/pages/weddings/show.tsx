@@ -27,7 +27,10 @@ import { EventPhotoWallInbox } from '@/components/studio/event-photo-wall-inbox'
 import { EventPlanningChecklist } from '@/components/studio/event-planning-checklist';
 import { EventRsvpInbox } from '@/components/studio/event-rsvp-inbox';
 import { EventSeating } from '@/components/studio/event-seating';
+import { EventShareKit, type ShareKitPayload } from '@/components/studio/event-share-kit';
 import { EventShareMessages } from '@/components/studio/event-share-messages';
+import { useGuidedPublishWizard } from '@/components/studio/guided-publish-wizard';
+import { IndianItineraryPacks } from '@/components/studio/indian-itinerary-packs';
 import { isPhotoWallEnabled, isRsvpRemindersEnabled } from '@/components/studio/preferences-panel';
 import { useSitePublishFlow } from '@/components/studio/site-publish-flow';
 import { staysFromAccommodations } from '@/lib/stays-from-accommodations';
@@ -126,6 +129,30 @@ export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
         },
     });
 
+    const { openPublishWizard, publishWizardDialog } = useGuidedPublishWizard({
+        snapshot: {
+            title: wedding.title,
+            brideName: wedding.display?.bride,
+            groomName: wedding.display?.groom,
+            weddingDate: wedding.wedding_date || wedding.starts_on,
+            slug: wedding.slug,
+            venueName: wedding.venue_name,
+            city: wedding.city,
+            coverUrl: (wedding as { cover_url?: string | null }).cover_url,
+            listed: true,
+        },
+        onReadyToPublish: () => {
+            if (beginSitePublish()) {
+                return;
+            }
+            setPublishing(true);
+            router.post(`/events/${wedding.id}/publish`, {}, {
+                preserveScroll: true,
+                onFinish: () => setPublishing(false),
+            });
+        },
+    });
+
     function requestPublish(): void {
         if (published && isLivePaused) {
             setPublishing(true);
@@ -135,14 +162,8 @@ export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
             });
             return;
         }
-        if (beginSitePublish()) {
-            return;
-        }
-        setPublishing(true);
-        router.post(`/events/${wedding.id}/publish`, {}, {
-            preserveScroll: true,
-            onFinish: () => setPublishing(false),
-        });
+        // Guided readiness first — then existing trial/paid chooser.
+        openPublishWizard();
     }
     const seatingLocked = !canUsePremium && features?.seating === false;
     const vendorsLocked = !canUsePremium && features?.vendors === false;
@@ -508,6 +529,7 @@ export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
                     </header>
 
                     {sitePublishDialogs}
+                    {publishWizardDialog}
 
                     <ConfirmDialog
                         open={confirmStopLive}
@@ -642,7 +664,13 @@ export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
                     </nav>
 
                     {tab === 'share' ? (
-                        <div className="min-w-0 w-full">
+                        <div className="min-w-0 w-full space-y-8">
+                            {(wedding as { share_kit?: ShareKitPayload | null }).share_kit ? (
+                                <EventShareKit
+                                    kit={(wedding as { share_kit: ShareKitPayload }).share_kit}
+                                    className="rounded-[1.35rem] border border-zinc-200 bg-white p-5 sm:p-6"
+                                />
+                            ) : null}
                             <EventShareMessages wedding={wedding} />
                         </div>
                     ) : null}
@@ -994,6 +1022,19 @@ export default function WeddingShow({ wedding }: { wedding: WeddingPage }) {
                                     </p>
                                 </div>
                             </div>
+
+                            <IndianItineraryPacks
+                                eventId={wedding.id}
+                                occasion={wedding.event_type || wedding.occasion}
+                                appliedPackId={
+                                    (wedding.details as Record<string, string | null> | undefined)
+                                        ?.itinerary_pack_id ?? null
+                                }
+                                presets={
+                                    (wedding as { itinerary_presets?: Array<{ id: string; name: string; description: string; moments: number }> })
+                                        .itinerary_presets ?? []
+                                }
+                            />
 
                             <EventPlanningChecklist
                                 eventId={wedding.id}

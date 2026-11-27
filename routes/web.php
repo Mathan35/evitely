@@ -194,6 +194,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('events/{wedding}/card/export', [EventCardController::class, 'export'])->name('weddings.card.export');
 
     Route::post('events/{wedding}/events', [WeddingEventController::class, 'store'])->name('weddings.events.store');
+    Route::post('events/{wedding}/events/apply-itinerary', [WeddingEventController::class, 'applyItineraryPreset'])
+        ->middleware('throttle:20,1')
+        ->name('weddings.events.apply-itinerary');
     Route::put('events/{wedding}/events/{event}', [WeddingEventController::class, 'update'])->name('weddings.events.update');
     Route::delete('events/{wedding}/events/{event}', [WeddingEventController::class, 'destroy'])->name('weddings.events.destroy');
 

@@ -501,6 +501,7 @@ export function InvitationIntroGate({
     autoOpenMs,
     persistSession = true,
     fullscreen = false,
+    onOpened: onOpenedProp,
     children,
     className,
 }: {
@@ -516,6 +517,8 @@ export function InvitationIntroGate({
     persistSession?: boolean;
     /** Public View site — fixed full-viewport intro overlay. */
     fullscreen?: boolean;
+    /** Fires once when the seal finishes opening (music reveal, analytics, …). */
+    onOpened?: () => void;
     children: ReactNode;
     className?: string;
 }) {
@@ -552,6 +555,7 @@ export function InvitationIntroGate({
 
     function handleOpened(): void {
         setOpened(true);
+        onOpenedProp?.();
         if (!persistSession) {
             return;
         }

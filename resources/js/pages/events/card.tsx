@@ -629,7 +629,7 @@ export default function CardEditor({
         }
     }
 
-    async function downloadPdf(): Promise<void> {
+    async function downloadPdf(printReady = false): Promise<void> {
         if (exporting) {
             return;
         }
@@ -644,10 +644,20 @@ export default function CardEditor({
 
         try {
             await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-            const pdf = await cardDocumentToPdfBlob(document, width, height);
-            triggerBlobDownload(pdf, `${exportFileBase}.pdf`);
+            const pdf = await cardDocumentToPdfBlob(document, width, height, {
+                printReady,
+                bleedMm: printReady ? 3 : 0,
+            });
+            triggerBlobDownload(
+                pdf,
+                `${exportFileBase}${printReady ? '-print-ready' : ''}.pdf`,
+            );
             recordExport('pdf');
-            toast.success('PDF downloaded.');
+            toast.success(
+                printReady
+                    ? 'Print-ready PDF downloaded (≈300 DPI + 3mm bleed).'
+                    : 'PDF downloaded.',
+            );
         } catch (error) {
             console.error(error);
             toast.error(error instanceof Error ? error.message : 'Could not create the PDF. Please try again.');
@@ -854,7 +864,8 @@ export default function CardEditor({
                                 }}
                                 onDownload={(kind) => void download(kind)}
                                 onShare={() => void shareCard()}
-                                onPrint={() => void downloadPdf()}
+                                onPrint={() => void downloadPdf(false)}
+                                onPrintReady={() => void downloadPdf(true)}
                             />
                         )}
                     </EditorInspector>
