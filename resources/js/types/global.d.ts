@@ -43,6 +43,11 @@ declare module '@inertiajs/core' {
             };
             canResetPassword: boolean;
             canRegister: boolean;
+            footerSocial?: Array<{
+                network: string;
+                label: string;
+                url: string;
+            }>;
             sidebarOpen: boolean;
             [key: string]: unknown;
         };

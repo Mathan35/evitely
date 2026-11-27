@@ -9,6 +9,7 @@ use App\Services\Growth\GrowthService;
 use App\Services\HostAlertsService;
 use App\Services\Notifications\AppNotificationService;
 use App\Services\PlatformReadinessService;
+use App\Services\SiteSettingsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Middleware;
@@ -102,6 +103,7 @@ class HandleInertiaRequests extends Middleware
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'canRegister' => Features::enabled(Features::registration()),
             'socialProviders' => app(SocialAuthService::class)->enabledProviders(),
+            'footerSocial' => app(SiteSettingsService::class)->footerSocialPublic(),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

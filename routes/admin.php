@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\IntegrationController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\PackGrantController;
 use App\Http\Controllers\Admin\QueueController;
+use App\Http\Controllers\Admin\SiteSettingsController;
 use App\Http\Controllers\Admin\SupportController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -99,6 +100,11 @@ Route::middleware(['auth', 'platform.admin'])
 
         Route::get('catalog', [CatalogController::class, 'index'])->name('catalog.index');
         Route::post('catalog/event-types/{eventType}', [CatalogController::class, 'updateEventType'])->middleware('throttle:30,1')->name('catalog.event-types.update');
+
+        Route::get('site', [SiteSettingsController::class, 'edit'])->name('site.edit');
+        Route::post('site/social', [SiteSettingsController::class, 'updateSocial'])
+            ->middleware('throttle:30,1')
+            ->name('site.social.update');
 
         Route::get('audit', [AuditLogController::class, 'index'])->name('audit.index');
 

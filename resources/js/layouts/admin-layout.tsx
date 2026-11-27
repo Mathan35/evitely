@@ -13,6 +13,7 @@ import {
     MessageSquareWarning,
     ScrollText,
     Server,
+    Share2,
     Ticket,
     Users,
 } from 'lucide-react';
@@ -40,6 +41,7 @@ const NAV = [
     { href: '/admin/support', label: 'Support', icon: LifeBuoy },
     { href: '/admin/moderation', label: 'Moderation', icon: MessageSquareWarning },
     { href: '/admin/integrations', label: 'Integrations', icon: Server },
+    { href: '/admin/site', label: 'Site & footer', icon: Share2 },
     { href: '/admin/queues', label: 'Queues & Logs', icon: ScrollText },
     { href: '/admin/analytics', label: 'Analytics', icon: Activity },
     { href: '/admin/catalog', label: 'Catalog', icon: BookOpen },

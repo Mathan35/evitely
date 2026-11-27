@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import { BrandMark } from '@/components/brand-mark';
 import { InstallAppButton } from '@/components/install-app-button';
@@ -15,7 +15,15 @@ const eventTypes: Array<[string, string]> = [
     ['/designs/custom', 'Custom'],
 ];
 
+type FooterSocial = {
+    network: string;
+    label: string;
+    url: string;
+};
+
 export function SiteFooter() {
+    const { footerSocial = [] } = usePage().props as { footerSocial?: FooterSocial[] };
+
     return (
         <footer className="bg-[#1c1916] text-[#f6f1e8]">
             <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
@@ -85,21 +93,23 @@ export function SiteFooter() {
                             className="[&_button]:border-white/20 [&_button]:bg-white/5 [&_button]:text-[#f6f1e8] [&_button]:hover:border-[#c6a36a]/50 [&_button]:hover:bg-white/10"
                         />
                     </div>
-                    <p className="mt-6 text-xs tracking-[0.18em] uppercase">Social</p>
-                    <div className="mt-4 flex gap-3">
-                        <SocialBadge label="Instagram">
-                            <InstagramIcon />
-                        </SocialBadge>
-                        <SocialBadge label="Pinterest">
-                            <PinterestIcon />
-                        </SocialBadge>
-                        <SocialBadge label="Facebook">
-                            <FacebookIcon />
-                        </SocialBadge>
-                    </div>
+                    {footerSocial.length > 0 ? (
+                        <>
+                            <p className="mt-6 text-xs tracking-[0.18em] uppercase">Social</p>
+                            <div className="mt-4 flex gap-3">
+                                {footerSocial.map((item) => (
+                                    <SocialBadge key={item.network} label={item.label} href={item.url}>
+                                        <SocialIcon network={item.network} />
+                                    </SocialBadge>
+                                ))}
+                            </div>
+                        </>
+                    ) : null}
                 </div>
             </div>
-            <p className="border-t border-white/10 px-4 py-4 text-center text-xs text-[#f6f1e8]/50">© 2026 Invidora. All rights reserved.</p>
+            <p className="border-t border-white/10 px-4 py-4 text-center text-xs text-[#f6f1e8]/50">
+                © 2026 Invidora. All rights reserved.
+            </p>
         </footer>
     );
 }
@@ -121,12 +131,40 @@ function FooterColumn({ title, links }: { title: string; links: Array<[string, s
     );
 }
 
-function SocialBadge({ label, children }: { label: string; children: ReactNode }) {
+function SocialBadge({
+    label,
+    href,
+    children,
+}: {
+    label: string;
+    href: string;
+    children: ReactNode;
+}) {
     return (
-        <span className="grid h-10 w-10 place-items-center rounded-full border border-white/20" title={label} aria-label={label}>
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/20 transition hover:border-[#c6a36a]/60 hover:bg-white/5"
+            title={label}
+            aria-label={label}
+        >
             {children}
-        </span>
+        </a>
     );
+}
+
+function SocialIcon({ network }: { network: string }) {
+    if (network === 'instagram') {
+        return <InstagramIcon />;
+    }
+    if (network === 'facebook') {
+        return <FacebookIcon />;
+    }
+    if (network === 'linkedin') {
+        return <LinkedInIcon />;
+    }
+    return null;
 }
 
 function InstagramIcon() {
@@ -139,18 +177,18 @@ function InstagramIcon() {
     );
 }
 
-function PinterestIcon() {
-    return (
-        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden>
-            <path d="M12 3.2A8.8 8.8 0 0 0 8.1 19.7c-.1-.7-.2-1.8 0-2.6l1.5-6.2s-.4-.8-.4-1.9c0-1.8 1-3.1 2.3-3.1 1.1 0 1.6.8 1.6 1.8 0 1.1-.7 2.7-1 4.2-.3 1.2.6 2.2 1.8 2.2 2.2 0 3.6-2.8 3.6-6.1 0-2.5-1.7-4.4-4.8-4.4-3.5 0-5.7 2.6-5.7 5.5 0 1 .4 2.1.9 2.7.1.1.1.2.1.3l-.3 1.3c0 .2-.2.3-.4.2-1.4-.6-2-2.2-2-4 0-3.3 2.8-7.3 8.3-7.3 4.4 0 7.3 3.2 7.3 6.6 0 4.5-2.5 7.9-6.2 7.9-1.2 0-2.4-.7-2.8-1.4l-.8 2.9c-.2.9-.8 1.9-1.2 2.6A8.8 8.8 0 1 0 12 3.2Z" />
-        </svg>
-    );
-}
-
 function FacebookIcon() {
     return (
         <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden>
             <path d="M14.2 20.5v-6.3h2.1l.3-2.4h-2.4V10.2c0-.7.2-1.2 1.2-1.2h1.3V6.9c-.2 0-1-.1-1.9-.1-1.9 0-3.2 1.1-3.2 3.3v1.8H9.2v2.4h2.4v6.2h2.6Z" />
+        </svg>
+    );
+}
+
+function LinkedInIcon() {
+    return (
+        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden>
+            <path d="M6.9 9.3H4.2V19h2.7V9.3ZM5.55 4.5A1.55 1.55 0 1 0 5.56 7.6 1.55 1.55 0 0 0 5.55 4.5ZM19.8 19h-2.68v-5.1c0-1.4-.55-2.15-1.6-2.15-.9 0-1.4.6-1.63 1.18-.09.22-.08.52-.08.83V19H11.1s.04-8.6 0-9.7h2.7v1.55c.36-.55 1-1.34 2.45-1.34 1.8 0 3.15 1.17 3.15 3.7V19Z" />
         </svg>
     );
 }
