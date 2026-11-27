@@ -36,6 +36,7 @@ Route::middleware(['auth', 'platform.admin'])
         Route::post('users/{user}/verify', [UserController::class, 'verify'])->middleware('throttle:30,1')->name('users.verify');
         Route::post('users/{user}/disable', [UserController::class, 'disable'])->middleware('throttle:30,1')->name('users.disable');
         Route::post('users/{user}/enable', [UserController::class, 'enable'])->middleware('throttle:30,1')->name('users.enable');
+        Route::delete('users/{user}', [UserController::class, 'destroy'])->middleware('throttle:10,1')->name('users.destroy');
         Route::post('users/{user}/send-reset', [UserController::class, 'sendReset'])->middleware('throttle:10,1')->name('users.send-reset');
 
         Route::get('events', [EventController::class, 'index'])->name('events.index');

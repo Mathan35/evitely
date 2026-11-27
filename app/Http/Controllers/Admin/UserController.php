@@ -7,6 +7,7 @@ use App\Models\BillingPayment;
 use App\Models\User;
 use App\Services\Admin\AdminAuditLogger;
 use App\Services\Admin\AdminEventInsightService;
+use App\Services\Admin\AdminUserLifecycleService;
 use App\Services\Billing\BillingService;
 use App\Services\Billing\PlanCatalog;
 use Illuminate\Http\RedirectResponse;
@@ -22,6 +23,7 @@ class UserController extends Controller
     {
         $q = trim((string) $request->query('q', ''));
         $plan = trim((string) $request->query('plan', ''));
+        $status = trim((string) $request->query('status', ''));
 
         $users = User::query()
             ->withCount('weddings')
@@ -32,6 +34,8 @@ class UserController extends Controller
                 });
             })
             ->when(in_array($plan, ['free', 'pro'], true), fn ($query) => $query->where('plan', $plan))
+            ->when($status === 'disabled', fn ($query) => $query->whereNotNull('disabled_at'))
+            ->when($status === 'active', fn ($query) => $query->whereNull('disabled_at'))
             ->latest('id')
             ->paginate(30)
             ->withQueryString()
@@ -50,12 +54,17 @@ class UserController extends Controller
 
         return Inertia::render('admin/users/index', [
             'users' => $users,
-            'filters' => ['q' => $q, 'plan' => $plan],
+            'filters' => ['q' => $q, 'plan' => $plan, 'status' => $status],
         ]);
     }
 
-    public function show(User $user, BillingService $billing, AdminEventInsightService $insights): Response
-    {
+    public function show(
+        User $user,
+        BillingService $billing,
+        AdminEventInsightService $insights,
+        AdminUserLifecycleService $lifecycle,
+        Request $request,
+    ): Response {
         $user->loadCount('weddings');
         $events = $user->weddings()
             ->with(['card:id,event_id,status,format'])
@@ -64,6 +73,7 @@ class UserController extends Controller
             ->limit(50)
             ->get();
         $analytics = $insights->analyticsForEvents($events->pluck('id')->all());
+        $impact = $lifecycle->impact($user, $request->user());
 
         return Inertia::render('admin/users/show', [
             'user' => [
@@ -80,7 +90,10 @@ class UserController extends Controller
                 'stripe_id' => $user->stripe_id,
                 'created_at' => $user->created_at?->toIso8601String(),
                 'weddings_count' => (int) $user->weddings_count,
+                'is_platform_admin' => $impact['is_platform_admin'],
+                'is_self' => (int) $request->user()->id === (int) $user->id,
             ],
+            'lifecycle' => $impact,
             'events' => $events->map(function ($w) use ($analytics): array {
                 $stats = $analytics[$w->id] ?? ['views' => 0, 'unique_views' => 0, 'guest_views' => 0, 'qr_scans' => 0, 'shares' => 0];
 
@@ -153,22 +166,68 @@ class UserController extends Controller
         return back()->with('toast', ['type' => 'success', 'message' => 'Email marked verified.']);
     }
 
-    public function disable(Request $request, User $user, AdminAuditLogger $audit): RedirectResponse
-    {
-        abort_if($user->id === $request->user()->id, 422, 'Cannot disable your own account.');
+    public function disable(
+        Request $request,
+        User $user,
+        AdminAuditLogger $audit,
+        AdminUserLifecycleService $lifecycle,
+    ): RedirectResponse {
+        $result = $lifecycle->deactivate($user, $request->user());
+        $audit->log($request->user(), 'user.disable', $user, $result, $request);
 
-        $user->forceFill(['disabled_at' => now()])->save();
-        $audit->log($request->user(), 'user.disable', $user, [], $request);
+        $suffix = $result['unpublished'] > 0
+            ? " {$result['unpublished']} live site(s) unpublished."
+            : '';
 
-        return back()->with('toast', ['type' => 'success', 'message' => 'User disabled.']);
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => 'Account deactivated. Login blocked.'.$suffix,
+        ]);
     }
 
-    public function enable(Request $request, User $user, AdminAuditLogger $audit): RedirectResponse
-    {
-        $user->forceFill(['disabled_at' => null])->save();
+    public function enable(
+        Request $request,
+        User $user,
+        AdminAuditLogger $audit,
+        AdminUserLifecycleService $lifecycle,
+    ): RedirectResponse {
+        $lifecycle->reactivate($user, $request->user());
         $audit->log($request->user(), 'user.enable', $user, [], $request);
 
-        return back()->with('toast', ['type' => 'success', 'message' => 'User enabled.']);
+        return back()->with('toast', ['type' => 'success', 'message' => 'Account reactivated.']);
+    }
+
+    public function destroy(
+        Request $request,
+        User $user,
+        AdminAuditLogger $audit,
+        AdminUserLifecycleService $lifecycle,
+    ): RedirectResponse {
+        $data = $request->validate([
+            'confirmation' => ['required', 'string', 'max:255'],
+            'acknowledge' => ['accepted'],
+        ]);
+
+        $email = $user->email;
+        $name = $user->name;
+        $id = $user->id;
+
+        $snapshot = $lifecycle->purge($user, $request->user(), $data['confirmation']);
+
+        // Subject row is gone — audit with null subject and full snapshot in meta.
+        $audit->log($request->user(), 'user.purge', null, [
+            'purged_user_id' => $id,
+            'purged_email' => $email,
+            'purged_name' => $name,
+            'impact' => $snapshot['impact'] ?? [],
+        ], $request);
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('toast', [
+                'type' => 'success',
+                'message' => "Permanently deleted {$name} ({$email}) and all related data.",
+            ]);
     }
 
     public function sendReset(Request $request, User $user, AdminAuditLogger $audit): RedirectResponse

@@ -1,1 +1,0 @@
-import{u as e}from"./inertia-Bemv1vnE.js";var t=`invidora:open-create-invitation`,n=null;function r(e){n=e}function i(){if(!(typeof window>`u`)){if(n){n();return}if((window.location.pathname.replace(/\/$/,``)||`/`)===`/events`){window.dispatchEvent(new CustomEvent(t));return}e.visit(`/events?create=1`,{preserveScroll:!0,showProgress:!1})}}export{i as n,r,t};
