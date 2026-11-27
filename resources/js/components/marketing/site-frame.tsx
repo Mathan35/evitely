@@ -47,6 +47,7 @@ export function SiteFrame({
                         title="Help & legal"
                         links={[
                             ['/support', 'Support'],
+                            ['/coupons', 'Coupons'],
                             ['/privacy', 'Privacy'],
                             ['/terms', 'Terms'],
                             ['/refund', 'Refunds'],

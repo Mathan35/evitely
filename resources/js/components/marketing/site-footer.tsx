@@ -35,6 +35,7 @@ export function SiteFooter() {
                         ['/#planning', 'Planning Tools'],
                         ['/#pricing', 'Pricing'],
                         ['/support', 'Support'],
+                        ['/coupons', 'Coupons'],
                     ]}
                 />
                 <FooterColumn title="Event Types" links={eventTypes} />
@@ -64,6 +65,11 @@ export function SiteFooter() {
                         <li>
                             <Link href="/cookies" className="hover:text-[#f6f1e8]">
                                 Cookies
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/coupons" className="hover:text-[#f6f1e8]">
+                                Coupons
                             </Link>
                         </li>
                         <li>

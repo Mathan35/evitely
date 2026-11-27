@@ -82,6 +82,7 @@ Route::get('terms', [LegalController::class, 'terms'])->name('legal.terms');
 Route::get('cookies', [LegalController::class, 'cookies'])->name('legal.cookies');
 Route::get('refund', [LegalController::class, 'refund'])->name('legal.refund');
 Route::get('cancellation', [LegalController::class, 'cancellation'])->name('legal.cancellation');
+Route::get('coupons', [\App\Http\Controllers\CouponPageController::class, 'index'])->name('coupons.index');
 
 Route::get('support', [SupportController::class, 'show'])->name('support');
 Route::post('support', [SupportController::class, 'store'])
@@ -161,6 +162,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
     Route::get('guests', [StudioDirectoryController::class, 'guests'])->name('guests.index');
     Route::get('analytics', [StudioDirectoryController::class, 'analytics'])->name('analytics');
+
+    Route::post('coupons/claim', [\App\Http\Controllers\CouponPageController::class, 'claim'])
+        ->middleware('throttle:20,1')
+        ->name('coupons.claim');
 
     Route::get('notifications', [\App\Http\Controllers\AppNotificationController::class, 'index'])->name('notifications.index');
     Route::get('notifications/feed', [\App\Http\Controllers\AppNotificationController::class, 'feed'])

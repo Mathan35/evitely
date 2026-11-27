@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\CatalogController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\ExportController;
@@ -61,6 +62,11 @@ Route::middleware(['auth', 'platform.admin'])
         Route::get('grants/users/{user}/events', [PackGrantController::class, 'userEvents'])
             ->middleware('throttle:60,1')
             ->name('grants.user-events');
+
+        Route::get('coupons', [CouponController::class, 'index'])->name('coupons.index');
+        Route::post('coupons', [CouponController::class, 'store'])->middleware('throttle:20,1')->name('coupons.store');
+        Route::post('coupons/{coupon}', [CouponController::class, 'update'])->middleware('throttle:30,1')->name('coupons.update');
+        Route::post('coupons/{coupon}/notify', [CouponController::class, 'notify'])->middleware('throttle:5,1')->name('coupons.notify');
 
         Route::get('moderation', [ModerationController::class, 'index'])->name('moderation.index');
         Route::post('moderation/guestbook/{entry}', [ModerationController::class, 'guestbook'])->middleware('throttle:60,1')->name('moderation.guestbook');

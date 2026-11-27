@@ -13,6 +13,7 @@ import {
     MessageSquareWarning,
     ScrollText,
     Server,
+    Ticket,
     Users,
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type PropsWithChildren } from 'react';
@@ -35,6 +36,7 @@ const NAV = [
     { href: '/admin/guests', label: 'Guests', icon: Users },
     { href: '/admin/billing', label: 'Billing', icon: CreditCard },
     { href: '/admin/grants', label: 'Pack grants', icon: Gift },
+    { href: '/admin/coupons', label: 'Coupons', icon: Ticket },
     { href: '/admin/support', label: 'Support', icon: LifeBuoy },
     { href: '/admin/moderation', label: 'Moderation', icon: MessageSquareWarning },
     { href: '/admin/integrations', label: 'Integrations', icon: Server },

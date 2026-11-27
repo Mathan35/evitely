@@ -44,6 +44,7 @@ function resolveLayout(name: string): ComponentType<{ children: ReactNode }> | C
         case name.startsWith('public/'):
         case name.startsWith('seo/'):
         case name.startsWith('legal/'):
+        case name === 'coupons/index':
         case name.startsWith('marketing/'):
         case name.startsWith('errors/'):
             return AuthGateLayout;

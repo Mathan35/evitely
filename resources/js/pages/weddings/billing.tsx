@@ -81,9 +81,12 @@ type AutoSharePending = {
 type SiteCoupon = {
     id: number;
     code: string;
-    percent_off: number;
+    discount_type?: 'percent' | 'amount' | string;
+    percent_off?: number | null;
+    amount_off_minor?: number | null;
     label: string;
     status: string;
+    expires_at?: string | null;
 };
 
 type BillingPayload = {
@@ -254,7 +257,12 @@ function formatMinor(amount: number, currency: string, symbol: string): string {
 function packDisplayPrice(
     pack: SitePack,
     includeCredits: boolean,
-    opts?: { couponPercent?: number; currency?: string; symbol?: string },
+    opts?: {
+        couponPercent?: number;
+        couponAmountMinor?: number;
+        currency?: string;
+        symbol?: string;
+    },
 ): { label: string; amount: number; was: string | null } {
     const bare = pack.amount_minor_bare ?? pack.amount_minor;
     const withCredits = pack.amount_minor_with_credits ?? pack.amount_minor;
@@ -262,10 +270,14 @@ function packDisplayPrice(
     let siteAmount = bare;
     let was: string | null = null;
     const percent = opts?.couponPercent ?? 0;
-    if (percent > 0) {
-        const discounted = Math.round(bare * (100 - percent) / 100);
+    const amountOff = opts?.couponAmountMinor ?? 0;
+    if (percent > 0 || amountOff > 0) {
         was = formatMinor(includeCredits ? withCredits : bare, opts?.currency || 'inr', opts?.symbol || '₹');
-        siteAmount = discounted;
+        if (amountOff > 0) {
+            siteAmount = Math.max(0, bare - amountOff);
+        } else {
+            siteAmount = Math.round((bare * (100 - percent)) / 100);
+        }
     }
     const amount = includeCredits ? siteAmount + creditsPortion : siteAmount;
     return {
@@ -391,7 +403,14 @@ export default function EventBillingPage({ wedding, billing }: Props) {
         : [];
     const selectedPrice = selectedPack
         ? packDisplayPrice(selectedPack, includeCredits, {
-              couponPercent: useCoupon && availableCoupon ? availableCoupon.percent_off : 0,
+              couponPercent:
+                  useCoupon && availableCoupon?.discount_type !== 'amount'
+                      ? availableCoupon?.percent_off ?? 0
+                      : 0,
+              couponAmountMinor:
+                  useCoupon && availableCoupon?.discount_type === 'amount'
+                      ? availableCoupon?.amount_off_minor ?? 0
+                      : 0,
               currency,
               symbol: currencySymbol,
           })
@@ -883,10 +902,13 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                     <div className="min-w-0">
                                         <p className="text-[11px] font-semibold tracking-[0.16em] text-violet-700/80 uppercase dark:text-violet-300/80">
-                                            Referral coupon
+                                            Site coupon
                                         </p>
                                         <h2 className="mt-1 font-serif text-xl tracking-tight text-zinc-950 dark:text-white">
-                                            {availableCoupon.percent_off}% off site cost
+                                            {availableCoupon.label ||
+                                                (availableCoupon.discount_type === 'amount'
+                                                    ? `${currencySymbol}${Math.round((availableCoupon.amount_off_minor ?? 0) / 100)} off site cost`
+                                                    : `${availableCoupon.percent_off ?? 0}% off site cost`)}
                                         </h2>
                                         <p className="mt-1.5 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-300">
                                             Code <span className="font-semibold tracking-wide">{availableCoupon.code}</span> —
@@ -1060,7 +1082,14 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                                     const { pack } = option;
                                     const active = selected === pack.id;
                                     const display = packDisplayPrice(pack, includeCredits, {
-                                        couponPercent: useCoupon && availableCoupon ? availableCoupon.percent_off : 0,
+                                        couponPercent:
+                                            useCoupon && availableCoupon?.discount_type !== 'amount'
+                                                ? availableCoupon?.percent_off ?? 0
+                                                : 0,
+                                        couponAmountMinor:
+                                            useCoupon && availableCoupon?.discount_type === 'amount'
+                                                ? availableCoupon?.amount_off_minor ?? 0
+                                                : 0,
                                         currency,
                                         symbol: currencySymbol,
                                     });

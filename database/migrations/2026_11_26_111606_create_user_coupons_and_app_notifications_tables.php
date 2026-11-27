@@ -11,9 +11,9 @@ return new class extends Migration
         Schema::create('user_coupons', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('code', 32)->unique();
+            $table->string('code', 32);
             $table->string('type', 40)->default('referral_site_50');
-            $table->unsignedTinyInteger('percent_off')->default(50);
+            $table->unsignedTinyInteger('percent_off')->nullable();
             $table->string('applies_to', 40)->default('site_cost');
             $table->string('status', 20)->default('available')->index();
             $table->foreignId('source_user_id')->nullable()->constrained('users')->nullOnDelete();
@@ -22,6 +22,7 @@ return new class extends Migration
             $table->json('meta')->nullable();
             $table->timestamps();
 
+            $table->unique(['user_id', 'code']);
             $table->index(['user_id', 'status']);
         });
 

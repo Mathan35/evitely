@@ -38,7 +38,9 @@ class CouponService
             'user_id' => $referrer->id,
             'code' => $this->uniqueCode(),
             'type' => UserCoupon::TYPE_REFERRAL_SITE_50,
+            'discount_type' => UserCoupon::DISCOUNT_PERCENT,
             'percent_off' => $percent,
+            'amount_off_minor' => null,
             'applies_to' => 'site_cost',
             'status' => UserCoupon::STATUS_AVAILABLE,
             'source_user_id' => $friend->id,
@@ -55,10 +57,11 @@ class CouponService
             'You earned a '.$percent.'% site coupon',
             trim($friend->name).' published — use it on your next site pack (site cost only).',
             [
-                'href' => '/settings/profile',
+                'href' => '/coupons',
                 'coupon_id' => $coupon->id,
                 'coupon_code' => $coupon->code,
                 'percent_off' => $percent,
+                'discount_type' => UserCoupon::DISCOUNT_PERCENT,
                 'actor_name' => $friend->name,
             ],
         );
@@ -67,7 +70,7 @@ class CouponService
     }
 
     /**
-     * @return list<array{id: int, code: string, percent_off: int, label: string, status: string}>
+     * @return list<array<string, mixed>>
      */
     public function availableForUser(?User $user): array
     {
@@ -75,9 +78,14 @@ class CouponService
             return [];
         }
 
+        $this->expireStaleForUser($user);
+
         return UserCoupon::query()
             ->where('user_id', $user->id)
             ->where('status', UserCoupon::STATUS_AVAILABLE)
+            ->where(function ($q): void {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
             ->latest('id')
             ->get()
             ->map(fn (UserCoupon $coupon) => $this->toPublic($coupon))
@@ -91,22 +99,27 @@ class CouponService
             return null;
         }
 
+        $this->expireStaleForUser($user);
+
         return UserCoupon::query()
             ->where('user_id', $user->id)
             ->where('status', UserCoupon::STATUS_AVAILABLE)
+            ->where(function ($q): void {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
             ->oldest('id')
             ->first();
     }
 
     /**
-     * Split site vs credits amounts and apply percent-off to site portion only.
+     * Split site vs credits amounts and apply percent or fixed amount off to site portion only.
      *
      * @return array{
      *   amount_minor: int,
      *   site_amount_minor: int,
      *   credits_amount_minor: int,
      *   discount_minor: int,
-     *   coupon: ?array{id: int, code: string, percent_off: int},
+     *   coupon: ?array{id: int, code: string, percent_off: int|null, discount_type: string, amount_off_minor: int|null},
      *   price_label: string
      * }
      */
@@ -129,14 +142,18 @@ class CouponService
         if ($useCoupon) {
             $coupon = $this->firstAvailable($user);
             if ($coupon) {
-                $percent = max(1, min(90, (int) $coupon->percent_off));
-                $discountedSite = (int) round($siteAmount * (100 - $percent) / 100);
-                $discount = max(0, $siteAmount - $discountedSite);
+                if ($coupon->discount_type === UserCoupon::DISCOUNT_AMOUNT) {
+                    $discount = min($siteAmount, max(0, (int) $coupon->amount_off_minor));
+                    $discountedSite = max(0, $siteAmount - $discount);
+                } else {
+                    $percent = max(1, min(90, (int) $coupon->percent_off));
+                    $discountedSite = (int) round($siteAmount * (100 - $percent) / 100);
+                    $discount = max(0, $siteAmount - $discountedSite);
+                }
             }
         }
 
         $amount = $discountedSite + $creditsAmount;
-        // Payment gateways need a floor; keep at least 100 minor units when charging.
         if ($amount > 0 && $amount < 100) {
             $amount = 100;
         }
@@ -149,7 +166,9 @@ class CouponService
             'coupon' => $coupon ? [
                 'id' => $coupon->id,
                 'code' => $coupon->code,
-                'percent_off' => (int) $coupon->percent_off,
+                'discount_type' => $coupon->discount_type ?: UserCoupon::DISCOUNT_PERCENT,
+                'percent_off' => $coupon->percent_off !== null ? (int) $coupon->percent_off : null,
+                'amount_off_minor' => $coupon->amount_off_minor !== null ? (int) $coupon->amount_off_minor : null,
             ] : null,
             'price_label' => $this->formatMoney($amount, $currency),
         ];
@@ -167,7 +186,7 @@ class CouponService
             ->where('status', UserCoupon::STATUS_AVAILABLE)
             ->first();
 
-        if (! $coupon) {
+        if (! $coupon || ! $coupon->isAvailable()) {
             return;
         }
 
@@ -179,17 +198,31 @@ class CouponService
     }
 
     /**
-     * @return array{id: int, code: string, percent_off: int, label: string, status: string}
+     * @return array<string, mixed>
      */
     public function toPublic(UserCoupon $coupon): array
     {
         return [
             'id' => $coupon->id,
             'code' => $coupon->code,
-            'percent_off' => (int) $coupon->percent_off,
-            'label' => (string) ($coupon->meta['label'] ?? ($coupon->percent_off.'% off site pack')),
+            'discount_type' => $coupon->discount_type ?: UserCoupon::DISCOUNT_PERCENT,
+            'percent_off' => $coupon->percent_off !== null ? (int) $coupon->percent_off : null,
+            'amount_off_minor' => $coupon->amount_off_minor !== null ? (int) $coupon->amount_off_minor : null,
+            'label' => (string) ($coupon->meta['label'] ?? $coupon->discountLabel()),
             'status' => $coupon->status,
+            'expires_at' => $coupon->expires_at?->toIso8601String(),
+            'campaign_id' => $coupon->campaign_id,
         ];
+    }
+
+    private function expireStaleForUser(User $user): void
+    {
+        UserCoupon::query()
+            ->where('user_id', $user->id)
+            ->where('status', UserCoupon::STATUS_AVAILABLE)
+            ->whereNotNull('expires_at')
+            ->where('expires_at', '<=', now())
+            ->update(['status' => UserCoupon::STATUS_EXPIRED]);
     }
 
     private function uniqueCode(): string

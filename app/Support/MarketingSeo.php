@@ -176,6 +176,7 @@ class MarketingSeo
             ['loc' => url('/cookies'), 'changefreq' => 'yearly', 'priority' => '0.3'],
             ['loc' => url('/refund'), 'changefreq' => 'yearly', 'priority' => '0.3'],
             ['loc' => url('/cancellation'), 'changefreq' => 'yearly', 'priority' => '0.3'],
+            ['loc' => url('/coupons'), 'changefreq' => 'weekly', 'priority' => '0.5'],
             ['loc' => url('/support'), 'changefreq' => 'monthly', 'priority' => '0.5'],
         ];
 
