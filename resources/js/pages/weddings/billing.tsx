@@ -366,6 +366,7 @@ export default function EventBillingPage({ wedding, billing }: Props) {
     const [quoteDays, setQuoteDays] = useState<number | null>(null);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [paySuccess, setPaySuccess] = useState<string | null>(null);
     const [entered, setEntered] = useState(false);
     const payErrorRef = useRef<HTMLParagraphElement | null>(null);
     const [autoShareEnabled, setAutoShareEnabled] = useState(() => Boolean(billing.auto_share));
@@ -392,7 +393,26 @@ export default function EventBillingPage({ wedding, billing }: Props) {
 
     const state = billing.state;
     const isCustom = selected === 'site_custom';
+    const siteAlreadyPaid =
+        state.has_paid_pack || state.status === 'paid' || state.status === 'awaiting_go_live';
     const tone = statusTone(state.status);
+
+    function afterSitePayment(message?: string): void {
+        const success =
+            message ||
+            (goLiveMode === 'schedule'
+                ? 'Payment successful. Set your publish time below — the site stays draft until then.'
+                : 'Payment successful. Your site is publishing now.');
+        setPaySuccess(success);
+        setError(null);
+        // Full visit (not partial reload) so wedding.status + billing.state both refresh
+        // after webhook/verify — UPI often returns without a clean Inertia partial.
+        router.visit(`/events/${wedding.id}/billing`, {
+            preserveScroll: true,
+            replace: true,
+            onSuccess: () => setPaySuccess(success),
+        });
+    }
     const selectedPack = billing.site_packs.find((p) => p.id === selected) ?? null;
     const currencyLabel = currency === 'usd' ? 'USD' : 'INR';
     const currencySymbol = billing.currency_symbol || (currency === 'usd' ? '$' : '₹');
@@ -580,9 +600,10 @@ export default function EventBillingPage({ wedding, billing }: Props) {
         checkout?: RazorpayCheckoutOptions;
         checkout_url?: string;
         local?: boolean;
+        message?: string;
     }) {
         if (data.local) {
-            router.reload({ only: ['billing'] });
+            afterSitePayment(data.message || 'Site plan activated.');
             return;
         }
         if (data.gateway === 'stripe' && data.checkout_url) {
@@ -595,7 +616,7 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                 orderBody: {},
                 verifyUrl: '/settings/billing/razorpay/verify',
                 preloadedCheckout: data.checkout,
-                onPaid: () => router.reload({ only: ['billing'] }),
+                onPaid: (result) => afterSitePayment(result?.message),
             });
             return;
         }
@@ -698,7 +719,16 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                     orderBody: { pack: packId },
                     verifyUrl: '/settings/billing/razorpay/verify',
                     preloadedCheckout: data.checkout,
-                    onPaid: () => router.reload({ only: ['billing'] }),
+                    onPaid: (result) => {
+                        setPaySuccess(
+                            result?.message ||
+                                'Payment received. Message credits activate within 24 hours.',
+                        );
+                        router.visit(`/events/${wedding.id}/billing`, {
+                            preserveScroll: true,
+                            replace: true,
+                        });
+                    },
                 });
             }
         } catch (e) {
@@ -797,6 +827,54 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                     </div>
                 </section>
 
+                {paySuccess ? (
+                    <StudioCard className="border-emerald-200/90 bg-emerald-50/95 p-4 dark:border-emerald-400/25 dark:bg-emerald-950/35">
+                        <p className="text-[13px] font-semibold text-emerald-950 dark:text-emerald-100">
+                            Payment successful
+                        </p>
+                        <p className="mt-1 text-[13px] leading-relaxed text-emerald-900/85 dark:text-emerald-100/85">
+                            {paySuccess}
+                        </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            <Link
+                                href={`/events/${wedding.id}`}
+                                className="inline-flex h-10 items-center rounded-xl bg-emerald-800 px-4 text-[13px] font-semibold text-white"
+                            >
+                                Open studio
+                            </Link>
+                            {state.status === 'paid' || wedding.status === 'published' ? (
+                                <Link
+                                    href={`/events/${wedding.id}/preview?from=edit`}
+                                    className="inline-flex h-10 items-center rounded-xl border border-emerald-800/20 bg-white px-4 text-[13px] font-semibold text-emerald-950 dark:border-emerald-300/20 dark:bg-emerald-950/40 dark:text-emerald-50"
+                                >
+                                    Preview invitation
+                                </Link>
+                            ) : null}
+                        </div>
+                    </StudioCard>
+                ) : null}
+
+                {siteAlreadyPaid && !paySuccess ? (
+                    <StudioCard className="border-emerald-200/80 bg-emerald-50/90 p-4 dark:border-emerald-400/20 dark:bg-emerald-950/30">
+                        <p className="text-[13px] font-semibold text-emerald-950 dark:text-emerald-100">
+                            {state.status === 'awaiting_go_live'
+                                ? 'Pack paid — waiting to go live'
+                                : 'Site pack is active'}
+                        </p>
+                        <p className="mt-1 text-[13px] leading-relaxed text-emerald-900/80 dark:text-emerald-100/80">
+                            {state.status === 'awaiting_go_live'
+                                ? 'Set or update your publish time below. Your paid window starts when the site goes live.'
+                                : 'You can keep topping up message credits anytime. Site plan checkout is locked while this pack is active.'}
+                        </p>
+                        <Link
+                            href={`/events/${wedding.id}`}
+                            className="mt-3 inline-flex text-[13px] font-semibold text-emerald-950 underline underline-offset-2 dark:text-emerald-100"
+                        >
+                            Back to studio
+                        </Link>
+                    </StudioCard>
+                ) : null}
+
                 {(billing.pending_message_packs?.length ?? 0) > 0 ? (
                     <StudioCard className="border-sky-200/80 bg-sky-50/90 p-4 dark:border-sky-400/20 dark:bg-sky-950/30">
                         <p className="text-[13px] font-semibold text-sky-950 dark:text-sky-100">
@@ -839,7 +917,7 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                     </StudioCard>
                 ) : null}
 
-                {comparisonRows.length > 0 ? (
+                {comparisonRows.length > 0 && !siteAlreadyPaid ? (
                     <section className="overflow-hidden rounded-[1.5rem] border border-zinc-950/8 bg-white/90 shadow-[0_16px_48px_-36px_rgba(24,24,27,0.45)] dark:border-white/10 dark:bg-zinc-950/70">
                         <div className="border-b border-zinc-100 px-5 py-5 sm:px-6 dark:border-white/10">
                             <p className="text-[11px] font-semibold tracking-[0.16em] text-zinc-400 uppercase">
@@ -895,9 +973,16 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                     </section>
                 ) : null}
 
-                <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+                <div
+                    className={cn(
+                        'grid gap-6 lg:items-start',
+                        siteAlreadyPaid
+                            ? 'lg:grid-cols-1'
+                            : 'lg:grid-cols-[minmax(0,1fr)_20rem]',
+                    )}
+                >
                     <div className="space-y-6">
-                        {availableCoupon ? (
+                        {!siteAlreadyPaid && availableCoupon ? (
                             <section className="overflow-hidden rounded-[1.35rem] border border-violet-200/80 bg-gradient-to-br from-violet-50 via-white to-emerald-50 p-4 sm:p-5 dark:border-violet-500/20 dark:from-violet-950/40 dark:via-zinc-950 dark:to-emerald-950/30">
                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                     <div className="min-w-0">
@@ -937,7 +1022,9 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                             </section>
                         ) : null}
 
-                        {/* Credits bundle toggle */}
+                        {/* Credits bundle toggle + pack picker (hidden once paid) */}
+                        {!siteAlreadyPaid ? (
+                        <>
                         <section>
                             <div className="mb-3 px-1">
                                 <p className="text-[11px] font-semibold tracking-[0.16em] text-zinc-400 uppercase">
@@ -1232,18 +1319,24 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                                 </div>
                             </StudioCard>
                         ) : null}
+                        </>
+                        ) : null}
 
                         {/* Go live */}
+                        {(!siteAlreadyPaid || state.can_schedule_publish) ? (
                         <section>
                             <div className="mb-3 px-1">
                                 <p className="text-[11px] font-semibold tracking-[0.16em] text-zinc-400 uppercase">
                                     Go live
                                 </p>
                                 <h2 className="mt-1 font-serif text-xl tracking-tight text-zinc-950 dark:text-white">
-                                    When should the paid window start?
+                                    {siteAlreadyPaid
+                                        ? 'Set when the site should publish'
+                                        : 'When should the paid window start?'}
                                 </h2>
                             </div>
 
+                            {!siteAlreadyPaid ? (
                             <div className="grid gap-3 sm:grid-cols-2">
                                 <button
                                     type="button"
@@ -1297,8 +1390,9 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                                     </p>
                                 </button>
                             </div>
+                            ) : null}
 
-                            {goLiveMode === 'schedule' ? (
+                            {goLiveMode === 'schedule' || siteAlreadyPaid ? (
                                 <StudioCard className="mt-3 overflow-hidden">
                                     <div className="grid gap-3 p-4 sm:grid-cols-[1fr_auto] sm:items-end">
                                         <div className="grid gap-1.5">
@@ -1597,6 +1691,7 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                                 </StudioCard>
                             ) : null}
                         </section>
+                        ) : null}
 
                         {/* Credits */}
                         <section>
@@ -1652,7 +1747,8 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                         </section>
                     </div>
 
-                    {/* Sticky summary */}
+                    {/* Sticky summary — only while site pack is unpaid */}
+                    {!siteAlreadyPaid ? (
                     <aside className="lg:sticky lg:top-6">
                         <div className="overflow-hidden rounded-[1.5rem] border border-zinc-950/10 bg-white/90 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.35)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-950/80">
                             <div className="border-b border-zinc-100 px-5 py-4 dark:border-white/10">
@@ -1714,7 +1810,9 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                                     onClick={() => void runCheckout()}
                                 >
                                     <Sparkles className="size-4" />
-                                    {busy ? 'Opening checkout…' : 'Continue to secure checkout'}
+                                    {busy
+                                        ? 'Confirming payment…'
+                                        : 'Continue to secure checkout'}
                                 </Button>
                                 <p className="text-center text-[11px] text-zinc-400">
                                     Secure one-time {currencyLabel} payment
@@ -1722,6 +1820,7 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                             </div>
                         </div>
                     </aside>
+                    ) : null}
                 </div>
             </div>
         </StudioSurface>

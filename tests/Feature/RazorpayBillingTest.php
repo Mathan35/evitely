@@ -522,4 +522,40 @@ class RazorpayBillingTest extends TestCase
                 ->has('billing.launch_checklist')
                 ->has('billing.recent_payments', 1));
     }
+
+    public function test_order_status_reports_paid_after_webhook_fulfillment(): void
+    {
+        $user = User::factory()->create(['plan' => 'free', 'message_credits' => 0]);
+        $orderId = 'order_status_poll_1';
+
+        BillingPayment::query()->create([
+            'user_id' => $user->id,
+            'provider' => 'razorpay',
+            'kind' => 'season',
+            'sku' => 'pro_season_12',
+            'amount_paise' => 249900,
+            'currency' => 'INR',
+            'status' => 'created',
+            'razorpay_order_id' => $orderId,
+            'meta' => [
+                'season' => 'pro_season_12',
+                'credits' => 100,
+            ],
+        ]);
+
+        $this->actingAs($user)
+            ->getJson(route('billing.razorpay.status', ['razorpay_order_id' => $orderId]))
+            ->assertOk()
+            ->assertJsonPath('paid', false)
+            ->assertJsonPath('status', 'created');
+
+        app(RazorpayService::class)->fulfillPaidOrder($user, $orderId, 'pay_status_poll_1');
+
+        $this->actingAs($user)
+            ->getJson(route('billing.razorpay.status', ['razorpay_order_id' => $orderId]))
+            ->assertOk()
+            ->assertJsonPath('paid', true)
+            ->assertJsonPath('status', 'paid')
+            ->assertJsonPath('kind', 'season');
+    }
 }

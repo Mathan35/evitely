@@ -19,6 +19,12 @@ export type RazorpayCheckoutOptions = {
     method?: Record<string, boolean>;
 };
 
+export type RazorpayPaidResult = {
+    message?: string;
+    credits_pending?: boolean;
+    event_id?: number | null;
+};
+
 type RazorpaySuccessResponse = {
     razorpay_order_id: string;
     razorpay_payment_id: string;
@@ -137,6 +143,71 @@ async function postJson<T>(url: string, body: Record<string, unknown>): Promise<
     return data;
 }
 
+async function getJson<T>(url: string): Promise<T> {
+    const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    });
+
+    const data = (await response.json().catch(() => ({}))) as T & {
+        message?: string;
+    };
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Could not check payment status.');
+    }
+
+    return data;
+}
+
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+/**
+ * After UPI apps return, Checkout often closes without calling `handler`
+ * while the webhook has already marked the order paid. Poll briefly.
+ */
+export async function waitForRazorpayOrderPaid(
+    orderId: string,
+    options?: { attempts?: number; intervalMs?: number; statusUrl?: string },
+): Promise<RazorpayPaidResult | null> {
+    const attempts = options?.attempts ?? 8;
+    const intervalMs = options?.intervalMs ?? 900;
+    const statusUrl = options?.statusUrl ?? '/settings/billing/razorpay/status';
+
+    for (let i = 0; i < attempts; i++) {
+        if (i > 0) {
+            await sleep(intervalMs);
+        }
+
+        try {
+            const status = await getJson<{
+                paid?: boolean;
+                message?: string;
+                credits_pending?: boolean;
+                event_id?: number | null;
+            }>(`${statusUrl}?razorpay_order_id=${encodeURIComponent(orderId)}`);
+
+            if (status.paid) {
+                return {
+                    message: status.message,
+                    credits_pending: status.credits_pending,
+                    event_id: status.event_id,
+                };
+            }
+        } catch {
+            // Keep polling — webhook may still be in flight.
+        }
+    }
+
+    return null;
+}
+
 function friendlyPaymentError(detail: string): string {
     const lower = detail.toLowerCase();
     if (lower.includes('international')) {
@@ -152,7 +223,8 @@ export async function startRazorpayCheckout(input: {
     orderUrl: string;
     orderBody: Record<string, unknown>;
     verifyUrl?: string;
-    onPaid?: (result?: { message?: string; credits_pending?: boolean }) => void;
+    statusUrl?: string;
+    onPaid?: (result?: RazorpayPaidResult) => void;
     preloadedCheckout?: RazorpayCheckoutOptions;
 }): Promise<void> {
     await loadRazorpayScript();
@@ -168,6 +240,25 @@ export async function startRazorpayCheckout(input: {
         ).checkout;
 
     await new Promise<void>((resolve, reject) => {
+        let settled = false;
+
+        const finishPaid = (result?: RazorpayPaidResult) => {
+            if (settled) {
+                return;
+            }
+            settled = true;
+            input.onPaid?.(result);
+            resolve();
+        };
+
+        const finishError = (error: unknown) => {
+            if (settled) {
+                return;
+            }
+            settled = true;
+            reject(error instanceof Error ? error : new Error('Verification failed.'));
+        };
+
         const rzp = new window.Razorpay!({
             key: checkout.key,
             amount: checkout.amount,
@@ -185,22 +276,51 @@ export async function startRazorpayCheckout(input: {
             ...(checkout.method ? { method: checkout.method } : {}),
             handler: async (response: RazorpaySuccessResponse) => {
                 try {
-                    const verified = await postJson<{
-                        message?: string;
-                        credits_pending?: boolean;
-                    }>(input.verifyUrl || '/settings/billing/razorpay/verify', {
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_signature: response.razorpay_signature,
-                    });
-                    input.onPaid?.(verified);
-                    resolve();
+                    const verified = await postJson<RazorpayPaidResult>(
+                        input.verifyUrl || '/settings/billing/razorpay/verify',
+                        {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                        },
+                    );
+                    finishPaid(verified);
                 } catch (error) {
-                    reject(error instanceof Error ? error : new Error('Verification failed.'));
+                    // Handler verify failed — webhook may still have fulfilled.
+                    const recovered = await waitForRazorpayOrderPaid(checkout.order_id, {
+                        attempts: 4,
+                        intervalMs: 700,
+                        statusUrl: input.statusUrl,
+                    });
+                    if (recovered) {
+                        finishPaid(recovered);
+                        return;
+                    }
+                    finishError(error);
                 }
             },
             modal: {
-                ondismiss: () => reject(new Error('Payment cancelled.')),
+                ondismiss: () => {
+                    void (async () => {
+                        if (settled) {
+                            return;
+                        }
+
+                        // UPI return path: modal closes without handler, webhook already paid.
+                        const recovered = await waitForRazorpayOrderPaid(checkout.order_id, {
+                            attempts: 8,
+                            intervalMs: 900,
+                            statusUrl: input.statusUrl,
+                        });
+
+                        if (recovered) {
+                            finishPaid(recovered);
+                            return;
+                        }
+
+                        finishError(new Error('Payment cancelled.'));
+                    })();
+                },
             },
         });
 
@@ -213,7 +333,7 @@ export async function startRazorpayCheckout(input: {
                     'string'
                     ? (response as { error: { description: string } }).error.description
                     : 'Payment failed.';
-            reject(new Error(friendlyPaymentError(detail)));
+            finishError(new Error(friendlyPaymentError(detail)));
         });
 
         rzp.open();

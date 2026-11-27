@@ -28,6 +28,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('settings/billing/razorpay/season', [BillingController::class, 'razorpaySeasonOrder'])->name('billing.razorpay.season');
     Route::post('settings/billing/razorpay/pack', [BillingController::class, 'razorpayPackOrder'])->name('billing.razorpay.pack');
     Route::post('settings/billing/razorpay/verify', [BillingController::class, 'razorpayVerify'])->name('billing.razorpay.verify');
+    Route::get('settings/billing/razorpay/status', [BillingController::class, 'razorpayOrderStatus'])->name('billing.razorpay.status');
     Route::post('settings/billing/checkout/season', [BillingController::class, 'checkoutSeason'])->name('billing.checkout.season');
     Route::post('settings/billing/checkout/pro', [BillingController::class, 'checkoutPro'])->name('billing.checkout.pro');
     Route::post('settings/billing/checkout/pack', [BillingController::class, 'checkoutPack'])->name('billing.checkout.pack');

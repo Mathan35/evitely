@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\BillingPayment;
 use App\Services\Billing\BillingService;
 use App\Services\Billing\PlanCatalog;
 use App\Services\Billing\RazorpayService;
@@ -86,6 +87,8 @@ class BillingController extends Controller
                 'ok' => true,
                 'message' => $message,
                 'credits_pending' => $credits->isPending($payment->fresh()),
+                'event_id' => $payment->event_id,
+                'kind' => $payment->kind,
                 'billing' => app(BillingService::class)->summary($request->user()->fresh()),
             ]);
         }
@@ -93,6 +96,47 @@ class BillingController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => $message]);
 
         return redirect()->route('billing.edit');
+    }
+
+    /**
+     * Poll order status after Checkout.js modal dismiss (common on UPI return
+     * when the success handler never fires but the webhook already fulfilled).
+     */
+    public function razorpayOrderStatus(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'razorpay_order_id' => ['required', 'string', 'max:120'],
+        ]);
+
+        $payment = BillingPayment::query()
+            ->where('user_id', $request->user()->id)
+            ->where('razorpay_order_id', $data['razorpay_order_id'])
+            ->first();
+
+        if ($payment === null) {
+            return response()->json([
+                'paid' => false,
+                'status' => 'missing',
+                'message' => 'Order not found.',
+            ]);
+        }
+
+        $credits = app(\App\Services\Billing\MessageCreditActivationService::class);
+        $message = match (true) {
+            ! $payment->isPaid() => 'Payment still pending.',
+            $payment->kind === 'season' => 'Payment successful. Pro season is now active.',
+            $credits->isCreditPack($payment) => $credits->userNotice(),
+            default => 'Payment successful. Your purchase is confirmed.',
+        };
+
+        return response()->json([
+            'paid' => $payment->isPaid(),
+            'status' => $payment->status,
+            'kind' => $payment->kind,
+            'event_id' => $payment->event_id,
+            'message' => $message,
+            'credits_pending' => $payment->isPaid() && $credits->isPending($payment),
+        ]);
     }
 
     public function checkoutSeason(
