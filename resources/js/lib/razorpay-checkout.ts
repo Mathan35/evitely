@@ -152,7 +152,7 @@ export async function startRazorpayCheckout(input: {
     orderUrl: string;
     orderBody: Record<string, unknown>;
     verifyUrl?: string;
-    onPaid?: () => void;
+    onPaid?: (result?: { message?: string; credits_pending?: boolean }) => void;
     preloadedCheckout?: RazorpayCheckoutOptions;
 }): Promise<void> {
     await loadRazorpayScript();
@@ -185,12 +185,15 @@ export async function startRazorpayCheckout(input: {
             ...(checkout.method ? { method: checkout.method } : {}),
             handler: async (response: RazorpaySuccessResponse) => {
                 try {
-                    await postJson(input.verifyUrl || '/settings/billing/razorpay/verify', {
+                    const verified = await postJson<{
+                        message?: string;
+                        credits_pending?: boolean;
+                    }>(input.verifyUrl || '/settings/billing/razorpay/verify', {
                         razorpay_order_id: response.razorpay_order_id,
                         razorpay_payment_id: response.razorpay_payment_id,
                         razorpay_signature: response.razorpay_signature,
                     });
-                    input.onPaid?.();
+                    input.onPaid?.(verified);
                     resolve();
                 } catch (error) {
                     reject(error instanceof Error ? error : new Error('Verification failed.'));

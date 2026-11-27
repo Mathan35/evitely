@@ -108,7 +108,7 @@ class RazorpayBillingTest extends TestCase
         $this->assertSame(59900, $pack['amount']);
         $this->assertDatabaseHas('billing_payments', [
             'user_id' => $user->id,
-            'kind' => 'pack',
+            'kind' => 'credit_pack',
             'sku' => 'credits_200',
             'razorpay_order_id' => $pack['order_id'],
             'status' => 'created',
@@ -165,7 +165,7 @@ class RazorpayBillingTest extends TestCase
         $this->assertSame('paid', $payment->fresh()->status);
     }
 
-    public function test_fulfill_pack_payment_grants_credits(): void
+    public function test_fulfill_pack_payment_queues_credits_pending_activation(): void
     {
         $user = User::factory()->create(['plan' => 'pro', 'message_credits' => 10]);
 
@@ -184,13 +184,15 @@ class RazorpayBillingTest extends TestCase
             ],
         ]);
 
-        app(RazorpayService::class)->fulfillPaidOrder(
+        $payment = app(RazorpayService::class)->fulfillPaidOrder(
             $user,
             'order_test_pack_1',
             'pay_test_pack_1',
         );
 
-        $this->assertSame(210, $user->fresh()->message_credits);
+        // Wallet unchanged until activation window / admin activate.
+        $this->assertSame(10, $user->fresh()->message_credits);
+        $this->assertTrue(app(\App\Services\Billing\MessageCreditActivationService::class)->isPending($payment->fresh()));
     }
 
     public function test_fulfill_is_idempotent(): void
@@ -432,7 +434,11 @@ class RazorpayBillingTest extends TestCase
         )->assertOk();
 
         Notification::assertSentTo($user, PaymentReceipt::class);
-        $this->assertSame(200, $user->fresh()->message_credits);
+        // Credits stay pending until the 24h window / admin activate.
+        $this->assertSame(0, $user->fresh()->message_credits);
+        $payment = BillingPayment::query()->where('razorpay_order_id', $orderId)->first();
+        $this->assertNotNull($payment);
+        $this->assertTrue(app(\App\Services\Billing\MessageCreditActivationService::class)->isPending($payment));
     }
 
     public function test_billing_admin_can_view_payments_ops_page(): void

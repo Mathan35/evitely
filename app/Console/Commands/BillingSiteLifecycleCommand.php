@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\BillingExpiryNotification;
 use App\Models\Wedding;
 use App\Notifications\SiteBillingAlert;
+use App\Services\Billing\MessageCreditActivationService;
 use App\Services\Billing\SiteBillingService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -13,15 +14,16 @@ class BillingSiteLifecycleCommand extends Command
 {
     protected $signature = 'billing:site-lifecycle';
 
-    protected $description = 'Auto-publish scheduled sites, expire packs/trials, and send billing reminders';
+    protected $description = 'Auto-publish scheduled sites, activate due message packs, expire packs/trials, and send billing reminders';
 
-    public function handle(SiteBillingService $siteBilling): int
+    public function handle(SiteBillingService $siteBilling, MessageCreditActivationService $messageCredits): int
     {
         $activated = $siteBilling->activateDueSchedules();
+        $creditsActivated = $messageCredits->activateDue();
         $expired = $siteBilling->markExpiredIfNeeded();
         $reminders = $this->sendReminders();
 
-        $this->info("activated={$activated} expired={$expired} reminders={$reminders}");
+        $this->info("activated={$activated} message_credits={$creditsActivated} expired={$expired} reminders={$reminders}");
 
         return self::SUCCESS;
     }

@@ -32,11 +32,12 @@ class PaymentReceipt extends Notification implements ShouldQueue
                 'Thank you for purchasing a Pro wedding-season pass.',
                 'Automated Twilio messaging and higher guest limits are now unlocked on your account.',
             ],
-            'pack' => [
-                'Thank you for buying message credits.',
+            'pack', 'credit_pack' => [
+                'Thank you for buying a message pack.',
                 sprintf(
-                    '%d credits were added to your Invidora account.',
+                    '%d credits will be activated on your Invidora account within %d hours.',
                     (int) ($this->payment->meta['credits'] ?? 0),
+                    max(1, (int) config('billing.message_credits.activation_hours', 24)),
                 ),
             ],
             default => [

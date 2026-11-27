@@ -606,18 +606,30 @@ class BillingService
                 ->where('user_id', $user->id)
                 ->latest('id')
                 ->limit(8)
-                ->get(['id', 'kind', 'sku', 'amount_paise', 'currency', 'status', 'razorpay_payment_id', 'paid_at', 'created_at'])
-                ->map(fn (BillingPayment $row): array => [
-                    'id' => $row->id,
-                    'kind' => $row->kind,
-                    'sku' => $row->sku,
-                    'amount_label' => '₹'.number_format($row->amount_paise / 100, 0, '.', ','),
-                    'status' => $row->status,
-                    'payment_id' => $row->razorpay_payment_id,
-                    'paid_at' => $row->paid_at?->toIso8601String(),
-                    'created_at' => $row->created_at?->toIso8601String(),
-                ])
+                ->get(['id', 'kind', 'sku', 'amount_paise', 'currency', 'status', 'razorpay_payment_id', 'paid_at', 'created_at', 'meta'])
+                ->map(function (BillingPayment $row): array {
+                    $activation = app(MessageCreditActivationService::class);
+                    $pendingCredits = $activation->isCreditPack($row) && $activation->isPending($row);
+
+                    return [
+                        'id' => $row->id,
+                        'kind' => $row->kind,
+                        'sku' => $row->sku,
+                        'amount_label' => '₹'.number_format($row->amount_paise / 100, 0, '.', ','),
+                        'status' => $row->status,
+                        'payment_id' => $row->razorpay_payment_id,
+                        'paid_at' => $row->paid_at?->toIso8601String(),
+                        'created_at' => $row->created_at?->toIso8601String(),
+                        'credits_pending' => $pendingCredits,
+                        'status_label' => $pendingCredits
+                            ? 'paid · activating within '.$activation->activationHours().'h'
+                            : $row->status,
+                    ];
+                })
                 ->values()
+                ->all(),
+            'pending_message_packs' => app(MessageCreditActivationService::class)
+                ->pendingForUser($user)
                 ->all(),
         ];
     }

@@ -104,6 +104,14 @@ type BillingPayload = {
         features: string[];
     };
     credit_packs: CreditPack[];
+    pending_message_packs?: Array<{
+        id: number;
+        sku: string;
+        credits: number;
+        paid_at?: string | null;
+        activate_after?: string | null;
+        message: string;
+    }>;
     feature_comparison?: FeatureComparisonRow[];
     razorpay_ready: boolean;
     stripe_ready: boolean;
@@ -769,6 +777,30 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                         </div>
                     </div>
                 </section>
+
+                {(billing.pending_message_packs?.length ?? 0) > 0 ? (
+                    <StudioCard className="border-sky-200/80 bg-sky-50/90 p-4 dark:border-sky-400/20 dark:bg-sky-950/30">
+                        <p className="text-[13px] font-semibold text-sky-950 dark:text-sky-100">
+                            Message pack activating
+                        </p>
+                        <p className="mt-1 text-[13px] leading-relaxed text-sky-900/80 dark:text-sky-100/80">
+                            {billing.pending_message_packs![0].message}
+                        </p>
+                        <ul className="mt-2 space-y-1">
+                            {billing.pending_message_packs!.map((pack) => (
+                                <li
+                                    key={pack.id}
+                                    className="text-[12px] font-medium text-sky-950/90 dark:text-sky-100/90"
+                                >
+                                    {pack.credits} credits · {pack.sku}
+                                    {pack.activate_after
+                                        ? ` · ready by ${formatWhen(pack.activate_after) ?? 'soon'}`
+                                        : ''}
+                                </li>
+                            ))}
+                        </ul>
+                    </StudioCard>
+                ) : null}
 
                 {state.trial_available === false && state.trial_used_on && !state.has_paid_pack ? (
                     <StudioCard className="border-amber-200/80 bg-amber-50/90 p-4 dark:border-amber-400/20 dark:bg-amber-950/30">
@@ -1549,7 +1581,7 @@ export default function EventBillingPage({ wedding, billing }: Props) {
                                     </h2>
                                 </div>
                                 <p className="text-[12px] text-zinc-500">
-                                    Automation spends credits only on an active paid plan.
+                                    Paid packs activate within 24 hours · automation needs an active site plan.
                                 </p>
                             </div>
 

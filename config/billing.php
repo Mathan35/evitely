@@ -42,6 +42,19 @@ return [
     // Free guest-site window after publish (long enough for a real celebration).
     'trial_days' => (int) env('BILLING_TRIAL_DAYS', 30),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Message credit packs
+    |--------------------------------------------------------------------------
+    |
+    | After a paid message-pack checkout, credits stay pending until this window
+    | elapses (or an admin activates early). Site-pack included credits stay immediate.
+    |
+    */
+    'message_credits' => [
+        'activation_hours' => (int) env('BILLING_MESSAGE_CREDIT_ACTIVATION_HOURS', 24),
+    ],
+
     'schedule' => [
         'min_lead_hours' => 1,
         'max_lead_days' => 180,

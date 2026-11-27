@@ -74,14 +74,18 @@ class BillingController extends Controller
 
         $payment = $razorpay->verifyAndFulfill($request->user(), $data);
 
-        $message = $payment->kind === 'season'
-            ? 'Payment successful. Pro season is now active.'
-            : 'Payment successful. Message credits added.';
+        $credits = app(\App\Services\Billing\MessageCreditActivationService::class);
+        $message = match (true) {
+            $payment->kind === 'season' => 'Payment successful. Pro season is now active.',
+            $credits->isCreditPack($payment) => $credits->userNotice(),
+            default => 'Payment successful. Your purchase is confirmed.',
+        };
 
         if ($request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
             return response()->json([
                 'ok' => true,
                 'message' => $message,
+                'credits_pending' => $credits->isPending($payment->fresh()),
                 'billing' => app(BillingService::class)->summary($request->user()->fresh()),
             ]);
         }
@@ -223,9 +227,15 @@ class BillingController extends Controller
 
         $billing->syncFromSubscription($request->user()->fresh());
 
+        $pendingPacks = app(\App\Services\Billing\MessageCreditActivationService::class)
+            ->pendingForUser($request->user()->fresh());
+        $toastMessage = $pendingPacks->isNotEmpty()
+            ? $pendingPacks->first()['message']
+            : 'Payment received. Your site plan is updated.';
+
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => 'Payment received. Your site plan or credits are updated.',
+            'message' => $toastMessage,
         ]);
 
         $eventId = (int) $request->query('event_id', 0);

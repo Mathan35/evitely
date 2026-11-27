@@ -403,8 +403,8 @@ class RazorpayService
         }
 
         if (in_array($payment->kind, ['pack', 'credit_pack'], true)) {
-            $credits = (int) (($payment->meta['credits'] ?? null) ?: ($this->catalog->pack($payment->sku)['credits'] ?? 0));
-            $this->billing->grantCredits($user, $credits);
+            // Credits are queued for activation (default 24h) — same lifecycle idea as awaiting_go_live.
+            app(MessageCreditActivationService::class)->queuePending($payment);
 
             return;
         }

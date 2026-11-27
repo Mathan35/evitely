@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\GuestController;
 use App\Http\Controllers\Admin\IntegrationController;
 use App\Http\Controllers\Admin\ModerationController;
+use App\Http\Controllers\Admin\PackGrantController;
 use App\Http\Controllers\Admin\QueueController;
 use App\Http\Controllers\Admin\SupportController;
 use App\Http\Controllers\Admin\UserController;
@@ -51,6 +52,15 @@ Route::middleware(['auth', 'platform.admin'])
         Route::get('billing', [BillingController::class, 'index'])->name('billing.index');
         Route::get('payments/{payment}', [BillingController::class, 'show'])->name('payments.show');
         Route::post('payments/{payment}/note', [BillingController::class, 'note'])->middleware('throttle:30,1')->name('payments.note');
+        Route::post('payments/{payment}/activate-credits', [BillingController::class, 'activateCredits'])
+            ->middleware('throttle:30,1')
+            ->name('payments.activate-credits');
+
+        Route::get('grants', [PackGrantController::class, 'index'])->name('grants.index');
+        Route::post('grants', [PackGrantController::class, 'store'])->middleware('throttle:20,1')->name('grants.store');
+        Route::get('grants/users/{user}/events', [PackGrantController::class, 'userEvents'])
+            ->middleware('throttle:60,1')
+            ->name('grants.user-events');
 
         Route::get('moderation', [ModerationController::class, 'index'])->name('moderation.index');
         Route::post('moderation/guestbook/{entry}', [ModerationController::class, 'guestbook'])->middleware('throttle:60,1')->name('moderation.guestbook');

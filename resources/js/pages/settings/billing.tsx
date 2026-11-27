@@ -53,8 +53,19 @@ type RecentPayment = {
     sku: string;
     amount_label: string;
     status: string;
+    status_label?: string;
+    credits_pending?: boolean;
     payment_id?: string | null;
     paid_at?: string | null;
+};
+
+type PendingMessagePack = {
+    id: number;
+    sku: string;
+    credits: number;
+    paid_at?: string | null;
+    activate_after?: string | null;
+    message: string;
 };
 
 type BillingProps = {
@@ -76,6 +87,7 @@ type BillingProps = {
         is_billing_admin?: boolean;
         launch_checklist?: ChecklistItem[];
         recent_payments?: RecentPayment[];
+        pending_message_packs?: PendingMessagePack[];
         subscription: {
             active: boolean;
             on_grace_period: boolean;
@@ -170,7 +182,11 @@ export default function Billing({ billing }: BillingProps) {
                 orderUrl: '/settings/billing/razorpay/pack',
                 orderBody: { pack },
                 verifyUrl: '/settings/billing/razorpay/verify',
-                onPaid: () => reloadBilling('Message credits added to your account.'),
+                onPaid: (result) =>
+                    reloadBilling(
+                        result?.message ??
+                            'Payment received. Your message pack will be activated within 24 hours.',
+                    ),
             });
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Payment failed.';
@@ -462,6 +478,35 @@ export default function Billing({ billing }: BillingProps) {
                     ))}
                 </div>
 
+                {(billing.pending_message_packs?.length ?? 0) > 0 ? (
+                    <StudioCard className="overflow-hidden border-sky-200/90 bg-sky-50/80">
+                        <div className="px-5 py-4">
+                            <p className="text-[11px] font-semibold tracking-[0.16em] text-sky-700/80 uppercase">
+                                Message pack
+                            </p>
+                            <h3 className="mt-1 font-serif text-xl text-sky-950">
+                                Activating within 24 hours
+                            </h3>
+                            <p className="mt-1.5 text-[13px] leading-relaxed text-sky-900/80">
+                                {billing.pending_message_packs![0].message}
+                            </p>
+                            <ul className="mt-3 space-y-1.5">
+                                {billing.pending_message_packs!.map((pack) => (
+                                    <li
+                                        key={pack.id}
+                                        className="text-[12px] font-medium text-sky-950/90"
+                                    >
+                                        {pack.credits} credits · {pack.sku}
+                                        {pack.activate_after
+                                            ? ` · ready by ${formatEndDate(pack.activate_after) ?? 'soon'}`
+                                            : ''}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </StudioCard>
+                ) : null}
+
                 {(billing.launch_checklist?.length ?? 0) > 0 ? (
                     <StudioCard className="overflow-hidden">
                         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-100 px-5 py-4">
@@ -526,7 +571,7 @@ export default function Billing({ billing }: BillingProps) {
                                             {row.sku}
                                         </p>
                                         <p className="text-[12px] text-zinc-500">
-                                            {row.status}
+                                            {row.status_label ?? row.status}
                                             {row.payment_id ? ` · ${row.payment_id}` : ''}
                                         </p>
                                     </div>
@@ -546,7 +591,8 @@ export default function Billing({ billing }: BillingProps) {
                         </p>
                         <h3 className="mt-1 font-serif text-xl text-zinc-950">Message credit packs</h3>
                         <p className="mt-1 text-[13px] text-zinc-500">
-                            Top up WhatsApp/SMS sends. Pay with UPI, cards, or netbanking where available.
+                            Top up WhatsApp/SMS sends. After payment, message packs activate within 24
+                            hours. Pay with UPI, cards, or netbanking where available.
                         </p>
                     </div>
                     <ul className="divide-y divide-zinc-100">

@@ -34,6 +34,27 @@ class WeddingService
             $billing->discardUnlistedDrafts($user);
         }
 
+        return $this->persistNew($userId, $attributes);
+    }
+
+    /**
+     * Admin / ops path: create an event without free-plan quota checks.
+     * Regular self-serve create() is unchanged.
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    public function createWithoutQuota(int $userId, array $attributes): Wedding
+    {
+        User::query()->findOrFail($userId);
+
+        return $this->persistNew($userId, $attributes);
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    private function persistNew(int $userId, array $attributes): Wedding
+    {
         return DB::transaction(function () use ($userId, $attributes): Wedding {
             $wedding = new Wedding;
             $wedding->user_id = $userId;

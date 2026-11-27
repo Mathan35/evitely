@@ -1,8 +1,17 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { AdminCard, AdminPageHeader, AdminStat } from '@/components/admin/admin-ui';
 import { rupees, shortDate } from '@/components/admin/pagination';
 
 type Note = { at?: string; by?: string; note?: string };
+
+type CreditsActivation = {
+    status?: string;
+    credits?: number;
+    queued_at?: string | null;
+    activate_after?: string | null;
+    activated_at?: string | null;
+    activated_by?: string | null;
+};
 
 type Payment = {
     id: number;
@@ -20,6 +29,9 @@ type Payment = {
     meta?: Record<string, unknown> & { admin_notes?: Note[] };
     paid_at?: string | null;
     created_at?: string | null;
+    credits_pending?: boolean;
+    credits_activation?: CreditsActivation | null;
+    can_activate_credits?: boolean;
 };
 
 export default function BillingShow({ payment }: { payment: Payment }) {
@@ -27,6 +39,7 @@ export default function BillingShow({ payment }: { payment: Payment }) {
     const notes = payment.meta?.admin_notes ?? [];
     const meta = { ...(payment.meta ?? {}) };
     delete meta.admin_notes;
+    const activation = payment.credits_activation;
 
     return (
         <>
@@ -34,9 +47,48 @@ export default function BillingShow({ payment }: { payment: Payment }) {
             <AdminPageHeader title={payment.sku} description={`${payment.provider ?? 'payment'} · ${payment.status}`} />
             <div className="mb-4 grid gap-3 sm:grid-cols-3">
                 <AdminStat label="Amount" value={rupees(payment.amount_paise, payment.currency)} />
-                <AdminStat label="Status" value={payment.status === 'created' ? 'pending' : payment.status} />
+                <AdminStat
+                    label="Status"
+                    value={
+                        payment.credits_pending
+                            ? 'credits pending'
+                            : payment.status === 'created'
+                              ? 'pending'
+                              : payment.status
+                    }
+                />
                 <AdminStat label="Paid" value={shortDate(payment.paid_at)} />
             </div>
+            {payment.credits_pending || activation ? (
+                <div className="mb-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-[13px] text-sky-950">
+                    <p className="font-semibold">Message pack activation</p>
+                    <p className="mt-1 text-sky-900/80">
+                        {payment.credits_pending
+                            ? `${activation?.credits ?? '?'} credits paid — auto-activates by ${shortDate(activation?.activate_after)}. Activate early if Twilio / ops is ready.`
+                            : activation?.status === 'activated'
+                              ? `${activation.credits ?? '?'} credits activated ${activation.activated_at ? `at ${shortDate(activation.activated_at)}` : ''}${activation.activated_by ? ` · ${activation.activated_by}` : ''}.`
+                              : 'No pending credit activation on this payment.'}
+                    </p>
+                    {payment.can_activate_credits ? (
+                        <button
+                            type="button"
+                            className="mt-3 rounded-lg bg-sky-900 px-3 py-1.5 text-[12px] font-medium text-white"
+                            onClick={() => {
+                                if (
+                                    !window.confirm(
+                                        'Activate this message pack now and add credits to the user wallet?',
+                                    )
+                                ) {
+                                    return;
+                                }
+                                router.post(`/admin/payments/${payment.id}/activate-credits`);
+                            }}
+                        >
+                            Activate credits now
+                        </button>
+                    ) : null}
+                </div>
+            ) : null}
             {typeof payment.meta?.fail_reason === 'string' || typeof payment.meta?.error === 'string' ? (
                 <p className="mb-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[13px] text-rose-900">
                     {(payment.meta.fail_reason as string) || (payment.meta.error as string)}

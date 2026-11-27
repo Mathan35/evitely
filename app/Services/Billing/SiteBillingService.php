@@ -382,7 +382,7 @@ class SiteBillingService
         $this->activatePaidWindow($wedding, $start, $end);
     }
 
-    public function putAwaitingGoLive(Wedding $wedding, ?Carbon $scheduledAt): void
+    public function putAwaitingGoLive(Wedding $wedding, ?CarbonInterface $scheduledAt): void
     {
         $payload = [
             'site_billing_status' => 'awaiting_go_live',
@@ -515,7 +515,7 @@ class SiteBillingService
         app(\App\Services\ScheduledAutoShareService::class)->dispatchPending($wedding);
     }
 
-    public function activatePaidWindow(Wedding $wedding, Carbon $starts, ?Carbon $ends): void
+    public function activatePaidWindow(Wedding $wedding, CarbonInterface $starts, ?CarbonInterface $ends): void
     {
         $wedding->forceFill([
             'site_billing_status' => 'paid',
@@ -684,6 +684,9 @@ class SiteBillingService
                     'checkout_ready' => $amount >= 100,
                 ];
             })->values()->all(),
+            'pending_message_packs' => app(MessageCreditActivationService::class)
+                ->pendingForUser($user)
+                ->all(),
             'razorpay_ready' => $this->billing->razorpayReady(),
             'stripe_ready' => $this->billing->stripeReady(),
             'razorpay_key' => $this->billing->razorpayReady() ? (string) config('razorpay.key') : null,

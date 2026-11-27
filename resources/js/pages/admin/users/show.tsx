@@ -60,6 +60,9 @@ export default function UserShow({ user, events, payments }: { user: UserDetail;
                         <button type="button" className={btn} onClick={() => router.post(`/admin/users/${user.id}/send-reset`)}>
                             Send reset
                         </button>
+                        <Link href={`/admin/grants?user_id=${user.id}`} className={btn}>
+                            Grant pack
+                        </Link>
                         {user.disabled_at ? (
                             <button type="button" className={btnDark} onClick={() => router.post(`/admin/users/${user.id}/enable`)}>
                                 Enable

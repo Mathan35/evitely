@@ -209,8 +209,7 @@ class StripeSiteCheckoutService
     public function applyEntitlements(User $user, BillingPayment $payment): void
     {
         if (in_array($payment->kind, ['pack', 'credit_pack'], true)) {
-            $credits = (int) (($payment->meta['credits'] ?? null) ?: ($this->catalog->pack($payment->sku)['credits'] ?? 0));
-            $this->billing->grantCredits($user, $credits);
+            app(MessageCreditActivationService::class)->queuePending($payment);
 
             return;
         }

@@ -107,6 +107,14 @@ export default function EventShow({ event, pack_actions }: { event: EventDetail;
                                 Card editor
                             </a>
                         ) : null}
+                        {event.owner?.id ? (
+                            <Link
+                                href={`/admin/grants?user_id=${event.owner.id}&event_id=${event.id}`}
+                                className={btn}
+                            >
+                                Grant pack
+                            </Link>
+                        ) : null}
                         {event.status === 'published' ? (
                             <button type="button" className={btn} onClick={() => router.post(`/admin/events/${event.id}/unpublish`)}>
                                 Unpublish
