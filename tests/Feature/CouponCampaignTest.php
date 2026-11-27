@@ -16,6 +16,20 @@ class CouponCampaignTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_admin_coupons_index_renders_without_error(): void
+    {
+        $admin = User::factory()->create(['email' => 'admin-index@example.com']);
+        config(['platform.admin_emails' => ['admin-index@example.com']]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.coupons.index'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('admin/coupons/index')
+                ->has('campaigns')
+                ->where('campaigns', []));
+    }
+
     public function test_admin_can_create_percent_coupon_and_page_lists_it(): void
     {
         $admin = User::factory()->create(['email' => 'admin@example.com']);

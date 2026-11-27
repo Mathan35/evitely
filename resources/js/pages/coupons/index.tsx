@@ -30,16 +30,18 @@ type Campaign = {
 export default function CouponsIndex({
     appName,
     authRequired,
-    campaigns,
-    my_coupons,
+    campaigns = [],
+    my_coupons = [],
     seo,
 }: {
     appName: string;
     authRequired: boolean;
-    campaigns: Campaign[];
-    my_coupons: OwnedCoupon[];
+    campaigns?: Campaign[];
+    my_coupons?: OwnedCoupon[];
     seo?: MarketingSeoPayload;
 }) {
+    const offerList = Array.isArray(campaigns) ? campaigns : [];
+    const mine = Array.isArray(my_coupons) ? my_coupons : [];
     const page = usePage();
     const claim = useForm({ code: '' });
 
@@ -111,11 +113,11 @@ export default function CouponsIndex({
                         </form>
                     )}
 
-                    {!authRequired && my_coupons.length > 0 ? (
+                    {!authRequired && mine.length > 0 ? (
                         <section className="mt-10">
                             <h2 className="font-serif text-2xl text-[#1c1712]">Your saved coupons</h2>
                             <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-                                {my_coupons.map((coupon) => (
+                                {mine.map((coupon) => (
                                     <li
                                         key={coupon.id}
                                         className="rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white p-4"
@@ -144,11 +146,11 @@ export default function CouponsIndex({
 
                     <section className="mt-12">
                         <h2 className="font-serif text-2xl text-[#1c1712]">Current offers</h2>
-                        {campaigns.length === 0 ? (
+                        {offerList.length === 0 ? (
                             <p className="mt-4 text-sm text-[#5e554c]">No public offers right now. Check back soon.</p>
                         ) : (
                             <ul className="mt-4 grid gap-4">
-                                {campaigns.map((campaign) => (
+                                {offerList.map((campaign) => (
                                     <li
                                         key={campaign.id}
                                         className="rounded-2xl border border-[#e8dfd2] bg-[#fcfaf6] p-5"

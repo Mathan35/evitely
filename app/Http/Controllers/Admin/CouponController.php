@@ -20,7 +20,7 @@ class CouponController extends Controller
     public function index(CouponCampaignService $campaigns): Response
     {
         return Inertia::render('admin/coupons/index', [
-            'campaigns' => $campaigns->adminList(80),
+            'campaigns' => array_values($campaigns->adminList(80)),
         ]);
     }
 

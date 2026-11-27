@@ -49,7 +49,8 @@ function defaultExpiryLocal(): string {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export default function CouponsIndex({ campaigns }: { campaigns: Campaign[] }) {
+export default function CouponsIndex({ campaigns = [] }: { campaigns?: Campaign[] }) {
+    const list = Array.isArray(campaigns) ? campaigns : [];
     const form = useForm({
         code: '',
         title: '',
@@ -67,8 +68,8 @@ export default function CouponsIndex({ campaigns }: { campaigns: Campaign[] }) {
 
     const [editingId, setEditingId] = useState<number | null>(null);
     const editing = useMemo(
-        () => campaigns.find((c) => c.id === editingId) ?? null,
-        [campaigns, editingId],
+        () => list.find((c) => c.id === editingId) ?? null,
+        [list, editingId],
     );
 
     const editForm = useForm({
@@ -404,90 +405,65 @@ export default function CouponsIndex({ campaigns }: { campaigns: Campaign[] }) {
                     ) : null}
 
                     <AdminCard title="Campaigns">
-                        <AdminTable>
-                            <thead>
-                                <tr className="border-b border-zinc-100 text-left text-[11px] tracking-wide text-zinc-500 uppercase">
-                                    <th className="px-3 py-2">Coupon</th>
-                                    <th className="px-3 py-2">Discount</th>
-                                    <th className="px-3 py-2">Counts</th>
-                                    <th className="px-3 py-2">Expiry</th>
-                                    <th className="px-3 py-2">Notify</th>
-                                    <th className="px-3 py-2">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {campaigns.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={6} className="px-3 py-8 text-center text-sm text-zinc-500">
-                                            No coupons yet.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    campaigns.map((row) => (
-                                        <tr key={row.id} className="border-b border-zinc-50 text-[13px]">
-                                            <td className="px-3 py-2.5">
-                                                <p className="font-medium text-zinc-900">{row.title}</p>
-                                                <p className="font-mono text-[11px] text-zinc-500">{row.code}</p>
-                                                {!row.is_active ? (
-                                                    <span className="text-[11px] text-amber-700">Inactive</span>
-                                                ) : null}
-                                            </td>
-                                            <td className="px-3 py-2.5">{row.discount_label}</td>
-                                            <td className="px-3 py-2.5">
-                                                <span className="font-medium text-zinc-900">
-                                                    {row.claimed_count}/{row.max_claims}
-                                                </span>
-                                                <span className="block text-[11px] text-zinc-400">claimed / limit</span>
-                                            </td>
-                                            <td className="px-3 py-2.5 text-[12px] text-zinc-600">
-                                                {row.ends_at ? shortDate(row.ends_at) : 'No expiry'}
-                                            </td>
-                                            <td className="px-3 py-2.5">
-                                                <span className="text-zinc-600">{row.notify_status}</span>
-                                                <span className="block text-[11px] text-zinc-400">
-                                                    {row.notified_count} notified
-                                                </span>
-                                            </td>
-                                            <td className="px-3 py-2.5">
-                                                <div className="flex flex-wrap gap-1.5">
-                                                    <button
-                                                        type="button"
-                                                        className={btnLight}
-                                                        onClick={() => openEdit(row)}
-                                                    >
-                                                        Edit limits
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        className={btnLight}
-                                                        onClick={() =>
-                                                            router.post(
-                                                                `/admin/coupons/${row.id}`,
-                                                                { is_active: !row.is_active },
-                                                                { preserveScroll: true },
-                                                            )
-                                                        }
-                                                    >
-                                                        {row.is_active ? 'Deactivate' : 'Activate'}
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        className={btnLight}
-                                                        onClick={() =>
-                                                            router.post(`/admin/coupons/${row.id}/notify`, {}, {
-                                                                preserveScroll: true,
-                                                            })
-                                                        }
-                                                    >
-                                                        Re-notify
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </AdminTable>
+                        <AdminTable
+                            headers={['Coupon', 'Discount', 'Counts', 'Expiry', 'Notify', 'Actions']}
+                            rows={list.map((row) => [
+                                <div key={`c-${row.id}`}>
+                                    <p className="font-medium text-zinc-900">{row.title}</p>
+                                    <p className="font-mono text-[11px] text-zinc-500">{row.code}</p>
+                                    {!row.is_active ? (
+                                        <span className="text-[11px] text-amber-700">Inactive</span>
+                                    ) : null}
+                                </div>,
+                                row.discount_label,
+                                <div key={`n-${row.id}`}>
+                                    <span className="font-medium text-zinc-900">
+                                        {row.claimed_count}/{row.max_claims}
+                                    </span>
+                                    <span className="block text-[11px] text-zinc-400">claimed / limit</span>
+                                </div>,
+                                row.ends_at ? shortDate(row.ends_at) : 'No expiry',
+                                <div key={`y-${row.id}`}>
+                                    <span className="text-zinc-600">{row.notify_status}</span>
+                                    <span className="block text-[11px] text-zinc-400">
+                                        {row.notified_count} notified
+                                    </span>
+                                </div>,
+                                <div key={`a-${row.id}`} className="flex flex-wrap gap-1.5">
+                                    <button
+                                        type="button"
+                                        className={btnLight}
+                                        onClick={() => openEdit(row)}
+                                    >
+                                        Edit limits
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={btnLight}
+                                        onClick={() =>
+                                            router.post(
+                                                `/admin/coupons/${row.id}`,
+                                                { is_active: !row.is_active },
+                                                { preserveScroll: true },
+                                            )
+                                        }
+                                    >
+                                        {row.is_active ? 'Deactivate' : 'Activate'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={btnLight}
+                                        onClick={() =>
+                                            router.post(`/admin/coupons/${row.id}/notify`, {}, {
+                                                preserveScroll: true,
+                                            })
+                                        }
+                                    >
+                                        Re-notify
+                                    </button>
+                                </div>,
+                            ])}
+                        />
                     </AdminCard>
                 </div>
             </div>

@@ -69,13 +69,22 @@ export function AdminStat({ label, value }: { label: string; value: string | num
     );
 }
 
-export function AdminTable({ headers, rows }: { headers: string[]; rows: ReactNode[][] }) {
+export function AdminTable({
+    headers = [],
+    rows = [],
+}: {
+    headers?: string[];
+    rows?: ReactNode[][];
+}) {
+    const safeHeaders = Array.isArray(headers) ? headers : [];
+    const safeRows = Array.isArray(rows) ? rows : [];
+
     return (
         <div className="-mx-0 overflow-x-auto overscroll-x-contain">
             <table className="min-w-full text-left text-[13px]">
                 <thead className="border-b border-zinc-100 bg-zinc-50/80 text-[10px] tracking-[0.12em] text-zinc-400 uppercase">
                     <tr>
-                        {headers.map((h) => (
+                        {safeHeaders.map((h) => (
                             <th key={h} className="px-3 py-2.5 font-semibold whitespace-nowrap sm:px-4">
                                 {h}
                             </th>
@@ -83,9 +92,9 @@ export function AdminTable({ headers, rows }: { headers: string[]; rows: ReactNo
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
-                    {rows.map((cells, i) => (
+                    {safeRows.map((cells, i) => (
                         <tr key={i} className="hover:bg-zinc-50/60">
-                            {cells.map((cell, j) => (
+                            {(Array.isArray(cells) ? cells : [cells]).map((cell, j) => (
                                 <td
                                     key={j}
                                     className="px-3 py-2.5 align-middle whitespace-nowrap text-zinc-700 sm:px-4"
@@ -97,7 +106,7 @@ export function AdminTable({ headers, rows }: { headers: string[]; rows: ReactNo
                     ))}
                 </tbody>
             </table>
-            {rows.length === 0 ? (
+            {safeRows.length === 0 ? (
                 <p className="px-4 py-8 text-center text-[13px] text-zinc-400">No rows.</p>
             ) : null}
         </div>
