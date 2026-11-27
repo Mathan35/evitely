@@ -170,6 +170,16 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-title" content="Invidora">
 
+        <?php if (! ($isAdminPage)): ?>
+            
+            <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-PVL2BSRM"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+            </script>
+        <?php endif; ?>
+
         <?php echo app('Illuminate\Foundation\Vite')->fonts(); ?>
 
         <?php echo app('Illuminate\Foundation\Vite')->reactRefresh(); ?>
@@ -197,8 +207,18 @@
 <?php endif; ?>
     </head>
     <body class="font-sans antialiased">
-        
         <?php if (! ($isAdminPage)): ?>
+            
+            <noscript>
+                <iframe
+                    src="https://www.googletagmanager.com/ns.html?id=GTM-PVL2BSRM"
+                    height="0"
+                    width="0"
+                    style="display:none;visibility:hidden"
+                    title="Google Tag Manager"
+                ></iframe>
+            </noscript>
+            
             <?php echo $__env->make('partials.boot-skeleton', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
         <?php endif; ?>
         <?php if (isset($component)) { $__componentOriginal1830bdc8f8b965a5838ec47487b5507c = $component; } ?>

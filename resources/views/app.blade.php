@@ -170,6 +170,16 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-title" content="Invidora">
 
+        @unless ($isAdminPage)
+            {{-- Google Tag Manager / Analytics (GTM-PVL2BSRM) --}}
+            <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-PVL2BSRM"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+            </script>
+        @endunless
+
         @fonts
 
         @viteReactRefresh
@@ -179,8 +189,18 @@
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
-        {{-- Page-specific first paint — mirrors destination UI, removed when React mounts. --}}
         @unless ($isAdminPage)
+            {{-- Google Tag Manager (noscript) --}}
+            <noscript>
+                <iframe
+                    src="https://www.googletagmanager.com/ns.html?id=GTM-PVL2BSRM"
+                    height="0"
+                    width="0"
+                    style="display:none;visibility:hidden"
+                    title="Google Tag Manager"
+                ></iframe>
+            </noscript>
+            {{-- Page-specific first paint — mirrors destination UI, removed when React mounts. --}}
             @include('partials.boot-skeleton')
         @endunless
         <x-inertia::app />
