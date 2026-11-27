@@ -35,7 +35,10 @@ class IntegrationController extends Controller
         $stripeKey = (string) config('cashier.key');
 
         $fields = $secrets->fieldsForAdmin();
-        $byGroup = collect($fields)->groupBy('group')->map->values()->all();
+        $byGroup = collect($fields)
+            ->groupBy('group')
+            ->map(fn ($items) => $items->values()->all())
+            ->all();
         $socialEnabled = $social->enabledProviders();
 
         return Inertia::render('admin/integrations/index', [
