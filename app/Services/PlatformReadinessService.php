@@ -124,9 +124,9 @@ class PlatformReadinessService
             [
                 'id' => 'legal',
                 'group' => 'App',
-                'label' => 'Privacy / Terms / Cookies routes live',
+                'label' => 'Privacy / Terms / Refund / Cancellation routes live',
                 'done' => true,
-                'hint' => '/privacy · /terms · /cookies',
+                'hint' => '/privacy · /terms · /cookies · /refund · /cancellation',
             ],
             [
                 'id' => 'observability',

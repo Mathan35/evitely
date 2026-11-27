@@ -35,6 +35,14 @@ export function LegalPage({
                     <Link href="/terms" className="underline underline-offset-2">
                         Terms
                     </Link>
+                    ,{' '}
+                    <Link href="/refund" className="underline underline-offset-2">
+                        Refunds
+                    </Link>
+                    ,{' '}
+                    <Link href="/cancellation" className="underline underline-offset-2">
+                        Cancellation
+                    </Link>
                     , and{' '}
                     <Link href="/cookies" className="underline underline-offset-2">
                         Cookies

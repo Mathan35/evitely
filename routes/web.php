@@ -80,6 +80,8 @@ foreach (array_keys(SeoPageController::pages()) as $page) {
 Route::get('privacy', [LegalController::class, 'privacy'])->name('legal.privacy');
 Route::get('terms', [LegalController::class, 'terms'])->name('legal.terms');
 Route::get('cookies', [LegalController::class, 'cookies'])->name('legal.cookies');
+Route::get('refund', [LegalController::class, 'refund'])->name('legal.refund');
+Route::get('cancellation', [LegalController::class, 'cancellation'])->name('legal.cancellation');
 
 Route::get('support', [SupportController::class, 'show'])->name('support');
 Route::post('support', [SupportController::class, 'store'])

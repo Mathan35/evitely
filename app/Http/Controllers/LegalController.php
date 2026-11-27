@@ -34,4 +34,22 @@ class LegalController extends Controller
             'seo' => MarketingSeo::legal('Cookie Policy', '/cookies'),
         ]);
     }
+
+    public function refund(): Response
+    {
+        return Inertia::render('legal/refund', [
+            'appName' => config('app.name', 'Invidora'),
+            'updatedAt' => '2026-11-27',
+            'seo' => MarketingSeo::legal('Refund Policy', '/refund'),
+        ]);
+    }
+
+    public function cancellation(): Response
+    {
+        return Inertia::render('legal/cancellation', [
+            'appName' => config('app.name', 'Invidora'),
+            'updatedAt' => '2026-11-27',
+            'seo' => MarketingSeo::legal('Cancellation Policy', '/cancellation'),
+        ]);
+    }
 }

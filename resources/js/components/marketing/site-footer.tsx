@@ -52,6 +52,16 @@ export function SiteFooter() {
                             </Link>
                         </li>
                         <li>
+                            <Link href="/refund" className="hover:text-[#f6f1e8]">
+                                Refunds
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/cancellation" className="hover:text-[#f6f1e8]">
+                                Cancellation
+                            </Link>
+                        </li>
+                        <li>
                             <Link href="/cookies" className="hover:text-[#f6f1e8]">
                                 Cookies
                             </Link>

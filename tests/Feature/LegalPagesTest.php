@@ -19,6 +19,14 @@ class LegalPagesTest extends TestCase
         $this->get(route('legal.cookies'))
             ->assertOk()
             ->assertInertia(fn ($page) => $page->component('legal/cookies'));
+
+        $this->get(route('legal.refund'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->component('legal/refund'));
+
+        $this->get(route('legal.cancellation'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->component('legal/cancellation'));
     }
 
     public function test_health_endpoint_is_ok(): void

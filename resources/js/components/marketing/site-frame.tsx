@@ -49,6 +49,8 @@ export function SiteFrame({
                             ['/support', 'Support'],
                             ['/privacy', 'Privacy'],
                             ['/terms', 'Terms'],
+                            ['/refund', 'Refunds'],
+                            ['/cancellation', 'Cancellation'],
                             ['/cookies', 'Cookies'],
                         ]}
                     />

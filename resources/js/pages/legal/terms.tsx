@@ -38,8 +38,15 @@ export default function Terms({
                 <h2>Billing</h2>
                 <p>
                     Card invitations stay free. Paid site packs and credits are charged through Razorpay or Stripe as
-                    configured for your region. Purchases are generally non-transferable. Refunds follow the processor
-                    and operator policy for your deployment.
+                    configured for your region. Purchases are generally non-transferable. See our{' '}
+                    <a href="/refund" className="underline underline-offset-2">
+                        Refund Policy
+                    </a>{' '}
+                    and{' '}
+                    <a href="/cancellation" className="underline underline-offset-2">
+                        Cancellation Policy
+                    </a>{' '}
+                    for details.
                 </p>
                 <h2>Availability</h2>
                 <p>
