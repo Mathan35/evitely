@@ -11,6 +11,11 @@ class BillingCurrency
     {
         $request ??= request();
 
+        // Razorpay-only mode charges INR worldwide (international cards still work).
+        if (! $this->stripeEnabled()) {
+            return 'inr';
+        }
+
         $pref = strtolower(trim((string) ($user?->billing_currency_pref ?? '')));
         if (in_array($pref, ['inr', 'usd'], true)) {
             return $pref;
@@ -29,7 +34,7 @@ class BillingCurrency
             ?: ''
         )));
 
-        // India → INR / Razorpay. Everywhere else with a known country → USD / Stripe.
+        // India → INR. Elsewhere → USD only when Stripe is enabled.
         if ($country === 'IN') {
             return 'inr';
         }
@@ -60,13 +65,36 @@ class BillingCurrency
 
     public function gatewayForCurrency(string $currency): string
     {
+        if (! $this->stripeEnabled()) {
+            return (string) config('billing.gateways.in', 'razorpay');
+        }
+
         $currency = strtolower($currency);
 
         if ($currency === 'inr') {
             return (string) config('billing.gateways.in', 'razorpay');
         }
 
-        return (string) config('billing.gateways.global', 'stripe');
+        return (string) config('billing.gateways.global', 'razorpay');
+    }
+
+    /**
+     * Checkout currency while Stripe is disabled is always INR (Razorpay worldwide).
+     */
+    public function normalizeCheckoutCurrency(?string $currency): string
+    {
+        if (! $this->stripeEnabled()) {
+            return 'inr';
+        }
+
+        $currency = strtolower(trim((string) $currency));
+
+        return in_array($currency, ['inr', 'usd'], true) ? $currency : 'inr';
+    }
+
+    public function stripeEnabled(): bool
+    {
+        return (bool) config('billing.stripe_enabled', false);
     }
 
     public function symbol(string $currency): string

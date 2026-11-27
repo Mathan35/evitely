@@ -157,7 +157,9 @@ class EventBillingController extends Controller
         }
 
         $user = $request->user();
-        $currency = $data['currency'] ?? $currencyHelper->forRequest($request, $user);
+        $currency = $currencyHelper->normalizeCheckoutCurrency(
+            $data['currency'] ?? $currencyHelper->forRequest($request, $user),
+        );
         $gateway = $currencyHelper->gatewayForCurrency($currency);
         $includeCredits = array_key_exists('include_credits', $data)
             ? (bool) $data['include_credits']
@@ -246,7 +248,9 @@ class EventBillingController extends Controller
         ]);
 
         $user = $request->user();
-        $currency = $data['currency'] ?? $currencyHelper->forRequest($request, $user);
+        $currency = $currencyHelper->normalizeCheckoutCurrency(
+            $data['currency'] ?? $currencyHelper->forRequest($request, $user),
+        );
         $includeCredits = array_key_exists('include_credits', $data)
             ? (bool) $data['include_credits']
             : false;
@@ -343,7 +347,9 @@ class EventBillingController extends Controller
         }
 
         $user = $request->user();
-        $currency = $data['currency'] ?? $currencyHelper->forRequest($request, $user);
+        $currency = $currencyHelper->normalizeCheckoutCurrency(
+            $data['currency'] ?? $currencyHelper->forRequest($request, $user),
+        );
 
         if ($billing->allowLocalActivate() && ! $billing->razorpayReady() && ! $billing->stripeReady()) {
             $credits = (int) ($catalog->pack($data['pack'])['credits'] ?? 0);

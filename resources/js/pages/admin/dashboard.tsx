@@ -52,7 +52,7 @@ type Props = {
         mode_mix?: Array<{ label: string; count: number }>;
     };
     filters: Filters;
-    webhook_urls: { razorpay: string; stripe: string };
+    webhook_urls: { razorpay: string; stripe: string; stripe_enabled?: boolean };
     commands: { queue: string; schedule: string; status: string };
     recent: {
         users: Array<{ id: number; name: string; email: string; plan?: string; message_credits?: number; created_at?: string | null }>;
@@ -371,7 +371,11 @@ export default function Dashboard({ platform, analytics, filters, webhook_urls, 
                 <AdminCard title="Webhooks">
                     <div className="space-y-2 px-4 py-3 text-[12px] break-all text-zinc-600">
                         <p>Razorpay · {webhook_urls.razorpay}</p>
-                        <p>Stripe · {webhook_urls.stripe}</p>
+                        {webhook_urls.stripe_enabled ? (
+                            <p>Stripe · {webhook_urls.stripe}</p>
+                        ) : (
+                            <p className="text-zinc-400">Stripe · disabled (BILLING_STRIPE_ENABLED=false)</p>
+                        )}
                         <p className="text-zinc-400">Mailer {platform.mailer ?? '—'} · Queue {platform.queue ?? '—'}</p>
                     </div>
                 </AdminCard>

@@ -119,7 +119,7 @@ class PlatformReadinessService
                 'group' => 'Billing',
                 'label' => 'At least one live checkout gateway',
                 'done' => $this->paymentsReady(),
-                'hint' => 'RAZORPAY_KEY+SECRET (INR) and/or STRIPE_KEY+SECRET (USD) + webhook secrets',
+                'hint' => 'RAZORPAY_KEY+SECRET (+ webhook secret). Stripe optional via BILLING_STRIPE_ENABLED',
             ],
             [
                 'id' => 'legal',
@@ -141,7 +141,10 @@ class PlatformReadinessService
     private function paymentsReady(): bool
     {
         $razorpay = filled(config('razorpay.key')) && filled(config('razorpay.secret'));
-        $stripe = filled(config('cashier.key')) && filled(config('cashier.secret'));
+        $stripeEnabled = (bool) config('billing.stripe_enabled', false);
+        $stripe = $stripeEnabled
+            && filled(config('cashier.key'))
+            && filled(config('cashier.secret'));
 
         return $razorpay || $stripe;
     }

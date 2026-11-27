@@ -7,7 +7,8 @@ return [
     | Billing driver / gateways
     |--------------------------------------------------------------------------
     |
-    | India (INR) → Razorpay. Global (USD) → Stripe Checkout.
+    | Checkout is Razorpay-only for India and international (INR + cards).
+    | Stripe code stays installed but is disabled unless BILLING_STRIPE_ENABLED=true.
     | BILLING_DRIVER still gates local unlocks for tests.
     |
     */
@@ -18,9 +19,12 @@ return [
             : 'local',
     ),
 
+    // Keep Stripe packages/routes; do not offer Stripe checkout while false.
+    'stripe_enabled' => (bool) env('BILLING_STRIPE_ENABLED', false),
+
     'gateways' => [
-        'in' => 'razorpay',
-        'global' => 'stripe',
+        'in' => env('BILLING_GATEWAY_IN', 'razorpay'),
+        'global' => env('BILLING_GATEWAY_GLOBAL', 'razorpay'),
     ],
 
     'allow_local_activate' => (bool) env(

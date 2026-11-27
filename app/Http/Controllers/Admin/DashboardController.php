@@ -66,6 +66,7 @@ class DashboardController extends Controller
             'webhook_urls' => [
                 'razorpay' => url('/razorpay/webhook'),
                 'stripe' => url('/stripe/webhook'),
+                'stripe_enabled' => (bool) config('billing.stripe_enabled', false),
             ],
             'commands' => [
                 'queue' => 'php artisan queue:work',

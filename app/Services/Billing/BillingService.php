@@ -15,7 +15,11 @@ class BillingService
 
     public function stripeReady(): bool
     {
-        // Dual checkout: USD path uses Stripe whenever keys exist (driver may still be razorpay for INR).
+        // Stripe stays installed but hidden unless BILLING_STRIPE_ENABLED=true.
+        if (! (bool) config('billing.stripe_enabled', false)) {
+            return false;
+        }
+
         return filled(config('cashier.secret')) && filled(config('cashier.key'));
     }
 
