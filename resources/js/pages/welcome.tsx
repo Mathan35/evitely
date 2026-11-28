@@ -286,49 +286,75 @@ export default function Welcome({
                 <MarketingHeader />
 
                 <main>
-                    <section className="mx-auto max-w-6xl px-5 pt-14 text-center">
-                        <div className="mb-5 flex justify-center">
-                            <OccasionMark slug={filter} size="lg" />
+                    <section className="home-hero relative overflow-hidden pt-10 sm:pt-14">
+                        <div className="home-hero__atmosphere" aria-hidden>
+                            <picture>
+                                <source
+                                    media="(max-width: 640px)"
+                                    type="image/webp"
+                                    srcSet="/images/home/hero-atmosphere-sm.webp"
+                                />
+                                <source type="image/webp" srcSet="/images/home/hero-atmosphere.webp" />
+                                <img
+                                    src="/images/home/hero-atmosphere-lg.jpg"
+                                    alt=""
+                                    className="home-hero__atmosphere-img"
+                                    width={1920}
+                                    height={1080}
+                                    decoding="async"
+                                    fetchPriority="high"
+                                />
+                            </picture>
+                            <div className="home-hero__atmosphere-wash" />
                         </div>
-                        <AnimatedHeadline text={occasion.headline} swapKey={filter} />
-                        <span key={`${filter}-rule`} className="occasion-rule mx-auto mt-5 block h-px w-24 bg-[#c6a36a]" />
-                        <p key={`${filter}-sub`} className="occasion-sub mx-auto mt-5 max-w-2xl text-sm leading-6 text-[#5e554c] sm:text-base">
-                            {occasion.sub}
-                        </p>
-                        <p className="mx-auto mt-4 max-w-xl text-[12px] leading-relaxed text-[#8a7d6e] sm:text-[13px]">
-                            Cards free forever · guest website free for 30 days on publish · personal WhatsApp share always free
-                        </p>
-                        <div className="mt-7 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Occasions">
-                            {filters.map((item) => (
-                                <button
-                                    key={item}
-                                    type="button"
-                                    role="tab"
-                                    aria-selected={filter === item}
-                                    onClick={() => {
-                                        if (item === filter) {
-                                            return;
-                                        }
-                                        setDirection(filters.indexOf(item) >= filters.indexOf(filter) ? 1 : -1);
-                                        setFilter(item);
-                                    }}
-                                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm transition-all duration-300 ease-out ${filter === item ? 'scale-[1.04] bg-[#241c16] text-[#f6f1e8] shadow-md' : 'bg-white text-[#241c16] shadow-sm hover:bg-[#fbf8f3]'}`}
+
+                        <div className="relative z-[1] mx-auto max-w-6xl px-5 text-center">
+                            <p className="home-hero__eyebrow mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-[#c6a36a]/35 bg-white/70 px-3.5 py-1.5 text-[10px] tracking-[0.2em] text-[#6b5c4a] uppercase shadow-sm backdrop-blur-[6px] sm:text-[11px]">
+                                Digital cards &amp; guest websites
+                            </p>
+                            <div className="mb-5 flex justify-center">
+                                <OccasionMark slug={filter} size="lg" />
+                            </div>
+                            <AnimatedHeadline text={occasion.headline} swapKey={filter} />
+                            <span key={`${filter}-rule`} className="occasion-rule mx-auto mt-5 block h-px w-24 bg-[#c6a36a]" />
+                            <p key={`${filter}-sub`} className="occasion-sub mx-auto mt-5 max-w-2xl text-sm leading-6 text-[#5e554c] sm:text-base">
+                                {occasion.sub}
+                            </p>
+                            <p className="mx-auto mt-4 max-w-xl text-[12px] leading-relaxed text-[#8a7d6e] sm:text-[13px]">
+                                Cards free forever · guest website free for 30 days on publish · personal WhatsApp share always free
+                            </p>
+                            <div className="mt-7 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Occasions">
+                                {filters.map((item) => (
+                                    <button
+                                        key={item}
+                                        type="button"
+                                        role="tab"
+                                        aria-selected={filter === item}
+                                        onClick={() => {
+                                            if (item === filter) {
+                                                return;
+                                            }
+                                            setDirection(filters.indexOf(item) >= filters.indexOf(filter) ? 1 : -1);
+                                            setFilter(item);
+                                        }}
+                                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm transition-all duration-300 ease-out ${filter === item ? 'scale-[1.04] bg-[#241c16] text-[#f6f1e8] shadow-md' : 'bg-white/90 text-[#241c16] shadow-sm backdrop-blur-[4px] hover:bg-[#fbf8f3]'}`}
+                                    >
+                                        <OccasionIcon slug={item} className="h-3.5 w-3.5 shrink-0" />
+                                        {item}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="mt-6 flex justify-center">
+                                <Link
+                                    href={occasion.moreHref}
+                                    className="inline-flex items-center gap-2 rounded-full border border-[#c6a36a]/50 bg-white/90 px-5 py-2.5 text-sm shadow-sm backdrop-blur-[4px] transition hover:border-[#c6a36a] hover:bg-[#fbf8f3]"
                                 >
-                                    <OccasionIcon slug={item} className="h-3.5 w-3.5 shrink-0" />
-                                    {item}
-                                </button>
-                            ))}
+                                    <LayoutGrid className="h-4 w-4 text-[#c6a36a]" aria-hidden />
+                                    {filter === 'All Events' ? 'Explore all designs' : `Explore ${occasion.galleryName} designs`}
+                                </Link>
+                            </div>
+                            <EventTypeHero occasion={occasion} direction={direction} />
                         </div>
-                        <div className="mt-6 flex justify-center">
-                            <Link
-                                href={occasion.moreHref}
-                                className="inline-flex items-center gap-2 rounded-full border border-[#c6a36a]/50 bg-white px-5 py-2.5 text-sm shadow-sm transition hover:border-[#c6a36a] hover:bg-[#fbf8f3]"
-                            >
-                                <LayoutGrid className="h-4 w-4 text-[#c6a36a]" aria-hidden />
-                                {filter === 'All Events' ? 'Explore all designs' : `Explore ${occasion.galleryName} designs`}
-                            </Link>
-                        </div>
-                        <EventTypeHero occasion={occasion} direction={direction} />
                     </section>
 
                     <section className="mx-auto max-w-6xl px-5 py-20">

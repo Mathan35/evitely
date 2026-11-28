@@ -692,6 +692,80 @@ html.dark #app-boot-skeleton {
     }
 }
 
+/* Home marketing hero — soft transparent atmosphere (even wash, never patchy). */
+.home-hero {
+    isolation: isolate;
+}
+.home-hero__atmosphere {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+.home-hero__atmosphere-img {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    width: min(118%, 72rem);
+    max-width: none;
+    height: auto;
+    transform: translate(-50%, -50%) scale(1.02);
+    object-fit: cover;
+    opacity: 0.34;
+    filter: saturate(0.92) contrast(0.96);
+    animation: home-hero-atmosphere-in 1.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.home-hero__atmosphere-wash {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 78% 62% at 50% 36%, rgba(251, 248, 243, 0.18) 0%, transparent 68%),
+        linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--background) 78%, transparent) 0%,
+            color-mix(in srgb, var(--background) 42%, transparent) 34%,
+            color-mix(in srgb, var(--background) 18%, transparent) 58%,
+            color-mix(in srgb, var(--background) 72%, transparent) 84%,
+            var(--background) 100%
+        );
+}
+.home-hero__eyebrow {
+    animation: invite-fade 700ms ease both;
+}
+@keyframes home-hero-atmosphere-in {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -48%) scale(1.05);
+    }
+    to {
+        opacity: 0.34;
+        transform: translate(-50%, -50%) scale(1.02);
+    }
+}
+@media (min-width: 768px) {
+    .home-hero__atmosphere-img {
+        width: min(108%, 78rem);
+        opacity: 0.38;
+        animation-name: home-hero-atmosphere-in-md;
+    }
+}
+@keyframes home-hero-atmosphere-in-md {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -48%) scale(1.05);
+    }
+    to {
+        opacity: 0.38;
+        transform: translate(-50%, -50%) scale(1.02);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .home-hero__atmosphere-img {
+        animation: none !important;
+    }
+}
+
 /* After wax-seal open — soft hero entrance for the live guest site. */
 @keyframes invite-site-reveal {
     from {

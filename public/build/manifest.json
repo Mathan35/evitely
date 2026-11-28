@@ -7,23 +7,23 @@
       "_utils-CQk6LZJn.js"
     ]
   },
-  "_baby-shower-countdown-timer-Bi3aQSlF.js": {
-    "file": "assets/baby-shower-countdown-timer-Bi3aQSlF.js",
+  "_baby-shower-countdown-timer-Cu6pbhrN.js": {
+    "file": "assets/baby-shower-countdown-timer-Cu6pbhrN.js",
     "name": "baby-shower-countdown-timer",
     "imports": [
       "_react-DgBH5fgT.js",
-      "_site-backgrounds-Bn1My4Hz.js"
+      "_site-backgrounds-QeE7exD8.js"
     ]
   },
-  "_birthday-countdown-timer-DMO2mNGS.js": {
-    "file": "assets/birthday-countdown-timer-DMO2mNGS.js",
+  "_birthday-countdown-timer-w6e9Xm0c.js": {
+    "file": "assets/birthday-countdown-timer-w6e9Xm0c.js",
     "name": "birthday-countdown-timer",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
-      "_site-backgrounds-Bn1My4Hz.js"
+      "_site-backgrounds-QeE7exD8.js"
     ]
   },
   "_brand-mark-WAgKQScP.js": {
@@ -55,8 +55,8 @@
       "_utils-CQk6LZJn.js"
     ]
   },
-  "_card-canvas-Bld7QhJh.js": {
-    "file": "assets/card-canvas-Bld7QhJh.js",
+  "_card-canvas-U16_u5nk.js": {
+    "file": "assets/card-canvas-U16_u5nk.js",
     "name": "card-canvas",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -64,7 +64,7 @@
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
       "_esm-DAyru6m_.js",
-      "_editor-fields-BTUXEYIC.js"
+      "_editor-fields-BmYMhz3F.js"
     ]
   },
   "_checkbox-DJFK2mOK.js": {
@@ -134,23 +134,23 @@
     "file": "assets/cormorant-garamond-600-normal-Co1r35X9.woff2",
     "src": "_cormorant-garamond-600-normal-Co1r35X9.woff2"
   },
-  "_corporate-countdown-timer-BU6av4qJ.js": {
-    "file": "assets/corporate-countdown-timer-BU6av4qJ.js",
+  "_corporate-countdown-timer-9lGIr169.js": {
+    "file": "assets/corporate-countdown-timer-9lGIr169.js",
     "name": "corporate-countdown-timer",
     "imports": [
       "_react-DgBH5fgT.js",
-      "_site-backgrounds-Bn1My4Hz.js"
+      "_site-backgrounds-QeE7exD8.js"
     ]
   },
-  "_countdown-timer-zJ9j_mag.js": {
-    "file": "assets/countdown-timer-zJ9j_mag.js",
+  "_countdown-timer-DsWLUFjJ.js": {
+    "file": "assets/countdown-timer-DsWLUFjJ.js",
     "name": "countdown-timer",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
-      "_site-backgrounds-Bn1My4Hz.js"
+      "_site-backgrounds-QeE7exD8.js"
     ]
   },
   "_dialog-DeTkTlNT.js": {
@@ -229,8 +229,8 @@
     "file": "assets/document-scroll-lock-DzsuGyOC.js",
     "name": "document-scroll-lock"
   },
-  "_dropdown-menu-D7eI9OQh.js": {
-    "file": "assets/dropdown-menu-D7eI9OQh.js",
+  "_dropdown-menu-y7gRyj0Q.js": {
+    "file": "assets/dropdown-menu-y7gRyj0Q.js",
     "name": "dropdown-menu",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -245,14 +245,14 @@
       "_dist-DTIjjUyM.js"
     ]
   },
-  "_editor-fields-BTUXEYIC.js": {
-    "file": "assets/editor-fields-BTUXEYIC.js",
+  "_editor-fields-BmYMhz3F.js": {
+    "file": "assets/editor-fields-BmYMhz3F.js",
     "name": "editor-fields",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
-      "_select-C19WVMPy.js",
+      "_select-DRsuVQ4m.js",
       "_utils-CQk6LZJn.js",
       "_input-kZT-MWd1.js",
       "_checkbox-DJFK2mOK.js",
@@ -264,8 +264,8 @@
     "file": "assets/editor-fonts-D5VC7GW5.css",
     "src": "_editor-fonts-D5VC7GW5.css"
   },
-  "_editor-top-bar-3VGspabR.js": {
-    "file": "assets/editor-top-bar-3VGspabR.js",
+  "_editor-top-bar-BGlDvcUo.js": {
+    "file": "assets/editor-top-bar-BGlDvcUo.js",
     "name": "editor-top-bar",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -273,7 +273,7 @@
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
-      "_notifications-bell-Dxhk5FWb.js"
+      "_notifications-bell-BoaVjZ0l.js"
     ]
   },
   "_emoji-picker-gsovUDgk.js": {
@@ -319,8 +319,8 @@
     "file": "assets/fonts-BaKOv9fF.css",
     "src": "_fonts-BaKOv9fF.css"
   },
-  "_gallery-website-canvas-CP7u6WgX.js": {
-    "file": "assets/gallery-website-canvas-CP7u6WgX.js",
+  "_gallery-website-canvas-5_2APykb.js": {
+    "file": "assets/gallery-website-canvas-5_2APykb.js",
     "name": "gallery-website-canvas",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -448,13 +448,13 @@
       "_utils-CQk6LZJn.js"
     ]
   },
-  "_legal-page-CDkIkON6.js": {
-    "file": "assets/legal-page-CDkIkON6.js",
+  "_legal-page-CzYNby2j.js": {
+    "file": "assets/legal-page-CzYNby2j.js",
     "name": "legal-page",
     "imports": [
       "_inertia-B4ElqbyM.js",
       "_react-DgBH5fgT.js",
-      "_site-frame-C2MVwMym.js"
+      "_site-frame-DJP0krXI.js"
     ]
   },
   "_login-Bdgv9Vie.js": {
@@ -464,8 +464,8 @@
       "_wayfinder-Dp7PqxvV.js"
     ]
   },
-  "_marketing-header-DBjYo1Bt.js": {
-    "file": "assets/marketing-header-DBjYo1Bt.js",
+  "_marketing-header-CpGF0Ve8.js": {
+    "file": "assets/marketing-header-CpGF0Ve8.js",
     "name": "marketing-header",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -477,14 +477,14 @@
       "_button-DbVJBQ6a.js",
       "resources/js/app.tsx",
       "_sheet-BieTKCj5.js",
-      "_user-menu-content-C8xDzy2t.js",
-      "_dropdown-menu-D7eI9OQh.js",
-      "_theme-toggle-BTaX9gxp.js",
+      "_user-menu-content-tDwBCCYT.js",
+      "_dropdown-menu-y7gRyj0Q.js",
+      "_theme-toggle-CsTYzLzR.js",
       "_open-create-invitation-J6llYNOu.js"
     ]
   },
-  "_notifications-bell-Dxhk5FWb.js": {
-    "file": "assets/notifications-bell-Dxhk5FWb.js",
+  "_notifications-bell-BoaVjZ0l.js": {
+    "file": "assets/notifications-bell-BoaVjZ0l.js",
     "name": "notifications-bell",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -492,7 +492,7 @@
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
-      "_dropdown-menu-D7eI9OQh.js"
+      "_dropdown-menu-y7gRyj0Q.js"
     ]
   },
   "_occasion-icon-CZIVEf38.js": {
@@ -581,8 +581,8 @@
       "_utils-CQk6LZJn.js"
     ]
   },
-  "_preview-music-toggle-HsWxK1qg.js": {
-    "file": "assets/preview-music-toggle-HsWxK1qg.js",
+  "_preview-music-toggle-3bQIlIXv.js": {
+    "file": "assets/preview-music-toggle-3bQIlIXv.js",
     "name": "preview-music-toggle",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -592,13 +592,13 @@
       "_utils-CQk6LZJn.js",
       "_festive-page-loader-_E3fTUXD.js",
       "_document-scroll-lock-DzsuGyOC.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js",
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js",
       "_clipboard-zwCkkCoP.js",
       "_esm-DAyru6m_.js",
-      "_responsive-card-canvas-DspcaZoN.js",
+      "_responsive-card-canvas-qxmWlUtp.js",
       "_invitation-card-face-PvMekZxD.js",
-      "_site-header-nav-LomEcRH6.js"
+      "_site-header-nav-Q8BGvdeL.js"
     ]
   },
   "_publish-readiness-DMeHpqG1.js": {
@@ -633,15 +633,15 @@
       "_wayfinder-Dp7PqxvV.js"
     ]
   },
-  "_responsive-card-canvas-DspcaZoN.js": {
-    "file": "assets/responsive-card-canvas-DspcaZoN.js",
+  "_responsive-card-canvas-qxmWlUtp.js": {
+    "file": "assets/responsive-card-canvas-qxmWlUtp.js",
     "name": "responsive-card-canvas",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
-      "_card-canvas-Bld7QhJh.js"
+      "_card-canvas-U16_u5nk.js"
     ]
   },
   "_rolldown-runtime-hePW80VL.js": {
@@ -665,8 +665,8 @@
       "_wayfinder-Dp7PqxvV.js"
     ]
   },
-  "_select-C19WVMPy.js": {
-    "file": "assets/select-C19WVMPy.js",
+  "_select-DRsuVQ4m.js": {
+    "file": "assets/select-DRsuVQ4m.js",
     "name": "select",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -704,8 +704,8 @@
       "_dist-0cUwr7qD.js"
     ]
   },
-  "_site-backgrounds-Bn1My4Hz.js": {
-    "file": "assets/site-backgrounds-Bn1My4Hz.js",
+  "_site-backgrounds-QeE7exD8.js": {
+    "file": "assets/site-backgrounds-QeE7exD8.js",
     "name": "site-backgrounds",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -715,40 +715,40 @@
       "_utils-CQk6LZJn.js",
       "_document-scroll-lock-DzsuGyOC.js",
       "_preview-effects-DG1zmqiY.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
+      "_gallery-website-canvas-5_2APykb.js",
       "_clipboard-zwCkkCoP.js"
     ]
   },
-  "_site-footer-CFpjoqHS.js": {
-    "file": "assets/site-footer-CFpjoqHS.js",
+  "_site-footer-COqArTxe.js": {
+    "file": "assets/site-footer-COqArTxe.js",
     "name": "site-footer",
     "imports": [
       "_inertia-B4ElqbyM.js",
       "_react-DgBH5fgT.js",
       "_brand-mark-WAgKQScP.js",
-      "_user-menu-content-C8xDzy2t.js"
+      "_user-menu-content-tDwBCCYT.js"
     ]
   },
-  "_site-frame-C2MVwMym.js": {
-    "file": "assets/site-frame-C2MVwMym.js",
+  "_site-frame-DJP0krXI.js": {
+    "file": "assets/site-frame-DJP0krXI.js",
     "name": "site-frame",
     "imports": [
       "_inertia-B4ElqbyM.js",
       "_react-DgBH5fgT.js",
       "_brand-mark-WAgKQScP.js",
-      "_marketing-header-DBjYo1Bt.js"
+      "_marketing-header-CpGF0Ve8.js"
     ]
   },
-  "_site-header-nav-LomEcRH6.js": {
-    "file": "assets/site-header-nav-LomEcRH6.js",
+  "_site-header-nav-Q8BGvdeL.js": {
+    "file": "assets/site-header-nav-Q8BGvdeL.js",
     "name": "site-header-nav",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js"
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js"
     ]
   },
   "_site-publish-flow-Bv6-E4nI.js": {
@@ -781,8 +781,8 @@
       "_utils-CQk6LZJn.js"
     ]
   },
-  "_stays-from-accommodations-BWZ50yIX.js": {
-    "file": "assets/stays-from-accommodations-BWZ50yIX.js",
+  "_stays-from-accommodations-CWzjSqJa.js": {
+    "file": "assets/stays-from-accommodations-CWzjSqJa.js",
     "name": "stays-from-accommodations",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -791,15 +791,15 @@
       "_utils-CQk6LZJn.js",
       "_button-DbVJBQ6a.js",
       "_clipboard-zwCkkCoP.js",
-      "_editor-fields-BTUXEYIC.js"
+      "_editor-fields-BmYMhz3F.js"
     ]
   },
-  "_studio-filter-select-Cm6c7Bp5.js": {
-    "file": "assets/studio-filter-select-Cm6c7Bp5.js",
+  "_studio-filter-select-BS8RMcd9.js": {
+    "file": "assets/studio-filter-select-BS8RMcd9.js",
     "name": "studio-filter-select",
     "imports": [
       "_react-DgBH5fgT.js",
-      "_select-C19WVMPy.js",
+      "_select-DRsuVQ4m.js",
       "_utils-CQk6LZJn.js"
     ]
   },
@@ -830,8 +830,8 @@
       "_utils-CQk6LZJn.js"
     ]
   },
-  "_theme-toggle-BTaX9gxp.js": {
-    "file": "assets/theme-toggle-BTaX9gxp.js",
+  "_theme-toggle-CsTYzLzR.js": {
+    "file": "assets/theme-toggle-CsTYzLzR.js",
     "name": "theme-toggle",
     "imports": [
       "_icons-fCGKmRK3.js",
@@ -840,8 +840,8 @@
       "resources/js/app.tsx"
     ]
   },
-  "_use-gallery-favorites-DQjZz4VT.js": {
-    "file": "assets/use-gallery-favorites-DQjZz4VT.js",
+  "_use-gallery-favorites-IHdeh6Nf.js": {
+    "file": "assets/use-gallery-favorites-IHdeh6Nf.js",
     "name": "use-gallery-favorites",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -881,8 +881,8 @@
       "_wayfinder-Dp7PqxvV.js"
     ]
   },
-  "_user-menu-content-C8xDzy2t.js": {
-    "file": "assets/user-menu-content-C8xDzy2t.js",
+  "_user-menu-content-tDwBCCYT.js": {
+    "file": "assets/user-menu-content-tDwBCCYT.js",
     "name": "user-menu-content",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -898,7 +898,7 @@
       "_security-CZ5OeiXQ.js",
       "_routes-BOE9BwBG.js",
       "_use-initials-BaM9qqDa.js",
-      "_dropdown-menu-D7eI9OQh.js"
+      "_dropdown-menu-y7gRyj0Q.js"
     ]
   },
   "_utils-CQk6LZJn.js": {
@@ -916,8 +916,8 @@
     "file": "assets/wayfinder-Dp7PqxvV.js",
     "name": "wayfinder"
   },
-  "_wedding-experience-BDFkKQy1.js": {
-    "file": "assets/wedding-experience-BDFkKQy1.js",
+  "_wedding-experience-KPmYkYbL.js": {
+    "file": "assets/wedding-experience-KPmYkYbL.js",
     "name": "wedding-experience",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -925,15 +925,15 @@
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js",
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js",
       "_clipboard-zwCkkCoP.js",
-      "_countdown-timer-zJ9j_mag.js",
-      "_stays-from-accommodations-BWZ50yIX.js"
+      "_countdown-timer-DsWLUFjJ.js",
+      "_stays-from-accommodations-CWzjSqJa.js"
     ]
   },
-  "_wedding-site-view-D7_muWXn.js": {
-    "file": "assets/wedding-site-view-D7_muWXn.js",
+  "_wedding-site-view-Cac5nu7Q.js": {
+    "file": "assets/wedding-site-view-Cac5nu7Q.js",
     "name": "wedding-site-view",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
@@ -941,18 +941,18 @@
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js",
-      "_responsive-card-canvas-DspcaZoN.js",
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js",
+      "_responsive-card-canvas-qxmWlUtp.js",
       "_invitation-intro-D-zG9z5Z.js",
       "_invitation-intro-styles-Bw37Gpnz.js",
       "_platform-brand-badge-o1y_VUxg.js",
-      "_stays-from-accommodations-BWZ50yIX.js",
-      "_wedding-experience-BDFkKQy1.js"
+      "_stays-from-accommodations-CWzjSqJa.js",
+      "_wedding-experience-KPmYkYbL.js"
     ]
   },
   "resources/css/app.css": {
-    "file": "assets/app-B3bPMcSD.css",
+    "file": "assets/app-2z9KYAF2.css",
     "name": "app",
     "names": [
       "app.css"
@@ -961,7 +961,7 @@
     "isEntry": true
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-Bji0S7Ft.js",
+    "file": "assets/app-BP75dTYY.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -1062,7 +1062,7 @@
     ]
   },
   "resources/js/components/marketing/site-previews/baby-shower-website-preview.tsx": {
-    "file": "assets/baby-shower-website-preview-BHr9-9Wc.js",
+    "file": "assets/baby-shower-website-preview-DlT5gbl7.js",
     "name": "baby-shower-website-preview",
     "src": "resources/js/components/marketing/site-previews/baby-shower-website-preview.tsx",
     "isDynamicEntry": true,
@@ -1073,15 +1073,15 @@
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
       "_preview-effects-DG1zmqiY.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js",
-      "_preview-music-toggle-HsWxK1qg.js",
-      "_site-header-nav-LomEcRH6.js",
-      "_baby-shower-countdown-timer-Bi3aQSlF.js"
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js",
+      "_preview-music-toggle-3bQIlIXv.js",
+      "_site-header-nav-Q8BGvdeL.js",
+      "_baby-shower-countdown-timer-Cu6pbhrN.js"
     ]
   },
   "resources/js/components/marketing/site-previews/birthday-website-preview.tsx": {
-    "file": "assets/birthday-website-preview-CVEIy8N6.js",
+    "file": "assets/birthday-website-preview-CN4eJhnr.js",
     "name": "birthday-website-preview",
     "src": "resources/js/components/marketing/site-previews/birthday-website-preview.tsx",
     "isDynamicEntry": true,
@@ -1092,15 +1092,15 @@
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
       "_preview-effects-DG1zmqiY.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js",
-      "_preview-music-toggle-HsWxK1qg.js",
-      "_site-header-nav-LomEcRH6.js",
-      "_birthday-countdown-timer-DMO2mNGS.js"
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js",
+      "_preview-music-toggle-3bQIlIXv.js",
+      "_site-header-nav-Q8BGvdeL.js",
+      "_birthday-countdown-timer-w6e9Xm0c.js"
     ]
   },
   "resources/js/components/marketing/site-previews/bridal-shower-website-preview.tsx": {
-    "file": "assets/bridal-shower-website-preview-yngGhmEd.js",
+    "file": "assets/bridal-shower-website-preview-CYCXc4vF.js",
     "name": "bridal-shower-website-preview",
     "src": "resources/js/components/marketing/site-previews/bridal-shower-website-preview.tsx",
     "isDynamicEntry": true,
@@ -1111,14 +1111,14 @@
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
       "_preview-effects-DG1zmqiY.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js",
-      "_preview-music-toggle-HsWxK1qg.js",
-      "_site-header-nav-LomEcRH6.js"
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js",
+      "_preview-music-toggle-3bQIlIXv.js",
+      "_site-header-nav-Q8BGvdeL.js"
     ]
   },
   "resources/js/components/marketing/site-previews/corporate-website-preview.tsx": {
-    "file": "assets/corporate-website-preview-BeZVfk5r.js",
+    "file": "assets/corporate-website-preview-D1aviQHj.js",
     "name": "corporate-website-preview",
     "src": "resources/js/components/marketing/site-previews/corporate-website-preview.tsx",
     "isDynamicEntry": true,
@@ -1129,15 +1129,15 @@
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
       "_preview-effects-DG1zmqiY.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js",
-      "_preview-music-toggle-HsWxK1qg.js",
-      "_site-header-nav-LomEcRH6.js",
-      "_corporate-countdown-timer-BU6av4qJ.js"
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js",
+      "_preview-music-toggle-3bQIlIXv.js",
+      "_site-header-nav-Q8BGvdeL.js",
+      "_corporate-countdown-timer-9lGIr169.js"
     ]
   },
   "resources/js/components/marketing/site-previews/custom-website-preview.tsx": {
-    "file": "assets/custom-website-preview-BEYF4mL4.js",
+    "file": "assets/custom-website-preview-CcpjvHY0.js",
     "name": "custom-website-preview",
     "src": "resources/js/components/marketing/site-previews/custom-website-preview.tsx",
     "isDynamicEntry": true,
@@ -1148,14 +1148,14 @@
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
       "_preview-effects-DG1zmqiY.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js",
-      "_preview-music-toggle-HsWxK1qg.js",
-      "_site-header-nav-LomEcRH6.js"
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js",
+      "_preview-music-toggle-3bQIlIXv.js",
+      "_site-header-nav-Q8BGvdeL.js"
     ]
   },
   "resources/js/components/marketing/site-previews/graduation-website-preview.tsx": {
-    "file": "assets/graduation-website-preview-CAsszXp_.js",
+    "file": "assets/graduation-website-preview-CRFxxH9g.js",
     "name": "graduation-website-preview",
     "src": "resources/js/components/marketing/site-previews/graduation-website-preview.tsx",
     "isDynamicEntry": true,
@@ -1166,14 +1166,14 @@
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
       "_preview-effects-DG1zmqiY.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js",
-      "_preview-music-toggle-HsWxK1qg.js",
-      "_site-header-nav-LomEcRH6.js"
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js",
+      "_preview-music-toggle-3bQIlIXv.js",
+      "_site-header-nav-Q8BGvdeL.js"
     ]
   },
   "resources/js/components/marketing/site-previews/housewarming-website-preview.tsx": {
-    "file": "assets/housewarming-website-preview-B2fmv8pi.js",
+    "file": "assets/housewarming-website-preview-BGRQoEoR.js",
     "name": "housewarming-website-preview",
     "src": "resources/js/components/marketing/site-previews/housewarming-website-preview.tsx",
     "isDynamicEntry": true,
@@ -1184,14 +1184,14 @@
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
       "_preview-effects-DG1zmqiY.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js",
-      "_preview-music-toggle-HsWxK1qg.js",
-      "_site-header-nav-LomEcRH6.js"
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js",
+      "_preview-music-toggle-3bQIlIXv.js",
+      "_site-header-nav-Q8BGvdeL.js"
     ]
   },
   "resources/js/components/marketing/site-previews/party-website-preview.tsx": {
-    "file": "assets/party-website-preview-DFqIhYEx.js",
+    "file": "assets/party-website-preview-BhgBYrUZ.js",
     "name": "party-website-preview",
     "src": "resources/js/components/marketing/site-previews/party-website-preview.tsx",
     "isDynamicEntry": true,
@@ -1202,14 +1202,14 @@
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
       "_preview-effects-DG1zmqiY.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js",
-      "_preview-music-toggle-HsWxK1qg.js",
-      "_site-header-nav-LomEcRH6.js"
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js",
+      "_preview-music-toggle-3bQIlIXv.js",
+      "_site-header-nav-Q8BGvdeL.js"
     ]
   },
   "resources/js/components/marketing/site-previews/wedding-website-preview.tsx": {
-    "file": "assets/wedding-website-preview-VlgkJTOr.js",
+    "file": "assets/wedding-website-preview-GRLBj-OR.js",
     "name": "wedding-website-preview",
     "src": "resources/js/components/marketing/site-previews/wedding-website-preview.tsx",
     "isDynamicEntry": true,
@@ -1220,11 +1220,11 @@
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
       "_preview-effects-DG1zmqiY.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js",
-      "_preview-music-toggle-HsWxK1qg.js",
-      "_site-header-nav-LomEcRH6.js",
-      "_countdown-timer-zJ9j_mag.js"
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js",
+      "_preview-music-toggle-3bQIlIXv.js",
+      "_site-header-nav-Q8BGvdeL.js",
+      "_countdown-timer-DsWLUFjJ.js"
     ]
   },
   "resources/js/layouts/admin-auth-layout.tsx": {
@@ -1256,7 +1256,7 @@
     ]
   },
   "resources/js/layouts/app-layout.tsx": {
-    "file": "assets/app-layout-DzeGm64H.js",
+    "file": "assets/app-layout-W58g93mV.js",
     "name": "app-layout",
     "src": "resources/js/layouts/app-layout.tsx",
     "isDynamicEntry": true,
@@ -1272,14 +1272,14 @@
       "_use-inertia-navigating-B0FjRiuA.js",
       "resources/js/app.tsx",
       "_sheet-BieTKCj5.js",
-      "_user-menu-content-C8xDzy2t.js",
-      "_dropdown-menu-D7eI9OQh.js",
-      "_notifications-bell-Dxhk5FWb.js",
-      "_theme-toggle-BTaX9gxp.js"
+      "_user-menu-content-tDwBCCYT.js",
+      "_dropdown-menu-y7gRyj0Q.js",
+      "_notifications-bell-BoaVjZ0l.js",
+      "_theme-toggle-CsTYzLzR.js"
     ]
   },
   "resources/js/layouts/auth-layout.tsx": {
-    "file": "assets/auth-layout-CKEd6_3j.js",
+    "file": "assets/auth-layout-Cblme3aU.js",
     "name": "auth-layout",
     "src": "resources/js/layouts/auth-layout.tsx",
     "isDynamicEntry": true,
@@ -1290,7 +1290,7 @@
       "_brand-mark-WAgKQScP.js",
       "_use-inertia-navigating-B0FjRiuA.js",
       "_routes-BOE9BwBG.js",
-      "_theme-toggle-BTaX9gxp.js"
+      "_theme-toggle-CsTYzLzR.js"
     ]
   },
   "resources/js/layouts/settings/layout.tsx": {
@@ -1696,15 +1696,15 @@
     ]
   },
   "resources/js/pages/coupons/index.tsx": {
-    "file": "assets/coupons-BN7D3ePi.js",
+    "file": "assets/coupons-Y_8zKAvo.js",
     "name": "coupons",
     "src": "resources/js/pages/coupons/index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_inertia-B4ElqbyM.js",
       "_react-DgBH5fgT.js",
-      "_marketing-header-DBjYo1Bt.js",
-      "_site-frame-C2MVwMym.js"
+      "_marketing-header-CpGF0Ve8.js",
+      "_site-frame-DJP0krXI.js"
     ]
   },
   "resources/js/pages/dashboard.tsx": {
@@ -1723,7 +1723,7 @@
     ]
   },
   "resources/js/pages/errors/show.tsx": {
-    "file": "assets/show-DSguQ41X.js",
+    "file": "assets/show-DhsgLm8l.js",
     "name": "show",
     "src": "resources/js/pages/errors/show.tsx",
     "isDynamicEntry": true,
@@ -1732,11 +1732,11 @@
       "_inertia-B4ElqbyM.js",
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
-      "_theme-toggle-BTaX9gxp.js"
+      "_theme-toggle-CsTYzLzR.js"
     ]
   },
   "resources/js/pages/events/card.tsx": {
-    "file": "assets/card-BdvIUZlD.js",
+    "file": "assets/card-Ci1loc0p.js",
     "name": "card",
     "src": "resources/js/pages/events/card.tsx",
     "isDynamicEntry": true,
@@ -1750,9 +1750,9 @@
       "_dialog-DeTkTlNT.js",
       "_document-scroll-lock-DzsuGyOC.js",
       "resources/js/app.tsx",
-      "_card-canvas-Bld7QhJh.js",
-      "_editor-fields-BTUXEYIC.js",
-      "_editor-top-bar-3VGspabR.js",
+      "_card-canvas-U16_u5nk.js",
+      "_editor-fields-BmYMhz3F.js",
+      "_editor-top-bar-BGlDvcUo.js",
       "_confirm-dialog-BYOD7vHs.js"
     ],
     "css": [
@@ -1760,62 +1760,62 @@
     ]
   },
   "resources/js/pages/legal/cancellation.tsx": {
-    "file": "assets/cancellation-BrCBA5jx.js",
+    "file": "assets/cancellation-BvJaWotg.js",
     "name": "cancellation",
     "src": "resources/js/pages/legal/cancellation.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_react-DgBH5fgT.js",
-      "_marketing-header-DBjYo1Bt.js",
-      "_legal-page-CDkIkON6.js"
+      "_marketing-header-CpGF0Ve8.js",
+      "_legal-page-CzYNby2j.js"
     ]
   },
   "resources/js/pages/legal/cookies.tsx": {
-    "file": "assets/cookies-Bs-z-Ey-.js",
+    "file": "assets/cookies-CJO1ZiBh.js",
     "name": "cookies",
     "src": "resources/js/pages/legal/cookies.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_react-DgBH5fgT.js",
-      "_marketing-header-DBjYo1Bt.js",
-      "_legal-page-CDkIkON6.js"
+      "_marketing-header-CpGF0Ve8.js",
+      "_legal-page-CzYNby2j.js"
     ]
   },
   "resources/js/pages/legal/privacy.tsx": {
-    "file": "assets/privacy-C-ztS1ZC.js",
+    "file": "assets/privacy-CrpEDHky.js",
     "name": "privacy",
     "src": "resources/js/pages/legal/privacy.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_react-DgBH5fgT.js",
-      "_marketing-header-DBjYo1Bt.js",
-      "_legal-page-CDkIkON6.js"
+      "_marketing-header-CpGF0Ve8.js",
+      "_legal-page-CzYNby2j.js"
     ]
   },
   "resources/js/pages/legal/refund.tsx": {
-    "file": "assets/refund-BJl0xViC.js",
+    "file": "assets/refund-rN2nA3Se.js",
     "name": "refund",
     "src": "resources/js/pages/legal/refund.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_react-DgBH5fgT.js",
-      "_marketing-header-DBjYo1Bt.js",
-      "_legal-page-CDkIkON6.js"
+      "_marketing-header-CpGF0Ve8.js",
+      "_legal-page-CzYNby2j.js"
     ]
   },
   "resources/js/pages/legal/terms.tsx": {
-    "file": "assets/terms-BrneAfXU.js",
+    "file": "assets/terms-D2SRWTke.js",
     "name": "terms",
     "src": "resources/js/pages/legal/terms.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_react-DgBH5fgT.js",
-      "_marketing-header-DBjYo1Bt.js",
-      "_legal-page-CDkIkON6.js"
+      "_marketing-header-CpGF0Ve8.js",
+      "_legal-page-CzYNby2j.js"
     ]
   },
   "resources/js/pages/marketing/designs.tsx": {
-    "file": "assets/designs-ClMgLmpV.js",
+    "file": "assets/designs-DH_szI_D.js",
     "name": "designs",
     "src": "resources/js/pages/marketing/designs.tsx",
     "isDynamicEntry": true,
@@ -1824,14 +1824,14 @@
       "_inertia-B4ElqbyM.js",
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
-      "_marketing-header-DBjYo1Bt.js",
-      "_use-gallery-favorites-DQjZz4VT.js",
+      "_marketing-header-CpGF0Ve8.js",
+      "_use-gallery-favorites-IHdeh6Nf.js",
       "_occasion-icon-CZIVEf38.js",
-      "_site-footer-CFpjoqHS.js"
+      "_site-footer-COqArTxe.js"
     ]
   },
   "resources/js/pages/marketing/event-gallery.tsx": {
-    "file": "assets/event-gallery-DZX7bFLb.js",
+    "file": "assets/event-gallery-DXOwAQ4u.js",
     "name": "event-gallery",
     "src": "resources/js/pages/marketing/event-gallery.tsx",
     "isDynamicEntry": true,
@@ -1847,18 +1847,18 @@
       "_invitation-card-face-PvMekZxD.js",
       "_invitation-intro-D-zG9z5Z.js",
       "_invitation-intro-theme-Ca_KOP8S.js",
-      "_marketing-header-DBjYo1Bt.js",
-      "_use-gallery-favorites-DQjZz4VT.js",
+      "_marketing-header-CpGF0Ve8.js",
+      "_use-gallery-favorites-IHdeh6Nf.js",
       "_occasion-icon-CZIVEf38.js",
-      "_site-footer-CFpjoqHS.js",
+      "_site-footer-COqArTxe.js",
       "_preview-device-shell-yCtXIfoZ.js"
     ],
     "dynamicImports": [
-      "_gallery-website-canvas-CP7u6WgX.js"
+      "_gallery-website-canvas-5_2APykb.js"
     ]
   },
   "resources/js/pages/marketing/wedding-formats.tsx": {
-    "file": "assets/wedding-formats-DGKvBIt8.js",
+    "file": "assets/wedding-formats-DjLzdP1K.js",
     "name": "wedding-formats",
     "src": "resources/js/pages/marketing/wedding-formats.tsx",
     "isDynamicEntry": true,
@@ -1868,8 +1868,8 @@
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
       "_routes-BOE9BwBG.js",
-      "_marketing-header-DBjYo1Bt.js",
-      "_site-footer-CFpjoqHS.js"
+      "_marketing-header-CpGF0Ve8.js",
+      "_site-footer-COqArTxe.js"
     ]
   },
   "resources/js/pages/notifications/index.tsx": {
@@ -1887,14 +1887,14 @@
     ]
   },
   "resources/js/pages/public/card.tsx": {
-    "file": "assets/card-C0f-D-Bk.js",
+    "file": "assets/card-Cvn-bZ88.js",
     "name": "card",
     "src": "resources/js/pages/public/card.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_inertia-B4ElqbyM.js",
       "_react-DgBH5fgT.js",
-      "_responsive-card-canvas-DspcaZoN.js",
+      "_responsive-card-canvas-qxmWlUtp.js",
       "_invitation-intro-D-zG9z5Z.js",
       "_invitation-intro-styles-Bw37Gpnz.js",
       "_platform-brand-badge-o1y_VUxg.js"
@@ -1940,7 +1940,7 @@
     ]
   },
   "resources/js/pages/public/wedding.tsx": {
-    "file": "assets/wedding-DwdJ6q2E.js",
+    "file": "assets/wedding-SK1C0B-5.js",
     "name": "wedding",
     "src": "resources/js/pages/public/wedding.tsx",
     "isDynamicEntry": true,
@@ -1950,11 +1950,11 @@
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
       "_button-DbVJBQ6a.js",
-      "_wedding-site-view-D7_muWXn.js"
+      "_wedding-site-view-Cac5nu7Q.js"
     ]
   },
   "resources/js/pages/seo/landing.tsx": {
-    "file": "assets/landing-BwaI8yok.js",
+    "file": "assets/landing-UpjmtWZP.js",
     "name": "landing",
     "src": "resources/js/pages/seo/landing.tsx",
     "isDynamicEntry": true,
@@ -1962,12 +1962,12 @@
       "_inertia-B4ElqbyM.js",
       "_react-DgBH5fgT.js",
       "_routes-BOE9BwBG.js",
-      "_marketing-header-DBjYo1Bt.js",
-      "_site-frame-C2MVwMym.js"
+      "_marketing-header-CpGF0Ve8.js",
+      "_site-frame-DJP0krXI.js"
     ]
   },
   "resources/js/pages/settings/appearance.tsx": {
-    "file": "assets/appearance-D_oDsjS2.js",
+    "file": "assets/appearance-CM88qEBl.js",
     "name": "appearance",
     "src": "resources/js/pages/settings/appearance.tsx",
     "isDynamicEntry": true,
@@ -2046,7 +2046,7 @@
     ]
   },
   "resources/js/pages/settings/security.tsx": {
-    "file": "assets/security-ufe8WlHm.js",
+    "file": "assets/security-B9Wht6Gx.js",
     "name": "security",
     "src": "resources/js/pages/settings/security.tsx",
     "isDynamicEntry": true,
@@ -2072,7 +2072,7 @@
     ]
   },
   "resources/js/pages/studio/analytics.tsx": {
-    "file": "assets/analytics-BbPb22nu.js",
+    "file": "assets/analytics-CNHPxU-J.js",
     "name": "analytics",
     "src": "resources/js/pages/studio/analytics.tsx",
     "isDynamicEntry": true,
@@ -2083,11 +2083,11 @@
       "_react-DgBH5fgT.js",
       "_utils-CQk6LZJn.js",
       "_studio-surface-D35Ynl2o.js",
-      "_studio-filter-select-Cm6c7Bp5.js"
+      "_studio-filter-select-BS8RMcd9.js"
     ]
   },
   "resources/js/pages/studio/guests.tsx": {
-    "file": "assets/guests-BvahWpMy.js",
+    "file": "assets/guests-BlyZHD75.js",
     "name": "guests",
     "src": "resources/js/pages/studio/guests.tsx",
     "isDynamicEntry": true,
@@ -2101,11 +2101,11 @@
       "_clipboard-zwCkkCoP.js",
       "_studio-surface-D35Ynl2o.js",
       "_open-create-invitation-J6llYNOu.js",
-      "_studio-filter-select-Cm6c7Bp5.js"
+      "_studio-filter-select-BS8RMcd9.js"
     ]
   },
   "resources/js/pages/support.tsx": {
-    "file": "assets/support-CRPXAAoF.js",
+    "file": "assets/support-Pcs39n4j.js",
     "name": "support",
     "src": "resources/js/pages/support.tsx",
     "isDynamicEntry": true,
@@ -2120,8 +2120,8 @@
       "_button-DbVJBQ6a.js",
       "_label-cwZIbZ6e.js",
       "_textarea-C0QYJPRM.js",
-      "_marketing-header-DBjYo1Bt.js",
-      "_site-footer-CFpjoqHS.js"
+      "_marketing-header-CpGF0Ve8.js",
+      "_site-footer-COqArTxe.js"
     ]
   },
   "resources/js/pages/weddings/billing.tsx": {
@@ -2144,7 +2144,7 @@
     ]
   },
   "resources/js/pages/weddings/edit.tsx": {
-    "file": "assets/edit-CLElpEVS.js",
+    "file": "assets/edit-CE0xupii.js",
     "name": "edit",
     "src": "resources/js/pages/weddings/edit.tsx",
     "isDynamicEntry": true,
@@ -2157,29 +2157,29 @@
       "_button-DbVJBQ6a.js",
       "_dialog-DeTkTlNT.js",
       "_document-scroll-lock-DzsuGyOC.js",
-      "_gallery-website-canvas-CP7u6WgX.js",
-      "_site-backgrounds-Bn1My4Hz.js",
+      "_gallery-website-canvas-5_2APykb.js",
+      "_site-backgrounds-QeE7exD8.js",
       "_clipboard-zwCkkCoP.js",
       "_esm-DAyru6m_.js",
-      "_card-canvas-Bld7QhJh.js",
-      "_editor-fields-BTUXEYIC.js",
-      "_site-header-nav-LomEcRH6.js",
-      "_baby-shower-countdown-timer-Bi3aQSlF.js",
-      "_birthday-countdown-timer-DMO2mNGS.js",
-      "_corporate-countdown-timer-BU6av4qJ.js",
-      "_countdown-timer-zJ9j_mag.js",
+      "_card-canvas-U16_u5nk.js",
+      "_editor-fields-BmYMhz3F.js",
+      "_site-header-nav-Q8BGvdeL.js",
+      "_baby-shower-countdown-timer-Cu6pbhrN.js",
+      "_birthday-countdown-timer-w6e9Xm0c.js",
+      "_corporate-countdown-timer-9lGIr169.js",
+      "_countdown-timer-DsWLUFjJ.js",
       "_invitation-intro-D-zG9z5Z.js",
       "_invitation-intro-styles-Bw37Gpnz.js",
-      "_editor-top-bar-3VGspabR.js",
+      "_editor-top-bar-BGlDvcUo.js",
       "_confirm-dialog-BYOD7vHs.js",
-      "_stays-from-accommodations-BWZ50yIX.js",
-      "_wedding-experience-BDFkKQy1.js",
+      "_stays-from-accommodations-CWzjSqJa.js",
+      "_wedding-experience-KPmYkYbL.js",
       "_emoji-picker-gsovUDgk.js",
       "_publish-readiness-DMeHpqG1.js"
     ]
   },
   "resources/js/pages/weddings/index.tsx": {
-    "file": "assets/weddings-D37Qi0dn.js",
+    "file": "assets/weddings-C3of-R_N.js",
     "name": "weddings",
     "src": "resources/js/pages/weddings/index.tsx",
     "isDynamicEntry": true,
@@ -2193,11 +2193,11 @@
       "_dialog-DeTkTlNT.js",
       "_studio-surface-D35Ynl2o.js",
       "_open-create-invitation-J6llYNOu.js",
-      "_studio-filter-select-Cm6c7Bp5.js"
+      "_studio-filter-select-BS8RMcd9.js"
     ]
   },
   "resources/js/pages/weddings/preview.tsx": {
-    "file": "assets/preview-DVjIJzRr.js",
+    "file": "assets/preview-DRWOqc2C.js",
     "name": "preview",
     "src": "resources/js/pages/weddings/preview.tsx",
     "isDynamicEntry": true,
@@ -2207,15 +2207,15 @@
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
       "_preview-effects-DG1zmqiY.js",
-      "_card-canvas-Bld7QhJh.js",
+      "_card-canvas-U16_u5nk.js",
       "_confirm-dialog-BYOD7vHs.js",
       "_preview-device-shell-yCtXIfoZ.js",
-      "_wedding-site-view-D7_muWXn.js",
+      "_wedding-site-view-Cac5nu7Q.js",
       "_site-publish-flow-Bv6-E4nI.js"
     ]
   },
   "resources/js/pages/weddings/show.tsx": {
-    "file": "assets/show-C2mBZWhz.js",
+    "file": "assets/show-BeQqfGjJ.js",
     "name": "show",
     "src": "resources/js/pages/weddings/show.tsx",
     "isDynamicEntry": true,
@@ -2224,24 +2224,24 @@
       "_inertia-B4ElqbyM.js",
       "_icons-fCGKmRK3.js",
       "_react-DgBH5fgT.js",
-      "_select-C19WVMPy.js",
+      "_select-DRsuVQ4m.js",
       "_utils-CQk6LZJn.js",
       "_input-kZT-MWd1.js",
       "_button-DbVJBQ6a.js",
       "_dialog-DeTkTlNT.js",
       "_clipboard-zwCkkCoP.js",
       "_esm-DAyru6m_.js",
-      "_dropdown-menu-D7eI9OQh.js",
+      "_dropdown-menu-y7gRyj0Q.js",
       "_confirm-dialog-BYOD7vHs.js",
-      "_stays-from-accommodations-BWZ50yIX.js",
-      "_studio-filter-select-Cm6c7Bp5.js",
+      "_stays-from-accommodations-CWzjSqJa.js",
+      "_studio-filter-select-BS8RMcd9.js",
       "_share-message-templates-panel-CY78WK0M.js",
       "_publish-readiness-DMeHpqG1.js",
       "_site-publish-flow-Bv6-E4nI.js"
     ]
   },
   "resources/js/pages/welcome.tsx": {
-    "file": "assets/welcome-aDKX13tU.js",
+    "file": "assets/welcome-DcZ04fjd.js",
     "name": "welcome",
     "src": "resources/js/pages/welcome.tsx",
     "isDynamicEntry": true,
@@ -2256,14 +2256,14 @@
       "resources/js/app.tsx",
       "_preview-effects-DG1zmqiY.js",
       "_invitation-card-face-PvMekZxD.js",
-      "_user-menu-content-C8xDzy2t.js",
+      "_user-menu-content-tDwBCCYT.js",
       "_routes-BOE9BwBG.js",
-      "_marketing-header-DBjYo1Bt.js",
+      "_marketing-header-CpGF0Ve8.js",
       "_occasion-icon-CZIVEf38.js",
-      "_site-footer-CFpjoqHS.js"
+      "_site-footer-COqArTxe.js"
     ],
     "dynamicImports": [
-      "_gallery-website-canvas-CP7u6WgX.js"
+      "_gallery-website-canvas-5_2APykb.js"
     ]
   }
 }
